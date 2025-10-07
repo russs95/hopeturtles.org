@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Mulish', sans-serif;
+  transition: background 0.3s, color 0.3s;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 2rem;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+select, button {
+  background: transparent;
+  border: 1px solid grey;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+main {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  background: var(--card-bg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  font-weight: 300;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+pre {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+/* Dark mode colors */
+body.dark-mode {
+  --bg: #1b1b1b;
+  --text: #d9d9d9;
+  --accent: #57b0d9;
+  --border: #444;
+  --card-bg: #232323;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Light mode colors */
+body.light-mode {
+  --bg: #e8e8e8;
+  --text: #333;
+  --accent: #2a6bc5;
+  --border: #bbb;
+  --card-bg: #f5f5f5;
+  background: var(--bg);
+  color: var(--text);
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+}
