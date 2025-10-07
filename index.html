@@ -1,29 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Hello world!</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      html,body{height:100%;margin:0;font-family:ui-monospace,Consolas,Monaco,monospace;background:#0b0b0b;color:#e6e6e6}
-      .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:2rem}
-      pre{line-height:1.15;white-space:pre; font-size:16px}
-      .card{padding:2rem 2.5rem;border:1px solid #333;border-radius:16px;background:#111;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-      h1{margin:0 0 1rem 0;font-weight:700;font-size:28px}
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="card">
-        <h1>Hello world!</h1>
-        <pre>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World | HopeTurtles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+  <header>
+    <div class="controls">
+      <select id="language-selector" title="Select Language">
+        <option value="en">EN</option>
+        <option value="ar">AR</option>
+        <option value="fr">FR</option>
+        <option value="de">DE</option>
+        <option value="he">HE</option>
+        <option value="ms">MS</option>
+        <option value="id">ID</option>
+        <option value="zh">ZH</option>
+      </select>
+
+      <button id="mode-toggle" title="Toggle dark/light mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h1 id="hello-text">Hello world!</h1>
+      <pre>
       ___________    _____
   /               \ |  o  | 
  |                |/   __\| 
  |  _______________  /     
    |_|_|     |_|_|
-        </pre>
-      </div>
+      </pre>
     </div>
-  </body>
+  </main>
+
+  <footer>
+    <div id="wcb" class="carbonbadge wcb-d"></div>
+    <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
 </html>
