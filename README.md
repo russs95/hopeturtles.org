@@ -30,8 +30,6 @@ The web app enables:
 | Deployment | Ubuntu VPS (NodeJS 22-LTS) |
 
 ---
-
-## 📂 Repository Structure
 ---
 
 ## 📂 Repository Structure
@@ -57,5 +55,17 @@ hopeturtles.org/
 ├── .env.example
 └── README.md
 
+
+---
+
+## 🔐 Environment Setup
+
+1. Rename `.env.example` to `.env`
+2. Edit values to match your local or VPS configuration:
+   ```bash
+   DB_HOST=103.185.52.69
+   DB_USER=silabumi
+   DB_PASS=mayLove&LightFlow_human2human_across|borders
+   DB_NAME=hopeturtle_db
 
 
