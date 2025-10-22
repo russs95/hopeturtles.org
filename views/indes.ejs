@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hope Turtles | Regenerative Aid Across Oceans</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/img/favicon.ico" />
+</head>
+
+<body class="bg-gradient-to-b from-sky-100 to-sky-300 font-sans text-slate-800">
+
+  <!-- 🌊 Header -->
+  <header class="text-center py-10">
+    <img src="/logo/hopeturtle-logo.png" alt="Hope Turtle Logo" class="mx-auto w-24 mb-4" />
+    <h1 class="text-4xl font-bold tracking-tight">Hope Turtles</h1>
+    <p class="text-lg text-sky-700 italic">May love and light flow human to human, across borders.</p>
+  </header>
+
+  <!-- 🐢 Intro Section -->
+  <section class="max-w-3xl mx-auto text-center px-4 py-10">
+    <h2 class="text-2xl font-semibold mb-4">Regenerative Aid Across Oceans</h2>
+    <p class="text-lg leading-relaxed">
+      Hope Turtles are autonomous, bamboo-based marine drones that carry aid-filled bottles
+      across ocean currents. Each turtle is trackable in real-time and part of a
+      global mission to demonstrate regenerative, human-to-human solidarity.
+    </p>
+  </section>
+
+  <!-- 📊 Live Stats Placeholder -->
+  <section id="stats" class="max-w-4xl mx-auto text-center py-8">
+    <div class="grid grid-cols-3 gap-4 text-sky-800">
+      <div>
+        <h3 class="text-4xl font-bold"><%= stats.turtles || 0 %></h3>
+        <p class="text-sm uppercase tracking-wide">Turtles Deployed</p>
+      </div>
+      <div>
+        <h3 class="text-4xl font-bold"><%= stats.missions || 0 %></h3>
+        <p class="text-sm uppercase tracking-wide">Missions Active</p>
+      </div>
+      <div>
+        <h3 class="text-4xl font-bold"><%= stats.success || 0 %></h3>
+        <p class="text-sm uppercase tracking-wide">Arrivals Logged</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🌐 Navigation Links -->
+  <nav class="flex justify-center gap-6 py-8 text-sky-700">
+    <a href="/turtles" class="hover:underline">Track Turtles</a>
+    <a href="/missions" class="hover:underline">Missions</a>
+    <a href="/success" class="hover:underline">Success Stories</a>
+    <a href="/about" class="hover:underline">About</a>
+  </nav>
+
+  <!-- 💙 Footer -->
+  <footer class="text-center text-sm text-slate-600 py-6">
+    <p>© <%= new Date().getFullYear() %> HopeTurtles.org | Built with 🌿 regenerative code</p>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
