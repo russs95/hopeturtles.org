@@ -32,4 +32,30 @@ The web app enables:
 ---
 
 ## 📂 Repository Structure
+---
+
+## 📂 Repository Structure
+
+hopeturtles.org/
+├── server.js
+├── config/
+│ ├── db.js
+│ └── env.js
+├── routes/
+│ ├── api/
+│ └── pages/
+├── public/
+│ ├── css/
+│ ├── js/
+│ ├── img/
+│ └── logo/
+├── views/
+│ ├── index.ejs
+│ ├── turtles.ejs
+│ └── missions.ejs
+├── hopeturtle_schema_v1.1.sql
+├── .env.example
+└── README.md
+
+
 
