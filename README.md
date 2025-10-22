@@ -67,5 +67,3 @@ hopeturtles.org/
    DB_USER=silabumi
    DB_PASS=mayLove&LightFlow_human2human_across|borders
    DB_NAME=hopeturtle_db
-
-
