@@ -34,3 +34,12 @@ export const config = {
 };
 
 console.log(`🌍 Environment loaded: ${config.node_env}`);
+
+export const config = {
+  // ...existing vars
+  default_theme: process.env.DEFAULT_THEME || 'light',
+  supported_themes: (process.env.SUPPORTED_THEMES || 'light,dark').split(','),
+  default_lang: process.env.DEFAULT_LANG || 'en',
+  supported_langs: (process.env.SUPPORTED_LANGS || 'en').split(',')
+};
+
