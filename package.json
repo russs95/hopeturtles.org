@@ -1,0 +1,44 @@
+{
+  "name": "hopeturtles",
+  "version": "1.0.0",
+  "description": "The Hope Turtle Project – a Node.js and MySQL platform for tracking regenerative aid missions across the sea.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "hopeturtles",
+    "aid",
+    "regenerative",
+    "marine",
+    "ecobricks",
+    "buwana",
+    "nodejs",
+    "mysql"
+  ],
+  "author": "Vision Ecobricks / Russell Maier",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "socket.io": "^4.7.5",
+    "tailwindcss": "^3.4.3",
+    "cors": "^2.8.5",
+    "axios": "^1.6.8",
+    "express-session": "^1.17.3",
+    "connect-session-sequelize": "^7.1.3",
+    "sequelize": "^6.37.0",
+    "morgan": "^1.10.0",
+    "helmet": "^7.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "eslint": "^9.3.0",
+    "prettier": "^3.3.3"
+  }
+}
