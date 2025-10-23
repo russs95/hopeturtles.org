@@ -4,5 +4,20 @@
   "mission": "Hope Turtles are solar-assisted, bamboo-bodied drift craft that ferry regenerative aid across currents while broadcasting transparent telemetry to coastal stewards.",
   "about": "Every turtle bottles community care, geolocates along humanitarian drift corridors, and feeds open dashboards that coordinate relief without borders.",
   "join": "Join the flotilla",
-  "contact": "Contact the makers"
+  "contact": "Contact the makers",
+  "nav_mission": "Mission",
+  "nav_tracking": "Tracking",
+  "nav_contact": "Contact",
+  "hero_title": "Hope Turtles: Deliveries of Regeneration",
+  "hero_blurb": "Autonomous floating companions riding ocean currents to deliver regenerative aid and track our shared impact.",
+  "explore_missions": "Explore Missions",
+  "view_success": "Celebrate Success",
+  "metric_missions": "Missions",
+  "metric_turtles": "Hope Turtles",
+  "metric_success": "Successful Landfalls",
+  "preview_missions": "Active Missions",
+  "preview_missions_copy": "Mapping the journeys of each Hope Turtle as they drift toward communities in need.",
+  "preview_success": "Recent Landfalls",
+  "preview_success_copy": "Moments of gratitude when Hope Turtles deliver their packages.",
+  "submit_success": "Submit a success story"
 }

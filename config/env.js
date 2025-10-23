@@ -1,56 +1,57 @@
-/**
- * config/env.js
- * Hope Turtle Environment Validator
- * ---------------------------------
- * Loads and validates essential environment variables for safe startup.
- */
-
 import dotenv from 'dotenv';
 
-// Load .env variables
 dotenv.config();
 
-// Validate critical environment variables
-const required = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME', 'PORT'];
-for (const variable of required) {
+const requiredVariables = [
+  'DB_HOST',
+  'DB_USER',
+  'DB_PASS',
+  'DB_NAME',
+  'SESSION_SECRET',
+  'BUWANA_CLIENT_ID',
+  'BUWANA_PUBLIC_KEY',
+  'BUWANA_API_URL'
+];
+
+for (const variable of requiredVariables) {
   if (!process.env[variable]) {
-    console.error(`❌ Missing required environment variable: ${variable}`);
-    process.exit(1);
+    console.warn(`⚠️  Missing recommended environment variable: ${variable}`);
   }
 }
 
 export const config = {
-  // 🌍 Environment
-  node_env: process.env.NODE_ENV || 'development',
-  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development',
+  port: Number(process.env.PORT || 3000),
   host: process.env.HOST || '0.0.0.0',
-
-  // 🗄️ Database
-  db_host: process.env.DB_HOST,
-  db_user: process.env.DB_USER,
-  db_pass: process.env.DB_PASS,
-  db_name: process.env.DB_NAME,
-
-  // 🔐 Security
-  jwt_secret: process.env.JWT_SECRET || 'changeme',
-  session_secret: process.env.SESSION_SECRET || 'changeme',
-
-  // 🧭 Integrations
-  buwana_api: process.env.BUWANA_API_URL || 'https://buwana.io/api',
-  mapbox_token: process.env.MAPBOX_TOKEN || null,
-
-  // 🌓 Appearance
-  default_theme: process.env.DEFAULT_THEME || 'light',
-  supported_themes: (process.env.SUPPORTED_THEMES || 'light,dark').split(','),
-
-  // 🌐 Localization
-  default_lang: process.env.DEFAULT_LANG || 'en',
-  supported_langs: (process.env.SUPPORTED_LANGS || 'en,ms,id,he,ar,de,zh,fr,es').split(','),
-
-  // 🌱 Sustainability Widgets
-  include_website_carbon: process.env.INCLUDE_WEBSITE_CARBON === 'true'
+  database: {
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    name: process.env.DB_NAME
+  },
+  auth: {
+    sessionSecret: process.env.SESSION_SECRET || 'hopeturtles-secret',
+    jwtSecret: process.env.JWT_SECRET || 'hopeturtles-jwt',
+    buwanaApiUrl: process.env.BUWANA_API_URL || 'https://sso.buwana.io',
+    buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
+    buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || ''
+  },
+  appearance: {
+    defaultTheme: process.env.DEFAULT_THEME || 'light',
+    supportedThemes: (process.env.SUPPORTED_THEMES || 'light,dark').split(','),
+    defaultLang: process.env.DEFAULT_LANG || 'en',
+    supportedLangs: (
+      process.env.SUPPORTED_LANGS || 'en,ms,id,he,ar,de,zh'
+    )
+      .split(',')
+      .map((code) => code.trim())
+  },
+  integrations: {
+    mapboxToken: process.env.MAPBOX_TOKEN || '',
+    includeWebsiteCarbon:
+      String(process.env.INCLUDE_WEBSITE_CARBON || 'false').toLowerCase() === 'true'
+  }
 };
 
-console.log(`🌍 Environment loaded: ${config.node_env}`);
-console.log(`🌓 Theme: ${config.default_theme} | 🌐 Languages: ${config.supported_langs.join(', ')}`);
-if (config.include_website_carbon) console.log('🌱 WebsiteCarbon widget is enabled.');
+export default config;

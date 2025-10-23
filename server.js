@@ -1,151 +1,112 @@
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const dotenv = require('dotenv');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import MySQLSession from 'express-mysql-session';
 
-dotenv.config();
+import { config } from './config/env.js';
+import pool from './config/db.js';
+import languageMiddleware from './middleware/localization.js';
+import themeMiddleware from './middleware/theme.js';
+import { notFoundHandler, errorHandler } from './middleware/errorHandlers.js';
+import webRouter from './routes/web.js';
+import apiRouter from './routes/api/index.js';
+import authRouter from './routes/api/auth.js';
+import { loadLocales } from './utils/localization.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const DEFAULT_LANG = process.env.DEFAULT_LANG || 'en';
-const INCLUDE_WEBSITE_CARBON =
-  String(process.env.INCLUDE_WEBSITE_CARBON || '').toLowerCase() === 'true';
+const MySQLStore = MySQLSession(session);
 
-const localesDir = path.join(__dirname, 'locales');
-
-function loadLocales() {
-  const languages = {};
-  if (!fs.existsSync(localesDir)) {
-    return languages;
-  }
-
-  for (const file of fs.readdirSync(localesDir)) {
-    if (!file.endsWith('.json')) continue;
-    const langCode = path.basename(file, '.json');
-    try {
-      const raw = fs.readFileSync(path.join(localesDir, file), 'utf-8');
-      languages[langCode] = JSON.parse(raw);
-    } catch (error) {
-      console.error(`Failed to load locale ${file}:`, error.message);
+const sessionStore = new MySQLStore({
+  host: config.database.host,
+  port: config.database.port,
+  user: config.database.user,
+  password: config.database.password,
+  database: config.database.name,
+  createDatabaseTable: true,
+  schema: {
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
     }
   }
-  return languages;
-}
+});
 
-const locales = loadLocales();
+loadLocales();
 
-function parseCookies(cookieHeader = '') {
-  return cookieHeader.split(';').reduce((acc, cookiePair) => {
-    if (!cookiePair) return acc;
-    const [key, value] = cookiePair.split('=').map((part) => part && part.trim());
-    if (!key) return acc;
-    acc[key] = decodeURIComponent(value || '');
-    return acc;
-  }, {});
-}
-
-const rtlLanguages = new Set(['ar', 'he']);
-
-const languageLabels = {
-  en: 'English',
-  ms: 'Bahasa Melayu',
-  id: 'Bahasa Indonesia',
-  he: 'עברית',
-  ar: 'العربية',
-  de: 'Deutsch',
-  zh: '中文',
-};
-
-const navLabels = {
-  mission: {
-    en: 'Mission',
-    ms: 'Misi',
-    id: 'Misi',
-    he: 'המשימה',
-    ar: 'المهمة',
-    de: 'Mission',
-    zh: '使命',
-  },
-  concept: {
-    en: 'Tracking Concept',
-    ms: 'Konsep Penjejakan',
-    id: 'Konsep Pelacakan',
-    he: 'רעיון המעקב',
-    ar: 'مفهوم التتبع',
-    de: 'Tracking-Konzept',
-    zh: '追踪概念',
-  },
-};
-
-function getLanguage(req) {
-  const cookies = parseCookies(req.headers.cookie || '');
-  const requested = cookies.lang || DEFAULT_LANG;
-  if (locales[requested]) {
-    return requested;
-  }
-  return DEFAULT_LANG;
-}
-
+app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(compression());
+app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser());
+app.use(
+  session({
+    secret: config.auth.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {
+      secure: config.env === 'production',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+  })
+);
 
 app.use((req, res, next) => {
-  const lang = getLanguage(req);
-  const translations = locales[lang] || locales[DEFAULT_LANG] || {};
-  res.locals.lang = lang;
-  res.locals.t = translations;
-  res.locals.direction = rtlLanguages.has(lang) ? 'rtl' : 'ltr';
-  res.locals.theme = 'light';
-  res.locals.includeWebsiteCarbon = INCLUDE_WEBSITE_CARBON;
-  res.locals.languageOptions = Object.entries(languageLabels)
-    .filter(([code]) => locales[code])
-    .map(([code, label]) => ({ code, label }));
-  res.locals.nav = {
-    mission: (navLabels.mission[lang] || navLabels.mission[DEFAULT_LANG]),
-    concept: (navLabels.concept[lang] || navLabels.concept[DEFAULT_LANG]),
+  res.locals.currentUser = req.session?.user || null;
+  res.locals.theme = res.locals.theme || config.appearance.defaultTheme;
+  res.locals.mapboxToken = config.integrations.mapboxToken;
+  res.locals.includeWebsiteCarbon = config.integrations.includeWebsiteCarbon;
+  res.locals.brand = {
+    name: 'HopeTurtles.org',
+    colors: {
+      primary: '#0077b6',
+      light: '#cfd3d6',
+      dark: '#42484d'
+    }
   };
   next();
 });
 
-function renderLanding(req, res, statusCode = 200) {
-  const title = res.locals.t.title || 'HopeTurtles.org';
-  res.status(statusCode).render('index', { pageTitle: title });
-}
+app.use(languageMiddleware);
+app.use(themeMiddleware);
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get(['/', '/index.html'], (req, res) => {
-  renderLanding(req, res);
-});
+app.use('/auth', authRouter);
+app.use('/api', apiRouter);
+app.use('/', webRouter);
 
-app.get('/api/lang', (req, res) => {
-  const { set } = req.query;
-  if (!set) {
-    return res.json({ lang: res.locals.lang });
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+const start = async () => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
+    app.listen(config.port, config.host, () => {
+      console.log(`HopeTurtles.org landing page ready at http://127.0.0.1:${config.port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
   }
+};
 
-  if (!locales[set]) {
-    return res.status(400).json({ success: false, message: 'Language not supported.' });
-  }
-
-  res.setHeader(
-    'Set-Cookie',
-    `lang=${encodeURIComponent(set)}; Path=/; Max-Age=31536000; SameSite=Lax`
-  );
-  return res.json({ success: true, lang: set });
-});
-
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  renderLanding(req, res);
-});
-
-app.use((req, res) => {
-  renderLanding(req, res, 404);
-});
-
-app.listen(PORT, () => {
-  console.log(`HopeTurtles.org landing page ready at http://127.0.0.1:${PORT}`);
-});
+start();

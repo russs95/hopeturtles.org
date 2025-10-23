@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= direction %>" data-theme="<%= theme %>">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="HopeTurtles.org – regenerative humanitarian tracking platform for autonomous hope turtles delivering aid across ocean currents."
+    />
+    <meta property="og:title" content="HopeTurtles.org" />
+    <meta
+      property="og:description"
+      content="Tracking autonomous Hope Turtles as they ferry regenerative aid across the ocean."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hopeturtles.org" />
+    <meta property="og:image" content="/images/social-card.svg" />
+    <title><%= pageTitle %></title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <% if (typeof extraStyles !== 'undefined') { %>
+      <% extraStyles.forEach(function (styleHref) { %>
+        <link rel="stylesheet" href="<%= styleHref %>" />
+      <% }); %>
+    <% } %>
+    <script>
+      (function () {
+        const storedTheme = localStorage.getItem('ht-theme');
+        const storedLang = localStorage.getItem('ht-lang');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = storedTheme || (prefersDark ? 'dark' : '<%= theme %>');
+        document.documentElement.dataset.theme = theme;
+        if (storedLang) {
+          document.documentElement.lang = storedLang;
+        }
+      })();
+    </script>
+  </head>
+  <body class="app-shell">
+    <a class="skip-link" href="#main">Skip to content</a>

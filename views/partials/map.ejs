@@ -1,0 +1,9 @@
+<section class="map-section" id="map">
+  <div class="map-header">
+    <h2><%= heading || 'Ocean Map' %></h2>
+    <p><%= description || 'Tracking Hope Turtle missions across the currents.' %></p>
+  </div>
+  <div class="map-container" data-map-token="<%= mapboxToken %>">
+    <div id="mapCanvas" class="map-canvas" aria-label="Mission map"></div>
+  </div>
+</section>

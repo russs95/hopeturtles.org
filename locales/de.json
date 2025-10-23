@@ -4,5 +4,20 @@
   "mission": "Hope Turtles sind solargestützte Treibkörper aus Bambus, die regenerative Hilfe über Strömungen tragen und gleichzeitig transparente Telemetrie an Küstenhüter senden.",
   "about": "Jede Schildkröte transportiert Fürsorge aus der Gemeinschaft, wird entlang humanitärer Driftkorridore geortet und speist offene Dashboards, die Hilfe ohne Grenzen koordinieren.",
   "join": "Schließ dich der Flotte der Hoffnung an",
-  "contact": "Kontakt zu den Macher*innen"
+  "contact": "Kontakt zu den Macher*innen",
+  "nav_mission": "Mission",
+  "nav_tracking": "Tracking",
+  "nav_contact": "Kontakt",
+  "hero_title": "Hope Turtles: Lieferungen der Regeneration",
+  "hero_blurb": "Autonome Begleiter*innen, die auf Meeresströmungen gleiten, um regenerative Hilfe zu bringen und unsere Wirkung zu verfolgen.",
+  "explore_missions": "Missionen erkunden",
+  "view_success": "Erfolge feiern",
+  "metric_missions": "Missionen",
+  "metric_turtles": "Hope Turtles",
+  "metric_success": "Erfolgreiche Landungen",
+  "preview_missions": "Aktive Missionen",
+  "preview_missions_copy": "Verfolge die Reise jeder Hope Turtle zu Gemeinden in Not.",
+  "preview_success": "Neueste Landungen",
+  "preview_success_copy": "Momente der Dankbarkeit, wenn Hope Turtles ihre Pakete übergeben.",
+  "submit_success": "Erfolgsgeschichte teilen"
 }

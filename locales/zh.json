@@ -4,5 +4,20 @@
   "mission": "Hope Turtle 是由竹子打造并辅以太阳能的漂流载具，在洋流之间运送再生援助，同时向沿岸守护者广播透明的遥测数据。",
   "about": "每一只海龟都装载着社区的关怀，沿着人道漂流走廊被追踪，并为开放式仪表盘提供数据，从而协调跨越国界的援助。",
   "join": "加入希望舰队",
-  "contact": "联系打造者"
+  "contact": "联系打造者",
+  "nav_mission": "任务",
+  "nav_tracking": "追踪",
+  "nav_contact": "联系",
+  "hero_title": "希望海龟：传递再生力量",
+  "hero_blurb": "自主漂流的伙伴顺着海流运送再生援助，并实时记录我们的共同影响。",
+  "explore_missions": "探索任务",
+  "view_success": "庆祝成果",
+  "metric_missions": "任务数量",
+  "metric_turtles": "希望海龟",
+  "metric_success": "成功登陆",
+  "preview_missions": "进行中的任务",
+  "preview_missions_copy": "追踪每只希望海龟驶向需要帮助的海岸社区。",
+  "preview_success": "最新登陆",
+  "preview_success_copy": "当希望海龟送达祝福时的感谢瞬间。",
+  "submit_success": "提交成功故事"
 }

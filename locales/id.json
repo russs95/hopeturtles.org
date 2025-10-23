@@ -4,5 +4,20 @@
   "mission": "Hope Turtle adalah wahana hanyut berbahan bambu dengan tenaga surya yang mengantar bantuan regeneratif menyeberangi arus sambil menyiarkan telemetri transparan kepada penjaga pesisir.",
   "about": "Setiap penyu membawa kasih komunitas, terlacak di sepanjang koridor hanyut kemanusiaan, dan memberi data ke dasbor terbuka yang menyelaraskan bantuan tanpa batas.",
   "join": "Bergabunglah dengan armada harapan",
-  "contact": "Hubungi para perancang"
+  "contact": "Hubungi para perancang",
+  "nav_mission": "Misi",
+  "nav_tracking": "Pelacakan",
+  "nav_contact": "Kontak",
+  "hero_title": "Hope Turtle: Pengiriman Regeneratif",
+  "hero_blurb": "Pendamping hanyut otonom yang menumpang arus laut untuk membawa bantuan regeneratif dan memantau dampak bersama.",
+  "explore_missions": "Jelajahi Misi",
+  "view_success": "Rayakan Keberhasilan",
+  "metric_missions": "Jumlah misi",
+  "metric_turtles": "Hope Turtle",
+  "metric_success": "Pendaratan berhasil",
+  "preview_missions": "Misi Aktif",
+  "preview_missions_copy": "Menelusuri perjalanan setiap Hope Turtle menuju komunitas yang membutuhkan.",
+  "preview_success": "Pendaratan Terbaru",
+  "preview_success_copy": "Momen terima kasih ketika Hope Turtle menyerahkan paket harapan.",
+  "submit_success": "Kirim kisah keberhasilan"
 }
