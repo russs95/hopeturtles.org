@@ -135,6 +135,13 @@ app.get('/api/lang', (req, res) => {
   return res.json({ success: true, lang: set });
 });
 
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  renderLanding(req, res);
+});
+
 app.use((req, res) => {
   renderLanding(req, res, 404);
 });
