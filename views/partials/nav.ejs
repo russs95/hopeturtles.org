@@ -1,0 +1,32 @@
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-ascii" aria-hidden="true">🐢</span>
+    <a href="/" class="brand-name">HopeTurtles.org</a>
+  </div>
+  <nav class="primary-nav" aria-label="Primary">
+    <a href="/missions"><%= t.nav_mission || 'Mission' %></a>
+    <a href="/missions#map"><%= t.nav_tracking || 'Tracking' %></a>
+    <a href="#contact"><%= t.nav_contact || 'Contact' %></a>
+  </nav>
+  <div class="nav-controls">
+    <button id="themeToggle" class="button ghost" aria-label="Toggle theme">
+      <span class="icon" aria-hidden="true">☼</span>
+    </button>
+    <label class="lang-select">
+      <span class="sr-only">Language</span>
+      <select id="languageSwitcher">
+        <% languages.forEach(function (option) { %>
+          <option value="<%= option.code %>" <%= option.code === lang ? 'selected' : '' %>>
+            <%= option.label %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <% if (currentUser) { %>
+      <a class="button" href="/dashboard">Dashboard</a>
+      <a class="button ghost" href="/auth/logout">Logout</a>
+    <% } else { %>
+      <a class="button" href="/auth/login">Login</a>
+    <% } %>
+  </div>
+</header>

@@ -1,138 +1,76 @@
-<!DOCTYPE html>
-<html lang="<%= lang %>" dir="<%= direction %>" data-theme="<%= theme %>">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><%= pageTitle %></title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="preload" href="/fonts/AlanSans-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="preload" href="/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin />
-    <script>
-      (function () {
-        try {
-          var storedTheme = window.localStorage.getItem('hopeturtles-theme');
-          if (storedTheme) {
-            document.documentElement.setAttribute('data-theme', storedTheme);
-          }
-        } catch (error) {
-          // localStorage might be blocked; ignore and fallback to default theme.
-        }
-      })();
-    </script>
-  </head>
-  <body>
+<%- include('partials/header', { pageTitle, theme }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout">
+  <section class="hero">
+    <div class="hero-text">
+      <pre class="ascii-turtle" aria-hidden="true">
+        __
+  _.-'  )
+ (_ _.-'    Hope Turtle Armada
+   )        navigating currents of care
+      </pre>
+      <h1><%= t.hero_title || 'Hope Turtles: Deliveries of Regeneration' %></h1>
+      <p><%= t.hero_blurb || 'Autonomous floating companions riding ocean currents to deliver regenerative aid and track our shared impact.' %></p>
+      <div class="hero-actions">
+        <a class="button" href="/missions"><%= t.explore_missions || 'Explore Missions' %></a>
+        <a class="button ghost" href="#success"><%= t.view_success || 'Celebrate Success' %></a>
+      </div>
+    </div>
+    <div class="hero-metrics">
+      <div class="metric-card">
+        <span class="metric-value"><%= summary.missions %></span>
+        <span class="metric-label"><%= t.metric_missions || 'Missions' %></span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value"><%= summary.turtles %></span>
+        <span class="metric-label"><%= t.metric_turtles || 'Hope Turtles' %></span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value"><%= summary.successes %></span>
+        <span class="metric-label"><%= t.metric_success || 'Successful Landfalls' %></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="missions-preview">
     <header>
-      <div class="branding">
-        <img src="/images/hopeturtle-logo.svg" alt="HopeTurtles" />
-        <h1>HopeTurtles.org</h1>
-      </div>
-      <nav aria-label="Primary">
-        <a href="#mission"><%= nav.mission %></a>
-        <a href="#tracking"><%= nav.concept %></a>
-        <a href="#contact"><%= t.contact %></a>
-      </nav>
-      <div class="controls">
-        <label for="language-switcher" class="sr-only">Language</label>
-        <select id="language-switcher" class="language-select" aria-label="Switch language">
-          <% languageOptions.forEach(function(option) { %>
-            <option value="<%= option.code %>" <%= option.code === lang ? 'selected' : '' %>>
-              <%= option.label %>
-            </option>
-          <% }) %>
-        </select>
-        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
-          <span class="theme-toggle__icon" aria-hidden="true">🌞</span>
-          <span class="sr-only">Toggle theme</span>
-        </button>
-      </div>
+      <h2><%= t.preview_missions || 'Active Missions' %></h2>
+      <p><%= t.preview_missions_copy || 'Mapping the journeys of each Hope Turtle as they drift toward communities in need.' %></p>
     </header>
+    <div class="mission-cards">
+      <% missions.forEach(function (mission) { %>
+        <article class="card">
+          <h3><%= mission.name %></h3>
+          <p><%= mission.description %></p>
+          <ul class="card-meta">
+            <li><strong>Status:</strong> <%= mission.status %></li>
+            <li><strong>Target:</strong> <%= mission.target_lat %>, <%= mission.target_lng %></li>
+          </ul>
+          <a href="/missions#mission-<%= mission.mission_id %>" class="button ghost">View details</a>
+        </article>
+      <% }) %>
+    </div>
+  </section>
 
-    <main>
-      <section class="hero" id="mission">
-        <div class="hero-copy">
-          <h2><%= t.tagline %></h2>
-          <p><%= t.mission %></p>
-          <a class="hero-cta" href="#tracking">
-            <span aria-hidden="true">🌊</span>
-            <span><%= t.join %></span>
-          </a>
-        </div>
-        <div class="hero-visual" aria-hidden="true">
-          <pre class="ascii-turtle">   _________   ___  
- /          \ |  0| 
-|           |/ __\| 
-|_____________/     
-  |__|  |__|    
-          </pre>
-        </div>
-      </section>
-
-      <section class="section" id="tracking">
-        <h3><%= nav.concept %></h3>
-        <p><%= t.about %></p>
-        <div class="section-grid">
-          <article class="card">
-            <h4>Open Drift Telemetry</h4>
-            <p>
-              Solar beacons, ocean sensors, and citizen logging merge to keep each Hope Turtle visible
-              across humanitarian corridors.
-            </p>
-          </article>
-          <article class="card">
-            <h4>Community Fabrication</h4>
-            <p>
-              Bamboo hulls and reclaimed bottles are crafted in coastal maker labs, aligning with the
-              regenerative ethos of island communities.
-            </p>
-          </article>
-          <article class="card">
-            <h4>Transparent Aid Routing</h4>
-            <p>
-              Aid capsules are tracked end-to-end so supporters, responders, and recipients share the
-              same verified timeline of care.
-            </p>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer id="contact">
-      <p>
-        <%= t.contact %>: <a href="mailto:team@hopeturtles.org">team@hopeturtles.org</a>
-      </p>
-      <% if (includeWebsiteCarbon) { %>
-        <div id="wcb" class="carbonbadge"></div>
-      <% } %>
-      <p>&copy; <%= new Date().getFullYear() %> HopeTurtles.org</p>
-    </footer>
-
-    <script src="/js/theme.js" defer></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        var select = document.getElementById('language-switcher');
-        if (!select) return;
-
-        select.addEventListener('change', function (event) {
-          var value = event.target.value;
-          fetch('/api/lang?set=' + encodeURIComponent(value))
-            .then(function (response) {
-              if (!response.ok) {
-                throw new Error('Language switch failed');
-              }
-              return response.json();
-            })
-            .then(function () {
-              window.location.reload();
-            })
-            .catch(function () {
-              event.target.value = '<%= lang %>';
-            });
-        });
-      });
-    </script>
-    <% if (includeWebsiteCarbon) { %>
-      <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
-    <% } %>
-  </body>
-</html>
+  <section class="success-log" id="success">
+    <header>
+      <h2><%= t.preview_success || 'Recent Landfalls' %></h2>
+      <p><%= t.preview_success_copy || 'Moments of gratitude when Hope Turtles deliver their packages.' %></p>
+    </header>
+    <div class="success-grid">
+      <% successEntries.forEach(function (entry) { %>
+        <article class="success-card">
+          <div class="success-meta">
+            <span><strong>Lat:</strong> <%= entry.location_lat %></span>
+            <span><strong>Lng:</strong> <%= entry.location_lng %></span>
+          </div>
+          <p><%= entry.thank_you_message || 'Ocean blessings received.' %></p>
+        </article>
+      <% }) %>
+    </div>
+    <div class="success-actions">
+      <a class="button" href="/success"><%= t.submit_success || 'Submit a success story' %></a>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

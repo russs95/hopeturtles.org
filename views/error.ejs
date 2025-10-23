@@ -1,0 +1,9 @@
+<%- include('partials/header', { pageTitle: pageTitle || 'Error', theme }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout">
+  <section class="page-header">
+    <h1><%= pageTitle || 'Something went wrong' %></h1>
+    <p><%= message || 'An unexpected issue occurred. Please try again shortly.' %></p>
+  </section>
+</main>
+<%- include('partials/footer') %>

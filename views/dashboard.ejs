@@ -1,0 +1,79 @@
+<%- include('partials/header', { pageTitle, theme }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout dashboard">
+  <section class="page-header">
+    <h1>Dashboard</h1>
+    <p>Mission control centre for Hope Turtles.</p>
+  </section>
+
+  <section class="metric-grid">
+    <div class="metric-card">
+      <h3>Missions</h3>
+      <p class="metric-value"><%= missions.length %></p>
+    </div>
+    <div class="metric-card">
+      <h3>Turtles</h3>
+      <p class="metric-value"><%= turtles.length %></p>
+    </div>
+    <div class="metric-card">
+      <h3>Recent successes</h3>
+      <p class="metric-value"><%= successEntries.length %></p>
+    </div>
+  </section>
+
+  <section class="dashboard-charts">
+    <div class="chart-card">
+      <h2>Status overview</h2>
+      <canvas id="statusChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h2>Telemetry rate (24h)</h2>
+      <canvas id="telemetryChart"></canvas>
+    </div>
+  </section>
+
+  <section class="dashboard-table">
+    <h2>Live telemetry snapshot</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Turtle</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Battery</th>
+          <th>Connection</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% telemetry.forEach(function (item) { %>
+          <tr>
+            <td><%= item.turtle_id %></td>
+            <td><%= item.latitude %></td>
+            <td><%= item.longitude %></td>
+            <td><%= item.battery_voltage %></td>
+            <td><%= item.connection %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="alerts">
+    <h2>Active alerts</h2>
+    <ul>
+      <% alerts.forEach(function (alert) { %>
+        <li>
+          <strong><%= alert.title %></strong> — <%= alert.message_body %>
+        </li>
+      <% }) %>
+      <% if (alerts.length === 0) { %>
+        <li>No active alerts.</li>
+      <% } %>
+    </ul>
+  </section>
+</main>
+<% const pageScripts = [
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js',
+  '/js/dashboard.js'
+]; %>
+<%- include('partials/footer', { pageScripts }) %>

@@ -1,0 +1,238 @@
+<%- include('partials/header', { pageTitle, theme }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout admin">
+  <section class="page-header">
+    <h1>Admin Tools</h1>
+    <p>Manage missions, turtles, hubs, boats, and alerts.</p>
+  </section>
+
+  <section class="admin-section" id="admin-missions">
+    <h2>Missions</h2>
+    <form class="form-card admin-form" data-endpoint="/api/missions" data-method="POST">
+      <label>
+        Name
+        <input name="name" required />
+      </label>
+      <label>
+        Description
+        <textarea name="description"></textarea>
+      </label>
+      <label>
+        Status
+        <select name="status">
+          <option value="planned">planned</option>
+          <option value="active">active</option>
+          <option value="completed">completed</option>
+        </select>
+      </label>
+      <label>
+        Target latitude
+        <input type="number" step="0.000001" name="target_lat" />
+      </label>
+      <label>
+        Target longitude
+        <input type="number" step="0.000001" name="target_lng" />
+      </label>
+      <button type="submit" class="button">Create mission</button>
+      <p class="form-feedback" role="status"></p>
+    </form>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% missions.forEach(function (mission) { %>
+            <tr>
+              <td><%= mission.mission_id %></td>
+              <td><%= mission.name %></td>
+              <td><%= mission.status %></td>
+              <td>
+                <button
+                  class="button ghost delete"
+                  data-endpoint="/api/missions/<%= mission.mission_id %>"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" id="admin-turtles">
+    <h2>Turtles</h2>
+    <form class="form-card admin-form" data-endpoint="/api/turtles" data-method="POST">
+      <label>Name <input name="name" required /></label>
+      <label>Status
+        <select name="status">
+          <option value="idle">idle</option>
+          <option value="en_route">en_route</option>
+          <option value="arrived">arrived</option>
+          <option value="lost">lost</option>
+        </select>
+      </label>
+      <label>Mission ID <input type="number" name="mission_id" /></label>
+      <button type="submit" class="button">Create turtle</button>
+      <p class="form-feedback" role="status"></p>
+    </form>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% turtles.forEach(function (turtle) { %>
+            <tr>
+              <td><%= turtle.turtle_id %></td>
+              <td><%= turtle.name %></td>
+              <td><%= turtle.status %></td>
+              <td>
+                <button
+                  class="button ghost delete"
+                  data-endpoint="/api/turtles/<%= turtle.turtle_id %>"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" id="admin-hubs">
+    <h2>Hubs</h2>
+    <form class="form-card admin-form" data-endpoint="/api/hubs" data-method="POST">
+      <label>Name <input name="name" required /></label>
+      <label>Country <input name="country" /></label>
+      <label>Region <input name="region" /></label>
+      <button type="submit" class="button">Create hub</button>
+      <p class="form-feedback" role="status"></p>
+    </form>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Country</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% hubs.forEach(function (hub) { %>
+            <tr>
+              <td><%= hub.hub_id %></td>
+              <td><%= hub.name %></td>
+              <td><%= hub.country %></td>
+              <td>
+                <button
+                  class="button ghost delete"
+                  data-endpoint="/api/hubs/<%= hub.hub_id %>"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" id="admin-boats">
+    <h2>Boats</h2>
+    <form class="form-card admin-form" data-endpoint="/api/boats" data-method="POST">
+      <label>Name <input name="name" required /></label>
+      <label>Owner <input name="owner" /></label>
+      <label>Registration <input name="registration" /></label>
+      <button type="submit" class="button">Create boat</button>
+      <p class="form-feedback" role="status"></p>
+    </form>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Owner</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% boats.forEach(function (boat) { %>
+            <tr>
+              <td><%= boat.boat_id %></td>
+              <td><%= boat.name %></td>
+              <td><%= boat.owner %></td>
+              <td>
+                <button
+                  class="button ghost delete"
+                  data-endpoint="/api/boats/<%= boat.boat_id %>"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" id="admin-alerts">
+    <h2>Alerts</h2>
+    <form class="form-card admin-form" data-endpoint="/api/alerts" data-method="POST">
+      <label>Title <input name="title" required /></label>
+      <label>Message <textarea name="message_body" required></textarea></label>
+      <label>Emoji <input name="emoji" /></label>
+      <button type="submit" class="button">Create alert</button>
+      <p class="form-feedback" role="status"></p>
+    </form>
+    <div class="admin-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% alerts.forEach(function (alert) { %>
+            <tr>
+              <td><%= alert.alert_id %></td>
+              <td><%= alert.title %></td>
+              <td><%= alert.status %></td>
+              <td>
+                <button
+                  class="button ghost delete"
+                  data-endpoint="/api/alerts/<%= alert.alert_id %>"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<% const pageScripts = ['/js/admin.js']; %>
+<%- include('partials/footer', { pageScripts }) %>

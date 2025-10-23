@@ -1,0 +1,43 @@
+    <footer id="contact" class="site-footer">
+      <div class="footer-grid">
+        <div>
+          <h3>Contact</h3>
+          <p>
+            <a href="mailto:hello@hopeturtles.org">hello@hopeturtles.org</a><br />
+            <span>Floating hope, delivered with care.</span>
+          </p>
+        </div>
+        <div>
+          <h3>Network</h3>
+          <ul>
+            <li><a href="https://earthen.io" target="_blank" rel="noreferrer">Earthen.io</a></li>
+            <li><a href="https://github.com/hopeturtles" target="_blank" rel="noreferrer">GitHub</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Credits</h3>
+          <p>Made with regenerative intent by the HopeTurtles collective.</p>
+          <% if (includeWebsiteCarbon) { %>
+            <div class="carbon-badge">
+              <a
+                href="https://www.websitecarbon.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Website Carbon footprint"
+              >
+                <img src="https://api.websitecarbon.com/badge.svg" alt="Website Carbon badge" />
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      <p class="footer-meta">© <%= new Date().getFullYear() %> HopeTurtles.org · Ocean currents of care</p>
+    </footer>
+    <script src="/js/main.js" type="module"></script>
+    <% if (typeof pageScripts !== 'undefined') { %>
+      <% pageScripts.forEach(function (script) { %>
+        <script src="<%= script %>"></script>
+      <% }); %>
+    <% } %>
+  </body>
+</html>

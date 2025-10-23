@@ -1,0 +1,91 @@
+<% const extraStyles = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css']; %>
+<%- include('partials/header', { pageTitle, theme, extraStyles }) %>
+<%- include('partials/nav') %>
+<main
+  id="main"
+  class="layout"
+  data-turtle-id="<%= turtle.turtle_id %>"
+  data-last-lat="<%= turtle.last_lat %>"
+  data-last-lng="<%= turtle.last_lng %>"
+>
+  <section class="page-header">
+    <h1><%= turtle.name %></h1>
+    <p><%= turtle.description || 'Telemetry stream and mission context for this Hope Turtle.' %></p>
+    <% if (mission) { %>
+      <p class="mission-link">Mission: <a href="/missions#mission-<%= mission.mission_id %>"><%= mission.name %></a></p>
+    <% } %>
+  </section>
+
+  <section class="turtle-status">
+    <div class="status-grid">
+      <div>
+        <h3>Status</h3>
+        <p><%= turtle.status %></p>
+      </div>
+      <div>
+        <h3>Last Coordinates</h3>
+        <p><%= turtle.last_lat %>, <%= turtle.last_lng %></p>
+      </div>
+      <div>
+        <h3>Solar Charge</h3>
+        <p><%= turtle.solar_charge %> %</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="telemetry-stream">
+    <h2>Telemetry</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Battery (V)</th>
+          <th>Temperature (°C)</th>
+          <th>Connection</th>
+        </tr>
+      </thead>
+      <tbody id="telemetryTable">
+        <% telemetry.forEach(function (item) { %>
+          <tr>
+            <td><%= item.timestamp %></td>
+            <td><%= item.latitude %></td>
+            <td><%= item.longitude %></td>
+            <td><%= item.battery_voltage %></td>
+            <td><%= item.temp_c %></td>
+            <td><%= item.connection %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="turtle-photos">
+    <h2>Photos</h2>
+    <div class="photo-grid">
+      <% photos.forEach(function (photo) { %>
+        <figure>
+          <img src="<%= photo.url %>" alt="<%= photo.caption || turtle.name %>" />
+          <% if (photo.caption) { %>
+            <figcaption><%= photo.caption %></figcaption>
+          <% } %>
+        </figure>
+      <% }) %>
+      <% if (photos.length === 0) { %>
+        <p>No photos have been uploaded yet.</p>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="map-container" data-map-token="<%= mapboxToken %>">
+      <div id="turtleMap" class="map-canvas" aria-label="Turtle trajectory"></div>
+    </div>
+  </section>
+</main>
+<% const pageScripts = [
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  '/js/turtle.js'
+]; %>
+<%- include('partials/footer', { pageScripts }) %>
