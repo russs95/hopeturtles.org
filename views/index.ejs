@@ -1,63 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hope Turtles | Regenerative Aid Across Oceans</title>
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="icon" href="/img/favicon.ico" />
-</head>
-
-<body class="bg-gradient-to-b from-sky-100 to-sky-300 font-sans text-slate-800">
-
-  <!-- 🌊 Header -->
-  <header class="text-center py-10">
-    <img src="/logo/hopeturtle-logo.png" alt="Hope Turtle Logo" class="mx-auto w-24 mb-4" />
-    <h1 class="text-4xl font-bold tracking-tight">Hope Turtles</h1>
-    <p class="text-lg text-sky-700 italic">May love and light flow human to human, across borders.</p>
-  </header>
-
-  <!-- 🐢 Intro Section -->
-  <section class="max-w-3xl mx-auto text-center px-4 py-10">
-    <h2 class="text-2xl font-semibold mb-4">Regenerative Aid Across Oceans</h2>
-    <p class="text-lg leading-relaxed">
-      Hope Turtles are autonomous, bamboo-based marine drones that carry aid-filled bottles
-      across ocean currents. Each turtle is trackable in real-time and part of a
-      global mission to demonstrate regenerative, human-to-human solidarity.
-    </p>
-  </section>
-
-  <!-- 📊 Live Stats Placeholder -->
-  <section id="stats" class="max-w-4xl mx-auto text-center py-8">
-    <div class="grid grid-cols-3 gap-4 text-sky-800">
-      <div>
-        <h3 class="text-4xl font-bold"><%= stats.turtles || 0 %></h3>
-        <p class="text-sm uppercase tracking-wide">Turtles Deployed</p>
+<html lang="<%= lang %>" dir="<%= direction %>" data-theme="<%= theme %>">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= pageTitle %></title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="preload" href="/fonts/AlanSans-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin />
+    <script>
+      (function () {
+        try {
+          var storedTheme = window.localStorage.getItem('hopeturtles-theme');
+          if (storedTheme) {
+            document.documentElement.setAttribute('data-theme', storedTheme);
+          }
+        } catch (error) {
+          // localStorage might be blocked; ignore and fallback to default theme.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="branding">
+        <img src="/images/hopeturtle-logo.svg" alt="HopeTurtles" />
+        <h1>HopeTurtles.org</h1>
       </div>
-      <div>
-        <h3 class="text-4xl font-bold"><%= stats.missions || 0 %></h3>
-        <p class="text-sm uppercase tracking-wide">Missions Active</p>
+      <nav aria-label="Primary">
+        <a href="#mission"><%= nav.mission %></a>
+        <a href="#tracking"><%= nav.concept %></a>
+        <a href="#contact"><%= t.contact %></a>
+      </nav>
+      <div class="controls">
+        <label for="language-switcher" class="sr-only">Language</label>
+        <select id="language-switcher" class="language-select" aria-label="Switch language">
+          <% languageOptions.forEach(function(option) { %>
+            <option value="<%= option.code %>" <%= option.code === lang ? 'selected' : '' %>>
+              <%= option.label %>
+            </option>
+          <% }) %>
+        </select>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+          <span class="theme-toggle__icon" aria-hidden="true">🌞</span>
+          <span class="sr-only">Toggle theme</span>
+        </button>
       </div>
-      <div>
-        <h3 class="text-4xl font-bold"><%= stats.success || 0 %></h3>
-        <p class="text-sm uppercase tracking-wide">Arrivals Logged</p>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- 🌐 Navigation Links -->
-  <nav class="flex justify-center gap-6 py-8 text-sky-700">
-    <a href="/turtles" class="hover:underline">Track Turtles</a>
-    <a href="/missions" class="hover:underline">Missions</a>
-    <a href="/success" class="hover:underline">Success Stories</a>
-    <a href="/about" class="hover:underline">About</a>
-  </nav>
+    <main>
+      <section class="hero" id="mission">
+        <div class="hero-copy">
+          <h2><%= t.tagline %></h2>
+          <p><%= t.mission %></p>
+          <a class="hero-cta" href="#tracking">
+            <span aria-hidden="true">🌊</span>
+            <span><%= t.join %></span>
+          </a>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <pre class="ascii-turtle">   _________   ___  
+ /          \ |  0| 
+|           |/ __\| 
+|_____________/     
+  |__|  |__|    
+          </pre>
+        </div>
+      </section>
 
-  <!-- 💙 Footer -->
-  <footer class="text-center text-sm text-slate-600 py-6">
-    <p>© <%= new Date().getFullYear() %> HopeTurtles.org | Built with 🌿 regenerative code</p>
-  </footer>
+      <section class="section" id="tracking">
+        <h3><%= nav.concept %></h3>
+        <p><%= t.about %></p>
+        <div class="section-grid">
+          <article class="card">
+            <h4>Open Drift Telemetry</h4>
+            <p>
+              Solar beacons, ocean sensors, and citizen logging merge to keep each Hope Turtle visible
+              across humanitarian corridors.
+            </p>
+          </article>
+          <article class="card">
+            <h4>Community Fabrication</h4>
+            <p>
+              Bamboo hulls and reclaimed bottles are crafted in coastal maker labs, aligning with the
+              regenerative ethos of island communities.
+            </p>
+          </article>
+          <article class="card">
+            <h4>Transparent Aid Routing</h4>
+            <p>
+              Aid capsules are tracked end-to-end so supporters, responders, and recipients share the
+              same verified timeline of care.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
 
-  <script src="/js/main.js"></script>
-</body>
+    <footer id="contact">
+      <p>
+        <%= t.contact %>: <a href="mailto:team@hopeturtles.org">team@hopeturtles.org</a>
+      </p>
+      <% if (includeWebsiteCarbon) { %>
+        <div id="wcb" class="carbonbadge"></div>
+      <% } %>
+      <p>&copy; <%= new Date().getFullYear() %> HopeTurtles.org</p>
+    </footer>
+
+    <script src="/js/theme.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var select = document.getElementById('language-switcher');
+        if (!select) return;
+
+        select.addEventListener('change', function (event) {
+          var value = event.target.value;
+          fetch('/api/lang?set=' + encodeURIComponent(value))
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error('Language switch failed');
+              }
+              return response.json();
+            })
+            .then(function () {
+              window.location.reload();
+            })
+            .catch(function () {
+              event.target.value = '<%= lang %>';
+            });
+        });
+      });
+    </script>
+    <% if (includeWebsiteCarbon) { %>
+      <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
+    <% } %>
+  </body>
 </html>
