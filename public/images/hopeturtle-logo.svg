@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" role="img" aria-labelledby="title">
+  <title id="title">HopeTurtles logomark</title>
+  <defs>
+    <linearGradient id="shellGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ec4e8" />
+      <stop offset="100%" stop-color="#4fa3c9" />
+    </linearGradient>
+  </defs>
+  <rect width="320" height="120" rx="28" fill="#f8f9fa" />
+  <g transform="translate(28 20)">
+    <ellipse cx="64" cy="40" rx="56" ry="36" fill="url(#shellGradient)" />
+    <path
+      d="M18 42c12 0 18-14 18-14s6 14 18 14 18-14 18-14 6 14 18 14"
+      fill="none"
+      stroke="#ffffff"
+      stroke-width="6"
+      stroke-linecap="round"
+    />
+    <path
+      d="M32 70l20-18 20 18"
+      fill="none"
+      stroke="#0b3556"
+      stroke-width="8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="40" cy="40" r="8" fill="#0b3556" />
+    <circle cx="88" cy="40" r="8" fill="#0b3556" />
+    <path
+      d="M64 0c-12 0-22 10-22 22 0 6 6 12 12 12h20c6 0 12-6 12-12C86 10 76 0 64 0Z"
+      fill="#0b3556"
+      opacity="0.18"
+    />
+    <path d="M64 86l-12 14h24z" fill="#6ec4e8" opacity="0.75" />
+  </g>
+  <text
+    x="150"
+    y="72"
+    font-family="'Alan Sans', 'Mulish', 'Helvetica Neue', Arial, sans-serif"
+    font-size="38"
+    font-weight="700"
+    fill="#5c5c5c"
+    letter-spacing="0.04em"
+  >
+    HopeTurtles
+  </text>
+  <text
+    x="150"
+    y="92"
+    font-family="'Mulish', 'Helvetica Neue', Arial, sans-serif"
+    font-size="18"
+    fill="#a0a0a0"
+    letter-spacing="0.12em"
+  >
+    Humanitarian Drift Tracking
+  </text>
+</svg>
