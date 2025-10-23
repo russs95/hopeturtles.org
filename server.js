@@ -109,9 +109,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
+function renderLanding(req, res, statusCode = 200) {
   const title = res.locals.t.title || 'HopeTurtles.org';
-  res.render('index', { pageTitle: title });
+  res.status(statusCode).render('index', { pageTitle: title });
+}
+
+app.get(['/', '/index.html'], (req, res) => {
+  renderLanding(req, res);
 });
 
 app.get('/api/lang', (req, res) => {
@@ -132,9 +136,7 @@ app.get('/api/lang', (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).render('index', {
-    pageTitle: res.locals.t.title || 'HopeTurtles.org',
-  });
+  renderLanding(req, res, 404);
 });
 
 app.listen(PORT, () => {
