@@ -114,7 +114,7 @@ function renderLanding(req, res, statusCode = 200) {
   res.status(statusCode).render('index', { pageTitle: title });
 }
 
-app.get(['/', '/index', '/index.html'], (req, res) => {
+app.get(['/', '/index.html'], (req, res) => {
   renderLanding(req, res);
 });
 
@@ -143,7 +143,7 @@ app.get('*', (req, res, next) => {
 });
 
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Not found' });
+  renderLanding(req, res, 404);
 });
 
 app.listen(PORT, () => {
