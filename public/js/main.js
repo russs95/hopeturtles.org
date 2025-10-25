@@ -66,5 +66,8 @@ document.addEventListener('click', (event) => {
 
 // Page fade-in effect
 requestAnimationFrame(() => {
-  document.body.classList.add('page-ready');
+  root.classList.add('page-ready');
+  if (document.body) {
+    document.body.classList.add('page-ready');
+  }
 });
