@@ -78,7 +78,7 @@ app.use((req, res, next) => {
   res.locals.theme = res.locals.theme || config.appearance.defaultTheme;
   res.locals.mapboxToken = config.integrations.mapboxToken;
   res.locals.includeWebsiteCarbon = config.integrations.includeWebsiteCarbon;
-  res.locals.loginUrl = config.auth.buwanaLoginUrl;
+  res.locals.loginUrl = '/auth/login';
   res.locals.brand = {
     name: 'HopeTurtles.org',
     colors: {

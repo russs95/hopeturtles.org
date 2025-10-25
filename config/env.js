@@ -10,7 +10,12 @@ const requiredVariables = [
   'SESSION_SECRET',
   'BUWANA_CLIENT_ID',
   'BUWANA_PUBLIC_KEY',
-  'BUWANA_API_URL'
+  'BUWANA_API_URL',
+  'BUWANA_AUTHORIZE_URL',
+  'BUWANA_TOKEN_URL',
+  'BUWANA_REDIRECT_URI',
+  'BUWANA_SCOPE',
+  'BUWANA_JWKS_URI'
 ];
 
 for (const variable of requiredVariables) {
@@ -36,9 +41,21 @@ export const config = {
     buwanaApiUrl: process.env.BUWANA_API_URL || 'https://sso.buwana.io',
     buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
     buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || '',
-    buwanaLoginUrl:
-      process.env.BUWANA_LOGIN_URL ||
-      'https://buwana.ecobricks.org/en/login.php?app=hope_8fc3caabded4'
+    buwanaAuthorizeUrl:
+      process.env.BUWANA_AUTHORIZE_URL ||
+      'https://buwana.ecobricks.org/authorize',
+    buwanaTokenUrl:
+      process.env.BUWANA_TOKEN_URL ||
+      'https://buwana.ecobricks.org/token',
+    buwanaRedirectUri:
+      process.env.BUWANA_REDIRECT_URI ||
+      'https://hopeturtles.org/auth/callback',
+    buwanaScope:
+      process.env.BUWANA_SCOPE ||
+      'openid profile email buwana:earthlingEmoji',
+    buwanaJwksUri:
+      process.env.BUWANA_JWKS_URI ||
+      'https://buwana.ecobricks.org/api/userinfo.php'
   },
   appearance: {
     defaultTheme: process.env.DEFAULT_THEME || 'light',
