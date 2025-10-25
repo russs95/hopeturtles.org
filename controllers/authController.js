@@ -2,18 +2,8 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 import usersModel from '../models/usersModel.js';
 
-const resolveRedirectUri = (req) => {
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-  const host = req.headers['x-forwarded-host'] || req.get('host');
-  return `${protocol}://${host}/auth/callback`;
-};
-
 export const login = (req, res) => {
-  const redirectUri = encodeURIComponent(resolveRedirectUri(req));
-  const loginUrl = `${config.auth.buwanaApiUrl}/authorize?client_id=${encodeURIComponent(
-    config.auth.buwanaClientId
-  )}&redirect_uri=${redirectUri}&response_type=token`;
-  return res.redirect(loginUrl);
+  return res.redirect(config.auth.buwanaLoginUrl);
 };
 
 export const callback = async (req, res, next) => {
