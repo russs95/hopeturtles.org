@@ -12,7 +12,7 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 |------|------|---------|------|
 | **Headings & Titles** | Alan Sans | Variable | `/public/fonts/AlanSans-VariableFont_wght.ttf` |
 | **Body Text** | Mulish Medium | 500 | `/public/fonts/Mulish-Medium.ttf` |
-| **Captions** | Mulish Extra Light | 300 | `/public/fonts/Mulish-ExtraLight.ttf` |
+| **Captions** | Mulish Light | 300 | `/public/fonts/Mulish-Light.ttf` |
 | **ASCII Accents (optional)** | Inconsolata | 400 | Google Fonts |
 
 ### CSS Font Setup
@@ -25,15 +25,15 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 
 @font-face {
   font-family: 'Mulish';
-  src: url('/fonts/Mulish-Medium.ttf') format('truetype');
-  font-weight: 500;
+  src: url('/fonts/Mulish-Light.ttf') format('truetype');
+  font-weight: 300;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Mulish ExtraLight';
-  src: url('/fonts/Mulish-ExtraLight.ttf') format('truetype');
-  font-weight: 300;
+  font-family: 'Mulish';
+  src: url('/fonts/Mulish-Medium.ttf') format('truetype');
+  font-weight: 500;
   font-display: swap;
 }
 
@@ -66,7 +66,7 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 
   --font-heading: 'Alan Sans', sans-serif;
   --font-body: 'Mulish', sans-serif;
-  --font-caption: 'Mulish ExtraLight', sans-serif;
+  --font-caption: 'Mulish', sans-serif;
   --font-ascii: 'Inconsolata', monospace;
 }
 
