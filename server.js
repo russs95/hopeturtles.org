@@ -86,6 +86,7 @@ app.use((req, res, next) => {
 
 app.use(languageMiddleware);
 app.use(themeMiddleware);
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/auth', authRouter);

@@ -1,14 +1,21 @@
 @font-face {
   font-family: 'Alan Sans';
-  src: url('/fonts/AlanSans-Variable.woff2') format('woff2');
+  src: url('/fonts/AlanSans-VariableFont_wght.ttf') format('truetype');
   font-weight: 200 700;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Mulish';
-  src: url('/fonts/Mulish-Variable.woff2') format('woff2');
-  font-weight: 200 800;
+  src: url('/fonts/Mulish-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/Mulish-Medium.ttf') format('truetype');
+  font-weight: 500;
   font-display: swap;
 }
 
