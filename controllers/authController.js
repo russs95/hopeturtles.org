@@ -167,11 +167,43 @@ export const login = (req, res) => {
   return res.redirect(authorizeUrl);
 };
 
+const maskValue = (value, visible = 4) => {
+  if (!value || typeof value !== 'string') {
+    return value;
+  }
+
+  if (value.length <= visible * 2) {
+    return `${value.slice(0, 1)}…${value.slice(-1)}`;
+  }
+
+  return `${value.slice(0, visible)}…${value.slice(-visible)}`;
+};
+
+const buildSessionDebug = (req, state) => {
+  const pkce = req.session?.pkce;
+
+  return {
+    sessionId: req.sessionID,
+    hasSession: Boolean(req.session),
+    hasPkce: Boolean(pkce),
+    pkceCreatedAt: pkce?.createdAt ? new Date(pkce.createdAt).toISOString() : null,
+    pkceState: maskValue(pkce?.state),
+    receivedState: maskValue(state),
+    pkceNonce: maskValue(pkce?.nonce),
+    cookies: Object.keys(req.cookies || {})
+  };
+};
+
 export const callback = async (req, res, next) => {
   try {
     const { code, state, error, error_description: description } = req.query;
 
     if (error) {
+      console.warn('Auth callback received error response from Buwana.', {
+        error,
+        description,
+        session: buildSessionDebug(req, state)
+      });
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
         message: description || error
@@ -188,6 +220,7 @@ export const callback = async (req, res, next) => {
     const pkce = req.session.pkce;
 
     if (!pkce || state !== pkce.state) {
+      console.warn('Auth callback state validation failed.', buildSessionDebug(req, state));
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
         message: 'Invalid or mismatched state parameter.'
