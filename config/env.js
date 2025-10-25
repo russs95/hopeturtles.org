@@ -35,7 +35,10 @@ export const config = {
     jwtSecret: process.env.JWT_SECRET || 'hopeturtles-jwt',
     buwanaApiUrl: process.env.BUWANA_API_URL || 'https://sso.buwana.io',
     buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
-    buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || ''
+    buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || '',
+    buwanaLoginUrl:
+      process.env.BUWANA_LOGIN_URL ||
+      'https://buwana.ecobricks.org/en/login.php?app=hope_8fc3caabded4'
   },
   appearance: {
     defaultTheme: process.env.DEFAULT_THEME || 'light',

@@ -47,7 +47,12 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+  })
+);
 app.use(compression());
 app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
@@ -73,6 +78,7 @@ app.use((req, res, next) => {
   res.locals.theme = res.locals.theme || config.appearance.defaultTheme;
   res.locals.mapboxToken = config.integrations.mapboxToken;
   res.locals.includeWebsiteCarbon = config.integrations.includeWebsiteCarbon;
+  res.locals.loginUrl = config.auth.buwanaLoginUrl;
   res.locals.brand = {
     name: 'HopeTurtles.org',
     colors: {
