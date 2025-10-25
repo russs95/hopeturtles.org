@@ -61,6 +61,10 @@ body.page-ready {
   opacity: 1;
 }
 
+html.page-ready {
+  opacity: 1;
+}
+
 h1,
 h2,
 h3,

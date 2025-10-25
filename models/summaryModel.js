@@ -7,6 +7,7 @@ export const getPlatformSummary = async () => {
     query('SELECT COUNT(*) AS total FROM success_tb')
   ]);
   return {
+    page_ready: true,
     missions: missionCounts[0]?.total || 0,
     turtles: turtleCounts[0]?.total || 0,
     successes: successCounts[0]?.total || 0
