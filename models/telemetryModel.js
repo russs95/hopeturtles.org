@@ -3,15 +3,24 @@ import { createModel } from './baseModel.js';
 
 const telemetryModel = createModel('telemetry_tb', 'telemetry_id');
 
+const toSafeLimit = (value, fallback, maximum = 500) => {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return Math.min(parsed, maximum);
+};
+
 telemetryModel.getByTurtleId = async (turtleId, limit = 50) => {
+  const safeLimit = toSafeLimit(limit, 50);
   const sql = `
     SELECT *
     FROM telemetry_tb
     WHERE turtle_id = ?
     ORDER BY timestamp DESC
-    LIMIT ?
+    LIMIT ${safeLimit}
   `;
-  return query(sql, [turtleId, limit]);
+  return query(sql, [turtleId]);
 };
 
 telemetryModel.getLatest = async () => {
