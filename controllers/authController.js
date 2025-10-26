@@ -5,8 +5,6 @@ import { config } from '../config/env.js';
 import usersModel from '../models/usersModel.js';
 import { generatePkcePair } from '../utils/auth/pkce.js';
 
-// NOTE: Modern Node (18+) provides global fetch. Do NOT import 'node-fetch'.
-
 // --------------------------------------------------------------------
 // JWKS Client for verifying ID tokens
 // --------------------------------------------------------------------
@@ -14,7 +12,7 @@ let sharedJwksClient;
 const getJwksClient = () => {
   if (!sharedJwksClient) {
     sharedJwksClient = jwksClient({
-      jwksUri: config.auth.buwanaJwksUri, // e.g. https://buwana.ecobricks.org/.well-known/jwks.php
+      jwksUri: config.auth.buwanaJwksUri,
       cache: true,
       cacheMaxEntries: 5,
       cacheMaxAge: 10 * 60 * 1000,
@@ -30,9 +28,7 @@ const getJwksClient = () => {
 // --------------------------------------------------------------------
 const validateIdToken = async ({ idToken, accessToken, nonce }) => {
   const decoded = jwt.decode(idToken, { complete: true });
-  if (!decoded?.header?.kid) {
-    throw new Error('Unable to decode ID token header (missing kid).');
-  }
+  if (!decoded?.header?.kid) throw new Error('Unable to decode ID token header (missing kid).');
 
   const client = getJwksClient();
   const key = await client.getSigningKey(decoded.header.kid);
@@ -65,7 +61,11 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
 
   const text = await response.text();
   let json;
-  try { json = JSON.parse(text); } catch { json = { raw: text }; }
+  try {
+    json = JSON.parse(text);
+  } catch {
+    json = { raw: text };
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -107,36 +107,6 @@ const storeSessionFromTokens = async (req, tokens, claims) => {
 };
 
 // --------------------------------------------------------------------
-// Shared: handle token exchange + claims validation + session write
-// --------------------------------------------------------------------
-const handleTokenExchange = async (req, code) => {
-  const pkce = req.session?.pkce;
-  if (!pkce?.verifier) {
-    throw new Error('No PKCE verifier present in session. Start a new login.');
-  }
-
-  const tokenResponse = await exchangeAuthorizationCode({
-    code,
-    codeVerifier: pkce.verifier
-  });
-
-  const claims = await validateIdToken({
-    idToken: tokenResponse.id_token,
-    accessToken: tokenResponse.access_token,
-    nonce: pkce.nonce
-  });
-
-  await storeSessionFromTokens(req, tokenResponse, claims);
-  delete req.session.pkce;
-
-  return {
-    tokens: tokenResponse,
-    claims,
-    user: req.session.user
-  };
-};
-
-// --------------------------------------------------------------------
 // LOGIN — Generate PKCE + State + Nonce and redirect to Buwana
 // --------------------------------------------------------------------
 export const login = async (req, res) => {
@@ -148,7 +118,7 @@ export const login = async (req, res) => {
   const nonce = crypto.randomBytes(32).toString('base64url');
 
   req.session.pkce = {
-    ...pkce, // { verifier, challenge }
+    ...pkce,
     state,
     nonce,
     createdAt: Date.now()
@@ -163,7 +133,7 @@ export const login = async (req, res) => {
 
     console.log('✅ Saved PKCE and state to session:', req.session.pkce);
 
-    const authUrl = new URL(config.auth.buwanaAuthorizeUrl); // e.g. https://buwana.ecobricks.org/authorize
+    const authUrl = new URL(config.auth.buwanaAuthorizeUrl);
     authUrl.searchParams.set('client_id', config.auth.buwanaClientId);
     authUrl.searchParams.set('redirect_uri', config.auth.buwanaRedirectUri);
     authUrl.searchParams.set('response_type', 'code');
@@ -188,25 +158,37 @@ export const callback = async (req, res, next) => {
 
     if (error) {
       console.warn('⚠️ OAuth callback received error:', error, description);
-      return res.status(400).render('error', { pageTitle: 'Auth Error', message: description || error });
+      return res.status(400).render('error', {
+        pageTitle: 'Auth Error',
+        message: description || error
+      });
     }
 
+    // Reload session to ensure latest PKCE is present
+    await new Promise(resolve =>
+      req.session.reload(err => {
+        if (err) console.warn('⚠️ Failed to reload session before state check:', err);
+        resolve();
+      })
+    );
+
     const pkce = req.session.pkce;
+
     console.group('🔐 OAuth Callback Debug');
     console.log('Incoming code:', code);
     console.log('Incoming state:', state);
-    console.log('Session PKCE:', pkce);
     console.log('Session ID:', req.sessionID);
+    console.log('Session PKCE:', pkce);
+    console.log('Cookies:', req.headers.cookie);
     console.groupEnd();
-
-await req.session.reload(err => {
-  if (err) console.warn('⚠️ Failed to reload session before state check:', err);
-});
 
     console.log('🔍 Debug: Expected state:', pkce?.state, 'Received:', state);
 
     if (!pkce || state !== pkce.state) {
-      console.error('❌ State mismatch or missing PKCE.', { expected: pkce?.state, got: state });
+      console.error('❌ State mismatch or missing PKCE.', {
+        expected: pkce?.state,
+        got: state
+      });
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
         message: 'Invalid or mismatched state parameter.'
@@ -224,7 +206,7 @@ await req.session.reload(err => {
 };
 
 // --------------------------------------------------------------------
-// TOKEN (optional helper) — Exchange code via API
+// TOKEN / USERINFO / LOGOUT
 // --------------------------------------------------------------------
 export const exchangeToken = async (req, res, next) => {
   try {
@@ -242,12 +224,12 @@ export const exchangeToken = async (req, res, next) => {
   }
 };
 
-// --------------------------------------------------------------------
-// USERINFO
-// --------------------------------------------------------------------
 export const userinfo = (req, res) => {
   if (!req.session?.user) {
-    return res.status(401).json({ error: 'unauthorized', error_description: 'Not logged in.' });
+    return res.status(401).json({
+      error: 'unauthorized',
+      error_description: 'Not logged in.'
+    });
   }
   res.json({
     user: req.session.user,
@@ -256,9 +238,6 @@ export const userinfo = (req, res) => {
   });
 };
 
-// --------------------------------------------------------------------
-// LOGOUT
-// --------------------------------------------------------------------
 export const logout = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie(config.auth.sessionCookieName || 'ht.sid');
