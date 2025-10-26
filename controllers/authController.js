@@ -199,6 +199,12 @@ export const callback = async (req, res, next) => {
     console.log('Session ID:', req.sessionID);
     console.groupEnd();
 
+await req.session.reload(err => {
+  if (err) console.warn('⚠️ Failed to reload session before state check:', err);
+});
+
+    console.log('🔍 Debug: Expected state:', pkce?.state, 'Received:', state);
+
     if (!pkce || state !== pkce.state) {
       console.error('❌ State mismatch or missing PKCE.', { expected: pkce?.state, got: state });
       return res.status(400).render('error', {
