@@ -1,10 +1,11 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-import fetch from 'node-fetch';
 import { config } from '../config/env.js';
 import usersModel from '../models/usersModel.js';
 import { generatePkcePair } from '../utils/auth/pkce.js';
+
+// NOTE: Modern Node (18+) provides global fetch. Do NOT import 'node-fetch'.
 
 // --------------------------------------------------------------------
 // JWKS Client for verifying ID tokens
@@ -13,7 +14,7 @@ let sharedJwksClient;
 const getJwksClient = () => {
   if (!sharedJwksClient) {
     sharedJwksClient = jwksClient({
-      jwksUri: config.auth.buwanaJwksUri,
+      jwksUri: config.auth.buwanaJwksUri, // e.g. https://buwana.ecobricks.org/.well-known/jwks.php
       cache: true,
       cacheMaxEntries: 5,
       cacheMaxAge: 10 * 60 * 1000,
@@ -30,7 +31,7 @@ const getJwksClient = () => {
 const validateIdToken = async ({ idToken, accessToken, nonce }) => {
   const decoded = jwt.decode(idToken, { complete: true });
   if (!decoded?.header?.kid) {
-    throw new Error('Unable to decode ID token header.');
+    throw new Error('Unable to decode ID token header (missing kid).');
   }
 
   const client = getJwksClient();
@@ -45,7 +46,7 @@ const validateIdToken = async ({ idToken, accessToken, nonce }) => {
 };
 
 // --------------------------------------------------------------------
-// Exchange Authorization Code for Tokens
+// Exchange Authorization Code for Tokens (PKCE)
 // --------------------------------------------------------------------
 const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
   const body = new URLSearchParams({
@@ -59,17 +60,20 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
   const response = await fetch(config.auth.buwanaTokenUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
+    body
   });
 
+  const text = await response.text();
+  let json;
+  try { json = JSON.parse(text); } catch { json = { raw: text }; }
+
   if (!response.ok) {
-    const errorBody = await response.text();
     throw new Error(
-      `Failed to exchange authorization code: ${response.status} ${response.statusText} ${errorBody}`
+      `Failed to exchange authorization code: ${response.status} ${response.statusText} ${text}`
     );
   }
 
-  return response.json();
+  return json;
 };
 
 // --------------------------------------------------------------------
@@ -103,7 +107,37 @@ const storeSessionFromTokens = async (req, tokens, claims) => {
 };
 
 // --------------------------------------------------------------------
-// LOGIN — Generate PKCE + State and redirect to Buwana
+// Shared: handle token exchange + claims validation + session write
+// --------------------------------------------------------------------
+const handleTokenExchange = async (req, code) => {
+  const pkce = req.session?.pkce;
+  if (!pkce?.verifier) {
+    throw new Error('No PKCE verifier present in session. Start a new login.');
+  }
+
+  const tokenResponse = await exchangeAuthorizationCode({
+    code,
+    codeVerifier: pkce.verifier
+  });
+
+  const claims = await validateIdToken({
+    idToken: tokenResponse.id_token,
+    accessToken: tokenResponse.access_token,
+    nonce: pkce.nonce
+  });
+
+  await storeSessionFromTokens(req, tokenResponse, claims);
+  delete req.session.pkce;
+
+  return {
+    tokens: tokenResponse,
+    claims,
+    user: req.session.user
+  };
+};
+
+// --------------------------------------------------------------------
+// LOGIN — Generate PKCE + State + Nonce and redirect to Buwana
 // --------------------------------------------------------------------
 export const login = async (req, res) => {
   console.group('🌐 OAuth Login Debug');
@@ -114,7 +148,7 @@ export const login = async (req, res) => {
   const nonce = crypto.randomBytes(32).toString('base64url');
 
   req.session.pkce = {
-    ...pkce,
+    ...pkce, // { verifier, challenge }
     state,
     nonce,
     createdAt: Date.now()
@@ -123,12 +157,13 @@ export const login = async (req, res) => {
   req.session.save(err => {
     if (err) {
       console.error('❌ Failed to save PKCE to session:', err);
+      console.groupEnd();
       return res.status(500).send('Session save failed.');
     }
 
     console.log('✅ Saved PKCE and state to session:', req.session.pkce);
 
-    const authUrl = new URL(config.auth.buwanaAuthorizeUrl);
+    const authUrl = new URL(config.auth.buwanaAuthorizeUrl); // e.g. https://buwana.ecobricks.org/authorize
     authUrl.searchParams.set('client_id', config.auth.buwanaClientId);
     authUrl.searchParams.set('redirect_uri', config.auth.buwanaRedirectUri);
     authUrl.searchParams.set('response_type', 'code');
@@ -153,7 +188,7 @@ export const callback = async (req, res, next) => {
 
     if (error) {
       console.warn('⚠️ OAuth callback received error:', error, description);
-      return res.status(400).render('error', { pageTitle: 'Auth Error', message: description });
+      return res.status(400).render('error', { pageTitle: 'Auth Error', message: description || error });
     }
 
     const pkce = req.session.pkce;
@@ -165,56 +200,45 @@ export const callback = async (req, res, next) => {
     console.groupEnd();
 
     if (!pkce || state !== pkce.state) {
-      console.error('❌ State mismatch or missing PKCE.', {
-        expected: pkce?.state,
-        got: state
-      });
+      console.error('❌ State mismatch or missing PKCE.', { expected: pkce?.state, got: state });
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
         message: 'Invalid or mismatched state parameter.'
       });
     }
 
-    const tokenResponse = await exchangeAuthorizationCode({
-      code,
-      codeVerifier: pkce.verifier
-    });
-
-    const claims = await validateIdToken({
-      idToken: tokenResponse.id_token,
-      accessToken: tokenResponse.access_token,
-      nonce: pkce.nonce
-    });
-
-    await storeSessionFromTokens(req, tokenResponse, claims);
-
-    delete req.session.pkce;
+    await handleTokenExchange(req, code);
 
     console.log('✅ Authentication successful, redirecting to /dashboard.');
     res.redirect('/dashboard');
-  } catch (error) {
-    console.error('💥 OAuth callback error:', error.message);
-    return next(error);
+  } catch (err) {
+    console.error('💥 OAuth callback error:', err.message);
+    return next(err);
   }
 };
 
 // --------------------------------------------------------------------
-// TOKEN / USERINFO / LOGOUT
+// TOKEN (optional helper) — Exchange code via API
 // --------------------------------------------------------------------
 export const exchangeToken = async (req, res, next) => {
   try {
     const code = req.body?.code || req.query?.code;
     if (!code) {
-      return res.status(400).json({ error: 'invalid_request', error_description: 'Code required.' });
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Authorization code is required.'
+      });
     }
-
     const result = await handleTokenExchange(req, code);
     return res.json(result);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
+// --------------------------------------------------------------------
+// USERINFO
+// --------------------------------------------------------------------
 export const userinfo = (req, res) => {
   if (!req.session?.user) {
     return res.status(401).json({ error: 'unauthorized', error_description: 'Not logged in.' });
@@ -226,6 +250,9 @@ export const userinfo = (req, res) => {
   });
 };
 
+// --------------------------------------------------------------------
+// LOGOUT
+// --------------------------------------------------------------------
 export const logout = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie(config.auth.sessionCookieName || 'ht.sid');
