@@ -24,6 +24,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const MySQLStore = MySQLSession(session);
 
+// ------------------------------------------------------------
+// MySQL Session Store
+// ------------------------------------------------------------
 const sessionStore = new MySQLStore({
   host: config.database.host,
   port: config.database.port,
@@ -43,7 +46,10 @@ const sessionStore = new MySQLStore({
 
 loadLocales();
 
-app.set('trust proxy', 1);
+// ------------------------------------------------------------
+// Express Setup
+// ------------------------------------------------------------
+app.set('trust proxy', 1); // Required for secure cookies behind nginx
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -58,6 +64,7 @@ app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
+
 // ------------------------------------------------------------
 // Session Configuration (fixes OAuth state loss from Buwana)
 // ------------------------------------------------------------
@@ -65,17 +72,17 @@ const isProduction = config.env === 'production';
 
 const sessionCookieOptions = {
   httpOnly: true,
-  secure: true,                           // ✅ always true (HTTPS enforced by nginx)
-  sameSite: 'none',                       // ✅ required for cross-site redirect back from buwana.ecobricks.org
-  maxAge: 1000 * 60 * 15                  // session lasts 15 min (OAuth short)
+  secure: true,                 // Always true (HTTPS enforced by nginx)
+  sameSite: 'none',             // Needed for cross-site redirect back from buwana.ecobricks.org
+  maxAge: 1000 * 60 * 15        // Session lasts 15 minutes (short-lived OAuth session)
 };
 
-// ✅ Use consistent cookie domain (.hopeturtles.org if you might add subdomains)
+// ✅ Use consistent cookie domain (.hopeturtles.org if subdomains)
 sessionCookieOptions.domain = config.auth.sessionCookieDomain || 'hopeturtles.org';
 
 // Warn if dev env not HTTPS
 if (!isProduction) {
-  console.warn('⚠️  Dev mode: secure cookies require HTTPS; login may fail locally.');
+  console.warn('⚠️ Dev mode: secure cookies require HTTPS; login may fail locally.');
 }
 
 const sessionMiddleware = session({
@@ -87,29 +94,11 @@ const sessionMiddleware = session({
   cookie: sessionCookieOptions
 });
 
-app.set('trust proxy', 1); // behind nginx, required for secure cookies
 app.use(sessionMiddleware);
 
-
-if (!isProduction && sessionCookieOptions.secure) {
-  console.warn('⚠️  Session cookies are marked secure; they will only be set over HTTPS.');
-}
-
-if (config.auth.sessionCookieDomain) {
-  sessionCookieOptions.domain = config.auth.sessionCookieDomain;
-}
-
-const sessionMiddleware = session({
-  name: config.auth.sessionCookieName,
-  secret: config.auth.sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-  store: sessionStore,
-  cookie: sessionCookieOptions
-});
-
-app.use(sessionMiddleware);
-
+// ------------------------------------------------------------
+// Global Template Variables
+// ------------------------------------------------------------
 app.use((req, res, next) => {
   res.locals.currentUser = req.session?.user || null;
   res.locals.theme = res.locals.theme || config.appearance.defaultTheme;
@@ -127,6 +116,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// ------------------------------------------------------------
+// Routes and Middleware
+// ------------------------------------------------------------
 app.use(languageMiddleware);
 app.use(themeMiddleware);
 app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
@@ -136,19 +128,25 @@ app.use('/auth', authRouter);
 app.use('/api', apiRouter);
 app.use('/', webRouter);
 
+// ------------------------------------------------------------
+// Error Handling
+// ------------------------------------------------------------
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+// ------------------------------------------------------------
+// Start Server
+// ------------------------------------------------------------
 const start = async () => {
   try {
     const connection = await pool.getConnection();
     await connection.ping();
     connection.release();
     app.listen(config.port, config.host, () => {
-      console.log(`HopeTurtles.org landing page ready at http://127.0.0.1:${config.port}`);
+      console.log(`🌊 HopeTurtles.org landing page ready at http://127.0.0.1:${config.port}`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error.message);
+    console.error('❌ Failed to start server:', error.message);
     process.exit(1);
   }
 };
