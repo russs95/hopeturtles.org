@@ -52,7 +52,12 @@ MAPBOX_TOKEN=your_mapbox_token
 INCLUDE_WEBSITE_CARBON=true
 JWT_SECRET=change-me
 SESSION_SECRET=change-me
+SESSION_COOKIE_NAME=ht.sid
+SESSION_COOKIE_DOMAIN=.hopeturtles.org
+SESSION_COOKIE_SAMESITE=lax
 ```
+
+Set `SESSION_COOKIE_DOMAIN` to `.hopeturtles.org` (or your chosen apex domain) so login sessions survive redirects between `www` and root domains. Use `SESSION_COOKIE_SAMESITE=none` if your identity provider posts back to the callback URL and you need the cookie on cross-site requests.
 
 > **Font assets**: add `AlanSans-Variable.woff2` and `Mulish-Variable.woff2` to `public/fonts/` to avoid fallback fonts in production.
 

@@ -38,6 +38,12 @@ export const config = {
   auth: {
     sessionSecret: process.env.SESSION_SECRET || 'hopeturtles-secret',
     jwtSecret: process.env.JWT_SECRET || 'hopeturtles-jwt',
+    sessionCookieName: process.env.SESSION_COOKIE_NAME || 'ht.sid',
+    sessionCookieDomain: process.env.SESSION_COOKIE_DOMAIN || null,
+    sessionCookieSameSite: (() => {
+      const value = (process.env.SESSION_COOKIE_SAMESITE || 'lax').toLowerCase();
+      return ['lax', 'strict', 'none'].includes(value) ? value : 'lax';
+    })(),
     buwanaApiUrl: process.env.BUWANA_API_URL || 'https://sso.buwana.io',
     buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
     buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || '',
