@@ -1,24 +1,52 @@
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+import fetch from 'node-fetch';
 import { config } from '../config/env.js';
 import usersModel from '../models/usersModel.js';
-import { generatePkcePair, generateRandomState } from '../utils/auth/pkce.js';
+import { generatePkcePair } from '../utils/auth/pkce.js';
 
-const buildAuthorizeUrl = ({ codeChallenge, state, nonce }) => {
-  const params = new URLSearchParams({
-    response_type: 'code',
-    client_id: config.auth.buwanaClientId,
-    redirect_uri: config.auth.buwanaRedirectUri,
-    scope: config.auth.buwanaScope,
-    state,
-    nonce,
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256'
-  });
-
-  return `${config.auth.buwanaAuthorizeUrl}?${params.toString()}`;
+// --------------------------------------------------------------------
+// JWKS Client for verifying ID tokens
+// --------------------------------------------------------------------
+let sharedJwksClient;
+const getJwksClient = () => {
+  if (!sharedJwksClient) {
+    sharedJwksClient = jwksClient({
+      jwksUri: config.auth.buwanaJwksUri,
+      cache: true,
+      cacheMaxEntries: 5,
+      cacheMaxAge: 10 * 60 * 1000,
+      rateLimit: true,
+      jwksRequestsPerMinute: 10
+    });
+  }
+  return sharedJwksClient;
 };
 
+// --------------------------------------------------------------------
+// ID Token validation
+// --------------------------------------------------------------------
+const validateIdToken = async ({ idToken, accessToken, nonce }) => {
+  const decoded = jwt.decode(idToken, { complete: true });
+  if (!decoded?.header?.kid) {
+    throw new Error('Unable to decode ID token header.');
+  }
+
+  const client = getJwksClient();
+  const key = await client.getSigningKey(decoded.header.kid);
+  const signingKey = key.getPublicKey();
+
+  return jwt.verify(idToken, signingKey, {
+    algorithms: ['RS256'],
+    audience: config.auth.buwanaClientId,
+    nonce
+  });
+};
+
+// --------------------------------------------------------------------
+// Exchange Authorization Code for Tokens
+// --------------------------------------------------------------------
 const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
@@ -30,9 +58,7 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
 
   const response = await fetch(config.auth.buwanaTokenUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString()
   });
 
@@ -46,49 +72,9 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
   return response.json();
 };
 
-let sharedJwksClient;
-
-const getJwksClient = () => {
-  if (!sharedJwksClient) {
-    sharedJwksClient = jwksClient({
-      jwksUri: config.auth.buwanaJwksUri,
-      cache: true,
-      cacheMaxEntries: 5,
-      cacheMaxAge: 10 * 60 * 1000,
-      rateLimit: true,
-      jwksRequestsPerMinute: 10
-    });
-  }
-
-  return sharedJwksClient;
-};
-
-const validateIdToken = async ({ idToken, accessToken, nonce }) => {
-  const decoded = jwt.decode(idToken, { complete: true });
-
-  if (!decoded?.header?.kid) {
-    throw new Error('Unable to decode ID token header.');
-  }
-
-  const client = getJwksClient();
-  const previousHeaders = client.options.requestHeaders;
-
-  client.options.requestHeaders = accessToken
-    ? { Authorization: `Bearer ${accessToken}` }
-    : undefined;
-
-  const key = await client.getSigningKey(decoded.header.kid);
-  client.options.requestHeaders = previousHeaders;
-
-  const signingKey = key.getPublicKey();
-
-  return jwt.verify(idToken, signingKey, {
-    algorithms: ['RS256'],
-    audience: config.auth.buwanaClientId,
-    nonce
-  });
-};
-
+// --------------------------------------------------------------------
+// Store session info from token response
+// --------------------------------------------------------------------
 const storeSessionFromTokens = async (req, tokens, claims) => {
   const user = await usersModel.upsertFromBuwana({
     buwana_id: claims.sub,
@@ -116,175 +102,124 @@ const storeSessionFromTokens = async (req, tokens, claims) => {
   req.session.idTokenClaims = claims;
 };
 
-const handleTokenExchange = async (req, code) => {
-  const pkce = req.session.pkce;
+// --------------------------------------------------------------------
+// LOGIN — Generate PKCE + State and redirect to Buwana
+// --------------------------------------------------------------------
+export const login = async (req, res) => {
+  console.group('🌐 OAuth Login Debug');
+  console.log('Session before generating PKCE:', req.session);
 
-  if (!pkce?.verifier) {
-    throw new Error('No PKCE verifier present in session. Start a new login.');
-  }
-
-  const tokenResponse = await exchangeAuthorizationCode({
-    code,
-    codeVerifier: pkce.verifier
-  });
-
-  const claims = await validateIdToken({
-    idToken: tokenResponse.id_token,
-    accessToken: tokenResponse.access_token,
-    nonce: pkce.nonce
-  });
-
-  await storeSessionFromTokens(req, tokenResponse, claims);
-
-  delete req.session.pkce;
-
-  return {
-    tokens: tokenResponse,
-    claims,
-    user: req.session.user
-  };
-};
-
-export const login = (req, res) => {
-  const { verifier, challenge } = generatePkcePair();
-  const state = generateRandomState();
-  const nonce = generateRandomState();
+  const pkce = await generatePkcePair();
+  const state = crypto.randomBytes(32).toString('base64url');
+  const nonce = crypto.randomBytes(32).toString('base64url');
 
   req.session.pkce = {
-    verifier,
-    challenge,
+    ...pkce,
     state,
     nonce,
     createdAt: Date.now()
   };
 
-  const authorizeUrl = buildAuthorizeUrl({
-    codeChallenge: challenge,
-    state,
-    nonce
+  req.session.save(err => {
+    if (err) {
+      console.error('❌ Failed to save PKCE to session:', err);
+      return res.status(500).send('Session save failed.');
+    }
+
+    console.log('✅ Saved PKCE and state to session:', req.session.pkce);
+
+    const authUrl = new URL(config.auth.buwanaAuthorizeUrl);
+    authUrl.searchParams.set('client_id', config.auth.buwanaClientId);
+    authUrl.searchParams.set('redirect_uri', config.auth.buwanaRedirectUri);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', config.auth.buwanaScope || 'openid email profile');
+    authUrl.searchParams.set('code_challenge', pkce.challenge);
+    authUrl.searchParams.set('code_challenge_method', 'S256');
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('nonce', nonce);
+
+    console.log('🔗 Redirecting to:', authUrl.toString());
+    console.groupEnd();
+    res.redirect(authUrl.toString());
   });
-
-  return res.redirect(authorizeUrl);
 };
 
-const maskValue = (value, visible = 4) => {
-  if (!value || typeof value !== 'string') {
-    return value;
-  }
-
-  if (value.length <= visible * 2) {
-    return `${value.slice(0, 1)}…${value.slice(-1)}`;
-  }
-
-  return `${value.slice(0, visible)}…${value.slice(-visible)}`;
-};
-
-const buildSessionDebug = (req, state) => {
-  const pkce = req.session?.pkce;
-
-  return {
-    sessionId: req.sessionID,
-    hasSession: Boolean(req.session),
-    hasPkce: Boolean(pkce),
-    pkceCreatedAt: pkce?.createdAt ? new Date(pkce.createdAt).toISOString() : null,
-    pkceState: maskValue(pkce?.state),
-    receivedState: maskValue(state),
-    pkceNonce: maskValue(pkce?.nonce),
-    cookies: Object.keys(req.cookies || {})
-  };
-};
-
+// --------------------------------------------------------------------
+// CALLBACK — Handle redirect from Buwana
+// --------------------------------------------------------------------
 export const callback = async (req, res, next) => {
   try {
     const { code, state, error, error_description: description } = req.query;
 
     if (error) {
-      console.warn('Auth callback received error response from Buwana.', {
-        error,
-        description,
-        session: buildSessionDebug(req, state)
-      });
-      return res.status(400).render('error', {
-        pageTitle: 'Authentication error',
-        message: description || error
-      });
-    }
-
-    if (!code) {
-      return res.status(400).render('error', {
-        pageTitle: 'Authentication error',
-        message: 'No authorization code returned from Buwana.'
-      });
+      console.warn('⚠️ OAuth callback received error:', error, description);
+      return res.status(400).render('error', { pageTitle: 'Auth Error', message: description });
     }
 
     const pkce = req.session.pkce;
+    console.group('🔐 OAuth Callback Debug');
+    console.log('Incoming code:', code);
+    console.log('Incoming state:', state);
+    console.log('Session PKCE:', pkce);
+    console.log('Session ID:', req.sessionID);
+    console.groupEnd();
 
     if (!pkce || state !== pkce.state) {
-      console.warn('Auth callback state validation failed.', buildSessionDebug(req, state));
+      console.error('❌ State mismatch or missing PKCE.', {
+        expected: pkce?.state,
+        got: state
+      });
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
         message: 'Invalid or mismatched state parameter.'
       });
     }
 
-    await handleTokenExchange(req, code);
+    const tokenResponse = await exchangeAuthorizationCode({
+      code,
+      codeVerifier: pkce.verifier
+    });
 
-    return res.redirect('/dashboard');
+    const claims = await validateIdToken({
+      idToken: tokenResponse.id_token,
+      accessToken: tokenResponse.access_token,
+      nonce: pkce.nonce
+    });
+
+    await storeSessionFromTokens(req, tokenResponse, claims);
+
+    delete req.session.pkce;
+
+    console.log('✅ Authentication successful, redirecting to /dashboard.');
+    res.redirect('/dashboard');
   } catch (error) {
+    console.error('💥 OAuth callback error:', error.message);
     return next(error);
   }
 };
 
+// --------------------------------------------------------------------
+// TOKEN / USERINFO / LOGOUT
+// --------------------------------------------------------------------
 export const exchangeToken = async (req, res, next) => {
   try {
     const code = req.body?.code || req.query?.code;
-
     if (!code) {
-      if (req.session?.tokens?.accessToken) {
-        return res.json({
-          access_token: req.session.tokens.accessToken,
-          id_token: req.session.tokens.idToken,
-          token_type: req.session.tokens.tokenType,
-          expires_in: req.session.tokens.expiresAt
-            ? Math.max(0, Math.round((req.session.tokens.expiresAt - Date.now()) / 1000))
-            : null,
-          refresh_token: req.session.tokens.refreshToken,
-          user: req.session.user,
-          claims: req.session.idTokenClaims
-        });
-      }
-
-      return res.status(400).json({
-        error: 'invalid_request',
-        error_description: 'Authorization code is required.'
-      });
+      return res.status(400).json({ error: 'invalid_request', error_description: 'Code required.' });
     }
 
     const result = await handleTokenExchange(req, code);
-
-    return res.json({
-      access_token: result.tokens.access_token,
-      id_token: result.tokens.id_token,
-      token_type: result.tokens.token_type,
-      expires_in: result.tokens.expires_in,
-      refresh_token: result.tokens.refresh_token,
-      user: result.user,
-      claims: result.claims
-    });
+    return res.json(result);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 export const userinfo = (req, res) => {
-  if (!req.session?.user || !req.session?.idTokenClaims) {
-    return res.status(401).json({
-      error: 'unauthorized',
-      error_description: 'User is not authenticated.'
-    });
+  if (!req.session?.user) {
+    return res.status(401).json({ error: 'unauthorized', error_description: 'Not logged in.' });
   }
-
-  return res.json({
+  res.json({
     user: req.session.user,
     claims: req.session.idTokenClaims,
     tokens: req.session.tokens
@@ -293,7 +228,7 @@ export const userinfo = (req, res) => {
 
 export const logout = (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie('connect.sid');
+    res.clearCookie(config.auth.sessionCookieName || 'ht.sid');
     res.redirect('/');
   });
 };
