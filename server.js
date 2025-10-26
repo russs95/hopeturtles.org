@@ -58,20 +58,33 @@ app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
-app.use(
-  session({
-    secret: config.auth.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: {
-      secure: config.env === 'production',
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-  })
-);
+const isProduction = config.env === 'production';
+
+const sessionCookieOptions = {
+  secure: isProduction || config.auth.sessionCookieSameSite === 'none',
+  httpOnly: true,
+  sameSite: config.auth.sessionCookieSameSite,
+  maxAge: 1000 * 60 * 60 * 24 * 7
+};
+
+if (!isProduction && sessionCookieOptions.secure) {
+  console.warn('⚠️  Session cookies are marked secure; they will only be set over HTTPS.');
+}
+
+if (config.auth.sessionCookieDomain) {
+  sessionCookieOptions.domain = config.auth.sessionCookieDomain;
+}
+
+const sessionMiddleware = session({
+  name: config.auth.sessionCookieName,
+  secret: config.auth.sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: sessionCookieOptions
+});
+
+app.use(sessionMiddleware);
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.session?.user || null;
