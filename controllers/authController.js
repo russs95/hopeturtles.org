@@ -107,6 +107,57 @@ const storeSessionFromTokens = async (req, tokens, claims) => {
 };
 
 // --------------------------------------------------------------------
+// HANDLE TOKEN EXCHANGE — shared by callback + API endpoint
+// --------------------------------------------------------------------
+const handleTokenExchange = async (req, code) => {
+  const pkce = req.session?.pkce;
+
+  if (!pkce?.verifier) {
+    throw new Error('Missing PKCE verifier in session for token exchange.');
+  }
+
+  let tokens;
+  try {
+    tokens = await exchangeAuthorizationCode({ code, codeVerifier: pkce.verifier });
+  } catch (err) {
+    console.error('❌ Failed to exchange authorization code for tokens:', err);
+    throw err;
+  }
+
+  if (!tokens?.id_token) {
+    throw new Error('Token response did not include an ID token.');
+  }
+
+  const claims = await validateIdToken({
+    idToken: tokens.id_token,
+    accessToken: tokens.access_token,
+    nonce: pkce.nonce
+  });
+
+  await storeSessionFromTokens(req, tokens, claims);
+
+  delete req.session.pkce;
+
+  await new Promise((resolve, reject) => {
+    req.session.save(err => {
+      if (err) {
+        console.error('⚠️  Failed to persist session after token exchange:', err);
+        return reject(err);
+      }
+      return resolve();
+    });
+  });
+
+  console.log('✅ Token exchange complete. Session updated for user:', req.session?.user?.id);
+
+  return {
+    user: req.session.user,
+    claims,
+    tokens: req.session.tokens
+  };
+};
+
+// --------------------------------------------------------------------
 // LOGIN — Generate PKCE + State + Nonce and redirect to Buwana
 // --------------------------------------------------------------------
 export const login = async (req, res) => {
