@@ -58,14 +58,38 @@ app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
+// ------------------------------------------------------------
+// Session Configuration (fixes OAuth state loss from Buwana)
+// ------------------------------------------------------------
 const isProduction = config.env === 'production';
 
 const sessionCookieOptions = {
-  secure: isProduction || config.auth.sessionCookieSameSite === 'none',
   httpOnly: true,
-  sameSite: config.auth.sessionCookieSameSite,
-  maxAge: 1000 * 60 * 60 * 24 * 7
+  secure: true,                           // ✅ always true (HTTPS enforced by nginx)
+  sameSite: 'none',                       // ✅ required for cross-site redirect back from buwana.ecobricks.org
+  maxAge: 1000 * 60 * 15                  // session lasts 15 min (OAuth short)
 };
+
+// ✅ Use consistent cookie domain (.hopeturtles.org if you might add subdomains)
+sessionCookieOptions.domain = config.auth.sessionCookieDomain || 'hopeturtles.org';
+
+// Warn if dev env not HTTPS
+if (!isProduction) {
+  console.warn('⚠️  Dev mode: secure cookies require HTTPS; login may fail locally.');
+}
+
+const sessionMiddleware = session({
+  name: config.auth.sessionCookieName || 'ht.sid',
+  secret: config.auth.sessionSecret || 'changeme',
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: sessionCookieOptions
+});
+
+app.set('trust proxy', 1); // behind nginx, required for secure cookies
+app.use(sessionMiddleware);
+
 
 if (!isProduction && sessionCookieOptions.secure) {
   console.warn('⚠️  Session cookies are marked secure; they will only be set over HTTPS.');
