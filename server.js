@@ -78,7 +78,7 @@ const sessionCookieOptions = {
 };
 
 // ✅ Use consistent cookie domain (.hopeturtles.org if subdomains)
-sessionCookieOptions.domain = config.auth.sessionCookieDomain || 'hopeturtles.org';
+sessionCookieOptions.domain = config.auth.sessionCookieDomain || '.hopeturtles.org';
 
 // Warn if dev env not HTTPS
 if (!isProduction) {
