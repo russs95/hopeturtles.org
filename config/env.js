@@ -35,34 +35,49 @@ export const config = {
     password: process.env.DB_PASS,
     name: process.env.DB_NAME
   },
+
+
   auth: {
-    sessionSecret: process.env.SESSION_SECRET || 'hopeturtles-secret',
-    jwtSecret: process.env.JWT_SECRET || 'hopeturtles-jwt',
-    sessionCookieName: process.env.SESSION_COOKIE_NAME || 'ht.sid',
-    sessionCookieDomain: process.env.SESSION_COOKIE_DOMAIN || null,
-    sessionCookieSameSite: (() => {
-      const value = (process.env.SESSION_COOKIE_SAMESITE || 'lax').toLowerCase();
-      return ['lax', 'strict', 'none'].includes(value) ? value : 'lax';
-    })(),
-    buwanaApiUrl: process.env.BUWANA_API_URL || 'https://sso.buwana.io',
-    buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
-    buwanaPublicKey: process.env.BUWANA_PUBLIC_KEY || '',
-    buwanaAuthorizeUrl:
-      process.env.BUWANA_AUTHORIZE_URL ||
-      'https://buwana.ecobricks.org/authorize',
-    buwanaTokenUrl:
-      process.env.BUWANA_TOKEN_URL ||
-      'https://buwana.ecobricks.org/token',
-    buwanaRedirectUri:
-      process.env.BUWANA_REDIRECT_URI ||
-      'https://hopeturtles.org/auth/callback',
-    buwanaScope:
-      process.env.BUWANA_SCOPE ||
-      'openid profile email buwana:earthlingEmoji',
-    buwanaJwksUri:
-      process.env.BUWANA_JWKS_URI ||
-      'https://buwana.ecobricks.org/api/userinfo.php'
-  },
+  // Sessions / cookies
+  sessionSecret: process.env.SESSION_SECRET || 'hopeturtles-secret',
+  jwtSecret: process.env.JWT_SECRET || 'hopeturtles-jwt',
+  sessionCookieName: process.env.SESSION_COOKIE_NAME || 'ht.sid',
+  sessionCookieDomain: process.env.SESSION_COOKIE_DOMAIN || 'hopeturtles.org',
+  sessionCookieSameSite: (() => {
+    // default to 'none' for cross-site OAuth redirect
+    const value = (process.env.SESSION_COOKIE_SAMESITE || 'none').toLowerCase();
+    return ['lax', 'strict', 'none'].includes(value) ? value : 'none';
+  })(),
+
+  // Buwana endpoints / client
+  buwanaApiUrl: process.env.BUWANA_API_URL || 'https://buwana.ecobricks.org',
+  buwanaClientId: process.env.BUWANA_CLIENT_ID || '',
+
+  // OIDC endpoints
+  buwanaAuthorizeUrl:
+    process.env.BUWANA_AUTHORIZE_URL ||
+    'https://buwana.ecobricks.org/authorize',
+  buwanaTokenUrl:
+    process.env.BUWANA_TOKEN_URL ||
+    'https://buwana.ecobricks.org/token',
+  buwanaJwksUri:
+    process.env.BUWANA_JWKS_URI ||
+    'https://buwana.ecobricks.org/.well-known/jwks.php',
+
+  // Redirect URI (prefer REDIRECT_URI; fallback to BUWANA_REDIRECT_URI)
+  buwanaRedirectUri:
+    process.env.REDIRECT_URI ||
+    process.env.BUWANA_REDIRECT_URI ||
+    'https://hopeturtles.org/auth/callback',
+
+  // Scopes
+  buwanaScope:
+    process.env.BUWANA_SCOPE ||
+    'openid profile email buwana:earthlingEmoji'
+},
+
+
+  
   appearance: {
     defaultTheme: process.env.DEFAULT_THEME || 'light',
     supportedThemes: (process.env.SUPPORTED_THEMES || 'light,dark').split(','),
