@@ -6,6 +6,38 @@ import usersModel from '../models/usersModel.js';
 import { generatePkcePair } from '../utils/auth/pkce.js';
 
 // --------------------------------------------------------------------
+// Helpers
+// --------------------------------------------------------------------
+const parseBuwanaId = (value) => {
+  if (value === undefined || value === null) {
+    throw new Error('ID token did not include a subject (sub) claim.');
+  }
+
+  if (typeof value === 'number' && Number.isInteger(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+
+    if (trimmed === '') {
+      throw new Error('ID token subject (sub) claim was empty.');
+    }
+
+    if (/^\d+$/.test(trimmed)) {
+      return Number.parseInt(trimmed, 10);
+    }
+
+    const match = trimmed.match(/(\d+)$/);
+    if (match) {
+      return Number.parseInt(match[1], 10);
+    }
+  }
+
+  throw new Error(`Unable to derive numeric Buwana ID from subject claim: ${value}`);
+};
+
+// --------------------------------------------------------------------
 // JWKS Client for verifying ID tokens
 // --------------------------------------------------------------------
 let sharedJwksClient;
@@ -80,8 +112,10 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
 // Store session info from token response
 // --------------------------------------------------------------------
 const storeSessionFromTokens = async (req, tokens, claims) => {
+  const buwanaId = parseBuwanaId(claims.sub);
+
   const user = await usersModel.upsertFromBuwana({
-    buwana_id: claims.sub,
+    buwana_id: buwanaId,
     email: claims.email || claims.preferred_username,
     full_name: claims.name || claims.full_name || claims.nickname,
     role: claims.role || 'user',
