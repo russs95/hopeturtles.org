@@ -7,6 +7,7 @@ import alertsRouter from './alerts.js';
 import hubsRouter from './hubs.js';
 import boatsRouter from './boats.js';
 import summaryRouter from './summary.js';
+import usersRouter from './users.js';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/success', successRouter);
 router.use('/alerts', alertsRouter);
 router.use('/hubs', hubsRouter);
 router.use('/boats', boatsRouter);
+router.use('/users', usersRouter);
 router.use('/', summaryRouter);
 
 export default router;
