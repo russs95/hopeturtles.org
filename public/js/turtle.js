@@ -55,7 +55,7 @@ if (container && mapContainer) {
       .filter((item) => item.latitude && item.longitude)
       .map((item) => [Number(item.latitude), Number(item.longitude)]);
     if (!points.length) return;
-    pathLayer = L.polyline(points, { color: '#0077b6', weight: 3 }).addTo(map);
+    pathLayer = L.polyline(points, { color: '#017919', weight: 3 }).addTo(map);
     map.fitBounds(pathLayer.getBounds(), { padding: [40, 40] });
   };
 

@@ -17,12 +17,12 @@ const buildStatusChart = (ctx, stats) => {
         {
           label: 'Missions',
           data: missionData,
-          backgroundColor: '#0077b6'
+          backgroundColor: '#017919'
         },
         {
           label: 'Turtles',
           data: turtleData,
-          backgroundColor: '#00b4d8'
+          backgroundColor: '#23b053'
         }
       ]
     },
@@ -48,7 +48,7 @@ const buildTelemetryChart = (ctx, stats) => {
         {
           label: 'Telemetry readings/hour',
           data: values,
-          borderColor: '#90e0ef',
+          borderColor: '#5ba26b',
           fill: false,
           tension: 0.3
         }

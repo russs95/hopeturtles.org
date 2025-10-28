@@ -10,19 +10,13 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 
 | Role | Font | Weight | Path |
 |------|------|---------|------|
-| **Headings & Titles** | Alan Sans | Variable | `/public/fonts/AlanSans-VariableFont_wght.ttf` |
-| **Body Text** | Mulish Medium | 500 | `/public/fonts/Mulish-Medium.ttf` |
-| **Captions** | Mulish Light | 300 | `/public/fonts/Mulish-Light.ttf` |
-| **ASCII Accents (optional)** | Inconsolata | 400 | Google Fonts |
+| **Headings & Highlights** | Mulish SemiBold | 600 | `/public/fonts/Mulish-Medium.ttf` |
+| **Body Text** | Mulish Regular | 400 | Google Fonts (`Mulish 400`) / fallback `/public/fonts/Mulish-Medium.ttf` |
+| **Secondary Text** | Mulish Light | 300 | `/public/fonts/Mulish-Light.ttf` |
+| **ASCII Accents (optional)** | Fira Code | 400 | System / Google Fonts |
 
 ### CSS Font Setup
 ```css
-@font-face {
-  font-family: 'Alan Sans';
-  src: url('/fonts/AlanSans-VariableFont_wght.ttf') format('truetype');
-  font-display: swap;
-}
-
 @font-face {
   font-family: 'Mulish';
   src: url('/fonts/Mulish-Light.ttf') format('truetype');
@@ -33,11 +27,18 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 @font-face {
   font-family: 'Mulish';
   src: url('/fonts/Mulish-Medium.ttf') format('truetype');
-  font-weight: 500;
+  font-weight: 400;
   font-display: swap;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400&display=swap');
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/Mulish-Medium.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;600&display=swap');
 ```
 
 ---
@@ -46,10 +47,11 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 
 | Role | Color | Hex | Description |
 |------|--------|-----|-------------|
-| **Ocean Blue (Accent)** | `#6EC4E8` | Hope Turtle logo blue |
-| **Dark Grey (Text)** | `#5C5C5C` | For text and titles |
-| **Light Grey (Lines / ASCII)** | `#A0A0A0` | For borders, subtle accents |
-| **Background Sand** | `#F8F9FA` | For general page background |
+| **Turtle Green (Primary)** | `#017919` | Primary brand tone |
+| **Leaf Accent** | `#23B053` | Supporting highlight and hover states |
+| **Deep Forest (Text)** | `#1F3B22` | High contrast text color |
+| **Seafoam Mist (Background)** | `#F2F9F3` | Default page background |
+| **Light Mint (Surface)** | `#C0E3CB` | Soft cards and outlines |
 | **White** | `#FFFFFF` | For cards and contrast |
 
 ---
@@ -58,21 +60,22 @@ Design elements echo the project's ASCII turtle identity — humble, friendly, a
 
 ```css
 :root {
-  --color-blue: #6EC4E8;
-  --color-dark-grey: #5C5C5C;
-  --color-light-grey: #A0A0A0;
-  --color-sand: #F8F9FA;
+  --color-primary: #017919;
+  --color-accent: #23B053;
+  --color-forest: #1F3B22;
+  --color-mist: #F2F9F3;
+  --color-mint: #C0E3CB;
   --color-white: #FFFFFF;
 
-  --font-heading: 'Alan Sans', sans-serif;
+  --font-heading: 'Mulish', sans-serif;
   --font-body: 'Mulish', sans-serif;
-  --font-caption: 'Mulish', sans-serif;
-  --font-ascii: 'Inconsolata', monospace;
+  --font-secondary: 'Mulish', sans-serif;
+  --font-ascii: 'Fira Code', monospace;
 }
 
 body {
-  background-color: var(--color-sand);
-  color: var(--color-dark-grey);
+  background-color: var(--color-mist);
+  color: var(--color-forest);
   font-family: var(--font-body);
   line-height: 1.6;
   margin: 0;
@@ -81,17 +84,17 @@ body {
 
 h1, h2, h3 {
   font-family: var(--font-heading);
-  color: var(--color-dark-grey);
+  color: var(--color-forest);
   letter-spacing: -0.02em;
 }
 
 h1 {
   font-size: 2.75rem;
-  color: var(--color-blue);
+  color: var(--color-primary);
   font-weight: 700;
 }
-h2 { font-size: 2rem; font-weight: 600; }
-h3 { font-size: 1.5rem; font-weight: 500; }
+h2 { font-size: 2rem; font-weight: 600; color: var(--color-primary); }
+h3 { font-size: 1.5rem; font-weight: 500; color: var(--color-forest); }
 
 p {
   font-size: 1rem;
@@ -99,9 +102,9 @@ p {
 }
 
 .caption {
-  font-family: var(--font-caption);
+  font-family: var(--font-secondary);
   font-size: 0.875rem;
-  color: var(--color-light-grey);
+  color: var(--color-mint);
   text-align: center;
   font-style: italic;
 }
@@ -109,7 +112,7 @@ p {
 /* ASCII Divider Example */
 .ascii-divider {
   font-family: var(--font-ascii);
-  color: var(--color-light-grey);
+  color: var(--color-mint);
   text-align: center;
   white-space: pre;
   margin: 2rem auto;
@@ -119,7 +122,7 @@ p {
 
 button, .btn {
   font-family: var(--font-heading);
-  background-color: var(--color-blue);
+  background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
   padding: 0.7rem 1.4rem;
@@ -128,7 +131,7 @@ button, .btn {
   transition: background 0.2s ease;
 }
 button:hover, .btn:hover {
-  background-color: #4EA9D5;
+  background-color: var(--color-accent);
 }
 ```
 
@@ -137,7 +140,7 @@ button:hover, .btn:hover {
 ## 🌊 Design Notes
 - **ASCII Art as Theme:** integrate subtle ASCII turtles or dividers (`───🐢───`) in pages and headers.
 - **Soft Edges:** Rounded corners, minimal shadows, light grey dividers.
-- **Ocean & Humanity:** Blue for vitality and connection; grey for stability and calm.
+- **Ocean & Humanity:** Turtle greens for vitality and regeneration; forest neutrals for stability and calm.
 - **Responsive Typography:** All headings and body sizes scale smoothly for mobile and desktop.
 
 ---

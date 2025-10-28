@@ -1,7 +1,15 @@
 <header class="site-header">
   <div class="brand">
-    <span class="brand-ascii" aria-hidden="true">🐢</span>
-    <a href="/" class="brand-name">HopeTurtles.org</a>
+    <a href="/" class="brand-link">
+      <img
+        src="/logos/hopeturtle-logo.png"
+        alt="HopeTurtles.org logo"
+        class="brand-logo"
+        width="40"
+        height="40"
+      />
+      <span class="brand-name">HopeTurtles.org</span>
+    </a>
   </div>
   <nav class="primary-nav" aria-label="Primary">
     <a href="/missions"><%= t.nav_mission || 'Mission' %></a>
@@ -9,19 +17,48 @@
     <a href="#contact"><%= t.nav_contact || 'Contact' %></a>
   </nav>
   <div class="nav-controls">
-    <button id="themeToggle" class="button ghost" aria-label="Toggle theme">
-      <span class="icon" aria-hidden="true">☼</span>
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      aria-label="Toggle theme"
+      aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
+      type="button"
+    >
+      <span class="toggle-track" aria-hidden="true">
+        <span class="toggle-icon toggle-icon--sun">☀️</span>
+        <span class="toggle-thumb"></span>
+        <span class="toggle-icon toggle-icon--moon">🌙</span>
+      </span>
     </button>
-    <label class="lang-select">
-      <span class="sr-only">Language</span>
-      <select id="languageSwitcher">
+    <div class="lang-menu">
+      <button
+        id="languageButton"
+        class="lang-button"
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="languageMenu"
+      >
+        <span class="sr-only">Change language</span>
+        <span class="lang-button-code"><%= (lang || 'en').toUpperCase() %></span>
+      </button>
+      <ul id="languageMenu" class="lang-options" role="listbox" hidden>
         <% languages.forEach(function (option) { %>
-          <option value="<%= option.code %>" <%= option.code === lang ? 'selected' : '' %>>
-            <%= option.label %>
-          </option>
+          <li role="none">
+            <button
+              type="button"
+              role="option"
+              data-lang="<%= option.code %>"
+              class="lang-option"
+              aria-selected="<%= option.code === lang %>"
+            >
+              <span class="lang-option-code"><%= option.code.toUpperCase() %></span>
+              <span class="lang-option-label"><%= option.label %></span>
+            </button>
+          </li>
         <% }) %>
-      </select>
-    </label>
+      </ul>
+    </div>
     <% if (currentUser) { %>
       <a class="button" href="/dashboard">Dashboard</a>
       <a class="button ghost" href="/auth/logout">Logout</a>
