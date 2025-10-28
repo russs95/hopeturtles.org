@@ -108,9 +108,9 @@ app.use((req, res, next) => {
   res.locals.brand = {
     name: 'HopeTurtles.org',
     colors: {
-      primary: '#0077b6',
-      light: '#cfd3d6',
-      dark: '#42484d'
+      primary: '#017919',
+      light: '#c0e3cb',
+      dark: '#1f3b22'
     }
   };
   next();
