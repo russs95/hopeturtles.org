@@ -27,7 +27,7 @@
       <aside class="dashboard-user-card" aria-label="Current user summary">
         <p class="dashboard-user-card__greeting">
           Logged in as
-          <strong <%= userBuwanaId ? `title="User Buwana ID: ${userBuwanaId}"` : '' %>><%= userFirstName %></strong>
+          <strong <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>><%= userFirstName %></strong>
         </p>
         <ul class="dashboard-user-card__meta">
           <li>
@@ -119,6 +119,50 @@
       </div>
       <% if (missions.length === 0) { %>
         <p class="panel-empty">No missions have been created yet.</p>
+      <% } %>
+    </section>
+
+    <section class="panel hub-management-panel" id="dashboard-hubs">
+      <header class="panel-header">
+        <div>
+          <h2>Hub management</h2>
+          <p class="panel-subtitle">Connected hubs with their linked missions and assets.</p>
+        </div>
+        <a class="button" href="/admin#admin-hubs-form">+ Add Hub</a>
+      </header>
+      <div class="table-wrapper">
+        <table class="hubs-table">
+          <thead>
+            <tr>
+              <th scope="col">Hub name</th>
+              <th scope="col">Mission</th>
+              <th scope="col">Country</th>
+              <th scope="col">Boats</th>
+              <th scope="col">Bottles</th>
+              <th scope="col">Turtles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% hubs.forEach(function (hub) { %>
+              <tr>
+                <td data-label="Hub name">
+                  <strong><%= hub.name %></strong>
+                  <% if (hub.region) { %>
+                    <div class="muted"><%= hub.region %></div>
+                  <% } %>
+                </td>
+                <td data-label="Mission"><%= hub.mission_name || '—' %></td>
+                <td data-label="Country"><%= hub.country || '—' %></td>
+                <td data-label="Boats" class="numeric-cell"><%= hub.boat_count ?? 0 %></td>
+                <td data-label="Bottles" class="numeric-cell"><%= hub.bottle_count ?? 0 %></td>
+                <td data-label="Turtles" class="numeric-cell"><%= hub.turtle_count ?? 0 %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% if (hubs.length === 0) { %>
+        <p class="panel-empty">No hubs have been created yet.</p>
       <% } %>
     </section>
 

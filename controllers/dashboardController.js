@@ -37,14 +37,16 @@ export const renderDashboard = async (req, res, next) => {
     }
 
     const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
+    const isAdmin = canViewUserStats;
 
-    const [missions, turtles, telemetry, successEntries, alerts, userStats] = await Promise.all([
+    const [missions, turtles, telemetry, successEntries, alerts, userStats, hubs] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       telemetryModel.getLatest(),
       successModel.getRecent(10),
       alertsModel.getActive(),
-      canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null)
+      canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null),
+      isAdmin ? hubsModel.getAllWithStats() : Promise.resolve([])
     ]);
     return res.render('dashboard', {
       pageTitle: 'Dashboard',
@@ -55,7 +57,8 @@ export const renderDashboard = async (req, res, next) => {
       alerts,
       userStats,
       canViewUserStats,
-      dashboardUser
+      dashboardUser,
+      hubs: Array.isArray(hubs) ? hubs : []
     });
   } catch (error) {
     return next(error);
