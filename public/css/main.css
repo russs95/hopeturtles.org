@@ -170,6 +170,10 @@ a:hover {
   color: var(--color-primary);
   margin: 0;
   letter-spacing: 0.08em;
+  white-space: pre;
+  display: inline-block;
+  line-height: 1.1;
+  font-size: 0.95rem;
 }
 
 .primary-nav {
@@ -483,20 +487,24 @@ a:hover {
   overflow-x: auto;
 }
 
-.users-table {
+.users-table,
+.missions-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 640px;
 }
 
 .users-table th,
-.users-table td {
+.users-table td,
+.missions-table th,
+.missions-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(1, 121, 25, 0.1);
   vertical-align: top;
 }
 
-.users-table thead th {
+.users-table thead th,
+.missions-table thead th {
   text-align: left;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -504,7 +512,8 @@ a:hover {
   color: var(--color-primary);
 }
 
-.users-table tbody tr:last-child td {
+.users-table tbody tr:last-child td,
+.missions-table tbody tr:last-child td {
   border-bottom: none;
 }
 
@@ -544,6 +553,46 @@ a:hover {
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   background: rgba(1, 121, 25, 0.1);
+}
+
+.mission-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  background: rgba(1, 121, 25, 0.12);
+  color: var(--color-primary);
+  text-transform: capitalize;
+  font-size: 0.85rem;
+}
+
+.mission-status[data-status='active'] {
+  background: rgba(35, 176, 83, 0.18);
+  color: #0f5225;
+}
+
+.mission-status[data-status='paused'] {
+  background: rgba(249, 191, 59, 0.24);
+  color: #8a5b00;
+}
+
+.mission-status[data-status='completed'] {
+  background: rgba(0, 90, 143, 0.2);
+  color: #004a6f;
+}
+
+.mission-status[data-status='planned'] {
+  background: rgba(1, 121, 25, 0.14);
+  color: var(--color-primary);
+}
+
+.panel-empty {
+  margin: 0;
+  color: var(--color-text);
+  opacity: 0.7;
+  padding: 0 1rem 1rem;
 }
 
 .manage-users-feedback {
@@ -759,6 +808,76 @@ a:hover {
 
 .form-feedback {
   min-height: 1.5rem;
+}
+
+.numeric-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mission-dialog {
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+.mission-dialog::backdrop {
+  background: rgba(7, 30, 14, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.mission-dialog[data-open='true'] {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 30, 14, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 100;
+}
+
+.mission-dialog[data-open='true'] .form-card {
+  width: min(520px, 90vw);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+}
+
+.mission-dialog .form-card {
+  width: min(520px, 90vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.mission-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mission-form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mission-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mission-form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.mission-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 @media (max-width: 768px) {
