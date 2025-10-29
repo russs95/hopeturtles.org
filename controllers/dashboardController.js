@@ -39,7 +39,7 @@ export const renderDashboard = async (req, res, next) => {
     const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
 
     const [missions, turtles, telemetry, successEntries, alerts, userStats] = await Promise.all([
-      missionsModel.getAll(),
+      missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       telemetryModel.getLatest(),
       successModel.getRecent(10),
@@ -65,7 +65,7 @@ export const renderDashboard = async (req, res, next) => {
 export const renderAdmin = async (req, res, next) => {
   try {
     const [missions, turtles, hubs, boats, alerts] = await Promise.all([
-      missionsModel.getAll(),
+      missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       hubsModel.getAll(),
       boatsModel.getAll(),

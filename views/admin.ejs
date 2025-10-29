@@ -6,66 +6,100 @@
     <p>Manage missions, turtles, hubs, boats, and alerts.</p>
   </section>
 
-  <section class="admin-section" id="admin-missions">
-    <h2>Missions</h2>
-    <form class="form-card admin-form" data-endpoint="/api/missions" data-method="POST">
-      <label>
-        Name
-        <input name="name" required />
-      </label>
-      <label>
-        Description
-        <textarea name="description"></textarea>
-      </label>
-      <label>
-        Status
-        <select name="status">
-          <option value="planned">planned</option>
-          <option value="active">active</option>
-          <option value="completed">completed</option>
-        </select>
-      </label>
-      <label>
-        Target latitude
-        <input type="number" step="0.000001" name="target_lat" />
-      </label>
-      <label>
-        Target longitude
-        <input type="number" step="0.000001" name="target_lng" />
-      </label>
-      <button type="submit" class="button">Create mission</button>
-      <p class="form-feedback" role="status"></p>
-    </form>
-    <div class="admin-table">
-      <table>
+  <section class="panel mission-management-panel" id="admin-missions">
+    <header class="panel-header">
+      <div>
+        <h2>Mission management</h2>
+        <p class="panel-subtitle">Overview of every mission and its assets.</p>
+      </div>
+      <button type="button" class="button" data-open-mission-form>Create mission</button>
+    </header>
+    <div class="table-wrapper">
+      <table class="missions-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th></th>
+            <th scope="col">Name</th>
+            <th scope="col">Status</th>
+            <th scope="col">Bottles</th>
+            <th scope="col">Turtles</th>
+            <th scope="col">Boats</th>
           </tr>
         </thead>
         <tbody>
           <% missions.forEach(function (mission) { %>
             <tr>
-              <td><%= mission.mission_id %></td>
-              <td><%= mission.name %></td>
-              <td><%= mission.status %></td>
-              <td>
-                <button
-                  class="button ghost delete"
-                  data-endpoint="/api/missions/<%= mission.mission_id %>"
-                >
-                  Delete
-                </button>
+              <td data-label="Name">
+                <strong><%= mission.name %></strong>
+                <% if (mission.description) { %>
+                  <div class="muted"><%= mission.description %></div>
+                <% } %>
               </td>
+              <td data-label="Status">
+                <span class="mission-status" data-status="<%= mission.status %>"><%= mission.status %></span>
+              </td>
+              <td data-label="Bottles" class="numeric-cell"><%= mission.bottle_count ?? 0 %></td>
+              <td data-label="Turtles" class="numeric-cell"><%= mission.turtle_count ?? 0 %></td>
+              <td data-label="Boats" class="numeric-cell"><%= mission.boat_count ?? 0 %></td>
             </tr>
           <% }) %>
         </tbody>
       </table>
     </div>
+    <% if (missions.length === 0) { %>
+      <p class="panel-empty">No missions have been created yet.</p>
+    <% } %>
   </section>
+
+  <dialog id="createMissionDialog" class="mission-dialog" aria-labelledby="createMissionTitle">
+    <form class="form-card admin-form mission-form" data-endpoint="/api/missions" data-method="POST">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="createMissionTitle">Create mission</h2>
+          <p class="panel-subtitle">Define a new HopeTurtles deployment.</p>
+        </div>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Name
+          <input name="name" required />
+        </label>
+        <label class="full-width">
+          Description
+          <textarea name="description" rows="3"></textarea>
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <option value="planned">planned</option>
+            <option value="active">active</option>
+            <option value="paused">paused</option>
+            <option value="completed">completed</option>
+          </select>
+        </label>
+        <label>
+          Start date
+          <input type="datetime-local" name="start_date" />
+        </label>
+        <label>
+          End date
+          <input type="datetime-local" name="end_date" />
+        </label>
+        <label>
+          Target latitude
+          <input type="number" step="0.000001" name="target_lat" />
+        </label>
+        <label>
+          Target longitude
+          <input type="number" step="0.000001" name="target_lng" />
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-mission-form>Cancel</button>
+        <button type="submit" class="button">Create mission</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
+  </dialog>
 
   <section class="admin-section" id="admin-turtles">
     <h2>Turtles</h2>
