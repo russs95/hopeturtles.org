@@ -1,7 +1,17 @@
 <header class="site-header">
   <div class="brand">
     <a href="/" class="brand-link" aria-label="HopeTurtles.org home">
-      <span class="brand-name">HopeTurtles.org</span>
+      <span class="sr-only">HopeTurtles.org</span>
+      <pre
+        class="brand-ascii"
+        aria-hidden="true"
+        style="font-size: 3.5vw; white-space: pre; display: inline-block; line-height: 1;"
+      >   _________   ___&#32;&#32;
+ /          \ |  0|&#32;
+|           |/ __\|&#32;
+|_____________/&#32;&#32;&#32;&#32;&#32;
+  |__|   |__|&#32;&#32;&#32;&#32;&#32;
+      </pre>
     </a>
   </div>
   <nav class="primary-nav" aria-label="Primary">
@@ -10,16 +20,6 @@
     <a href="#contact"><%= t.nav_contact || 'Contact' %></a>
   </nav>
   <div class="nav-controls">
-    <button
-      id="themeToggle"
-      class="theme-toggle"
-      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
-      aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
-      type="button"
-    >
-      <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
-      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
-    </button>
     <div class="lang-menu">
       <button
         id="languageButton"
@@ -63,5 +63,15 @@
         Signup
       </a>
     <% } %>
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
+      aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
+      type="button"
+    >
+      <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
+      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
+    </button>
   </div>
 </header>
