@@ -10,7 +10,7 @@ import usersModel from '../models/usersModel.js';
 export const renderDashboard = async (req, res, next) => {
   try {
     const currentUser = req.session?.user;
-    const canViewUserStats = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.id === 1));
+    const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
 
     const [missions, turtles, telemetry, successEntries, alerts, userStats] = await Promise.all([
       missionsModel.getAll(),
