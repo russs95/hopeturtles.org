@@ -2,17 +2,21 @@ const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 const root = document.documentElement;
 const themeToggle = document.getElementById('themeToggle');
 
-const reflectThemeToggle = (theme) => {
+const updateThemeToggleVisuals = (theme) => {
   if (!themeToggle) return;
   const isDark = theme === 'dark';
+  const icon = themeToggle.querySelector('.theme-icon');
   themeToggle.setAttribute('aria-pressed', String(isDark));
-  themeToggle.classList.toggle('is-dark', isDark);
+  themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  if (icon) {
+    icon.textContent = isDark ? '☀️' : '🌙';
+  }
 };
 
 const applyTheme = (theme) => {
   root.dataset.theme = theme;
   localStorage.setItem('ht-theme', theme);
-  reflectThemeToggle(theme);
+  updateThemeToggleVisuals(theme);
 };
 
 const detectInitialTheme = () => {
@@ -34,7 +38,7 @@ prefersDark.addEventListener('change', (event) => {
 });
 
 if (themeToggle) {
-  reflectThemeToggle(root.dataset.theme || 'light');
+  updateThemeToggleVisuals(root.dataset.theme || 'light');
   themeToggle.addEventListener('click', () => {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     applyTheme(next);

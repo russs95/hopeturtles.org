@@ -1,13 +1,6 @@
 <header class="site-header">
   <div class="brand">
-    <a href="/" class="brand-link">
-      <img
-        src="/logos/hopeturtle-logo.png"
-        alt="HopeTurtles.org logo"
-        class="brand-logo"
-        width="40"
-        height="40"
-      />
+    <a href="/" class="brand-link" aria-label="HopeTurtles.org home">
       <span class="brand-name">HopeTurtles.org</span>
     </a>
   </div>
@@ -20,15 +13,12 @@
     <button
       id="themeToggle"
       class="theme-toggle"
-      aria-label="Toggle theme"
+      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
       aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
       type="button"
     >
-      <span class="toggle-track" aria-hidden="true">
-        <span class="toggle-icon toggle-icon--sun">☀️</span>
-        <span class="toggle-thumb"></span>
-        <span class="toggle-icon toggle-icon--moon">🌙</span>
-      </span>
+      <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
+      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
     </button>
     <div class="lang-menu">
       <button
@@ -64,6 +54,14 @@
       <a class="button ghost" href="/auth/logout">Logout</a>
     <% } else { %>
       <a class="button" href="<%= loginUrl %>">Login</a>
+      <a
+        class="button ghost"
+        href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Signup
+      </a>
     <% } %>
   </div>
 </header>
