@@ -1,8 +1,13 @@
 <header class="site-header">
   <div class="brand">
-    <a href="/" class="brand-link" aria-label="HopeTurtles.org home">
+    <a href="/" class="brand-link" aria-label="HopeTurtles.org home" title="HopeTurtles.org | a human2human project">
       <span class="sr-only">HopeTurtles.org</span>
-      <pre class="brand-ascii" aria-hidden="true" data-logo-src="/turtles-ascii-logo.txt">
+      <pre
+        class="brand-ascii"
+        aria-hidden="true"
+        data-logo-src="/turtles-ascii-logo.txt"
+        data-logo-alt-src="/turtles-asci-logo-2.txt"
+      >
         HopeTurtles.org
       </pre>
       <script>
@@ -13,16 +18,54 @@
               ? script.previousElementSibling
               : document.querySelector('.brand-ascii[data-logo-src]');
           if (!target) return;
-          const src = target.dataset.logoSrc;
-          if (!src) return;
-          fetch(src)
-            .then((response) => (response.ok ? response.text() : Promise.reject()))
-            .then((text) => {
-              target.textContent = text.replace(/\s+$/u, '');
-            })
-            .catch(() => {
-              target.textContent = 'HopeTurtles.org';
-            });
+          const sources = [target.dataset.logoSrc, target.dataset.logoAltSrc].filter(Boolean);
+          const fallback = 'HopeTurtles.org';
+
+          const loadLogo = (src) =>
+            fetch(src)
+              .then((response) => (response.ok ? response.text() : Promise.reject()))
+              .then((text) => text.replace(/\s+$/u, ''))
+              .catch(() => null);
+
+          const setContent = (text) => {
+            target.textContent = text || fallback;
+          };
+
+          Promise.all(sources.map((src) => loadLogo(src))).then((logos) => {
+            const frames = logos.filter(Boolean);
+            if (!frames.length) {
+              setContent(fallback);
+              return;
+            }
+
+            let frameIndex = 0;
+            let animationId = null;
+            setContent(frames[0]);
+
+            const hoverTarget = target.closest('a') || target;
+            if (!hoverTarget) return;
+
+            const startAnimation = () => {
+              if (frames.length < 2 || animationId !== null) return;
+              animationId = window.setInterval(() => {
+                frameIndex = (frameIndex + 1) % frames.length;
+                setContent(frames[frameIndex]);
+              }, 400);
+            };
+
+            const stopAnimation = () => {
+              if (animationId === null) return;
+              window.clearInterval(animationId);
+              animationId = null;
+              frameIndex = 0;
+              setContent(frames[frameIndex]);
+            };
+
+            hoverTarget.addEventListener('mouseenter', startAnimation);
+            hoverTarget.addEventListener('mouseleave', stopAnimation);
+            hoverTarget.addEventListener('focus', startAnimation, true);
+            hoverTarget.addEventListener('blur', stopAnimation, true);
+          });
         })();
       </script>
     </a>
