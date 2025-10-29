@@ -13,6 +13,10 @@
            (dashboardUser.full_name ? dashboardUser.full_name.split(/\s+/u)[0] : null) ||
            (currentUser && currentUser.firstName) ||
            'Crew member';
+         const userBuwanaId =
+           dashboardUser.buwana_id ||
+           (currentUser && (currentUser.buwanaId || currentUser.id)) ||
+           null;
          const lastLoginDisplay = dashboardUser.last_login
            ? new Date(dashboardUser.last_login).toLocaleString('en-US', {
                dateStyle: 'medium',
@@ -22,7 +26,8 @@
     %>
       <aside class="dashboard-user-card" aria-label="Current user summary">
         <p class="dashboard-user-card__greeting">
-          Logged in as <strong><%= userFirstName %></strong>
+          Logged in as
+          <strong <%= userBuwanaId ? `title="User Buwana ID: ${userBuwanaId}"` : '' %>><%= userFirstName %></strong>
         </p>
         <ul class="dashboard-user-card__meta">
           <li>
@@ -32,10 +37,6 @@
           <li>
             <span class="dashboard-user-card__label">Role</span>
             <span class="dashboard-user-card__value"><%= dashboardUser.role || 'user' %></span>
-          </li>
-          <li>
-            <span class="dashboard-user-card__label">Buwana ID</span>
-            <span class="dashboard-user-card__value"><%= dashboardUser.buwana_id %></span>
           </li>
         </ul>
       </aside>

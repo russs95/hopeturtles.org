@@ -32,6 +32,7 @@
   --color-text: #1f2521;
   --color-accent: #23b053;
   --shadow-elevated: 0 20px 40px rgba(1, 121, 25, 0.15);
+  --hw: 1rem;
   --font-primary: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
   --font-secondary: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
 }
@@ -182,7 +183,7 @@ a:hover {
   white-space: pre;
   display: inline-block;
   line-height: 1.1;
-  font-size: 1rem;
+  font-size: calc(0.85 * var(--hw));
   text-decoration: none !important;
 }
 
@@ -798,6 +799,35 @@ a:hover {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
+}
+
+.footer-account__meta {
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.footer-account__meta div {
+  margin: 0;
+}
+
+.footer-account__meta dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.footer-account__meta dd {
+  margin: 0.1rem 0 0;
+  font-weight: 600;
+  color: #fff;
+}
+
+.footer-account__role {
+  text-transform: capitalize;
 }
 
 .footer-meta {

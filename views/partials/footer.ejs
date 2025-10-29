@@ -25,9 +25,36 @@
             <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
           <% } %>
         </div>
-        <% if (currentUser) { %>
-          <div>
+        <% if (currentUser) {
+             const accountName =
+               currentUser.name ||
+               currentUser.firstName ||
+               (currentUser.email ? currentUser.email.split('@')[0] : null) ||
+               'Unknown user';
+             const accountRole = currentUser.role || 'user';
+             const accountLastLogin = currentUser.lastLogin
+               ? new Date(currentUser.lastLogin).toLocaleString('en-US', {
+                   dateStyle: 'medium',
+                   timeStyle: 'short'
+                 })
+               : 'Never';
+        %>
+          <div class="footer-account">
             <h3>Account</h3>
+            <dl class="footer-account__meta">
+              <div>
+                <dt>Name</dt>
+                <dd><%= accountName %></dd>
+              </div>
+              <div>
+                <dt>Role</dt>
+                <dd class="footer-account__role"><%= accountRole %></dd>
+              </div>
+              <div>
+                <dt>Last logged in</dt>
+                <dd><%= accountLastLogin %></dd>
+              </div>
+            </dl>
             <a class="button ghost" href="/auth/logout">Logout</a>
           </div>
         <% } %>
