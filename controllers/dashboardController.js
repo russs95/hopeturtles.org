@@ -67,7 +67,7 @@ export const renderAdmin = async (req, res, next) => {
     const [missions, turtles, hubs, boats, alerts] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
-      hubsModel.getAll(),
+      hubsModel.getAllWithStats(),
       boatsModel.getAll(),
       alertsModel.getAll()
     ]);
