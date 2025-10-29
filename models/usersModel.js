@@ -96,23 +96,63 @@ usersModel.findByBuwanaId = async (buwanaId) => {
   return usersModel.getById(buwanaId);
 };
 
+const deriveNameParts = (user) => {
+  const trimmedFull = typeof user.full_name === 'string' ? user.full_name.trim() : '';
+  const providedFirst = user.first_name && user.first_name.trim();
+  const providedLast = user.last_name && user.last_name.trim();
+
+  let firstName = providedFirst || '';
+  let lastName = providedLast || '';
+
+  if (!firstName && trimmedFull) {
+    const [first, ...rest] = trimmedFull.split(/\s+/u);
+    firstName = first || '';
+    if (!lastName && rest.length) {
+      lastName = rest.join(' ');
+    }
+  }
+
+  const safeFirst = firstName || 'Crew';
+  const safeLast = lastName || null;
+  const safeFull = trimmedFull || (safeLast ? `${safeFirst} ${safeLast}` : safeFirst);
+
+  return {
+    firstName: safeFirst,
+    lastName: safeLast,
+    fullName: safeFull
+  };
+};
+
 usersModel.upsertFromBuwana = async (user) => {
   const existing = await usersModel.getById(user.buwana_id);
 
   const placeholderEmail = `user-${user.buwana_id}@placeholder.local`;
 
+  const { firstName, lastName, fullName } = deriveNameParts(user);
+
   if (existing) {
     const updateData = {
-      role: user.role ?? existing.role ?? 'user',
       last_login: user.last_login ?? new Date()
     };
+
+    if (user.role !== undefined || !existing.role) {
+      updateData.role = user.role ?? existing.role ?? 'user';
+    }
 
     if (user.email !== undefined) {
       updateData.email = user.email ?? existing.email ?? placeholderEmail;
     }
 
-    if (user.full_name !== undefined) {
-      updateData.full_name = user.full_name ?? existing.full_name ?? null;
+    if (user.first_name !== undefined || !existing.first_name) {
+      updateData.first_name = user.first_name ?? existing.first_name ?? firstName;
+    }
+
+    if (user.last_name !== undefined || !existing.last_name) {
+      updateData.last_name = user.last_name ?? existing.last_name ?? lastName;
+    }
+
+    if (user.full_name !== undefined || !existing.full_name) {
+      updateData.full_name = user.full_name ?? existing.full_name ?? fullName;
     }
 
     await usersModel.update(user.buwana_id, updateData);
@@ -122,7 +162,9 @@ usersModel.upsertFromBuwana = async (user) => {
   await usersModel.create({
     buwana_id: user.buwana_id,
     email: user.email ?? placeholderEmail,
-    full_name: user.full_name ?? null,
+    first_name: user.first_name ?? firstName,
+    last_name: user.last_name ?? lastName,
+    full_name: user.full_name ?? fullName,
     role: user.role ?? 'user',
     created_at: user.created_at ?? new Date(),
     last_login: user.last_login ?? new Date()

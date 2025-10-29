@@ -114,19 +114,43 @@ const exchangeAuthorizationCode = async ({ code, codeVerifier }) => {
 const storeSessionFromTokens = async (req, tokens, claims) => {
   const buwanaId = parseBuwanaId(claims.sub);
 
+  const rawFullName = (claims.name || claims.full_name || claims.nickname || '').trim();
+  const firstNameClaim = (claims.given_name || '').trim();
+  const lastNameClaim = (claims.family_name || '').trim();
+
+  let derivedFirstName = firstNameClaim;
+  let derivedLastName = lastNameClaim;
+
+  if (!derivedFirstName && rawFullName) {
+    const [first, ...rest] = rawFullName.split(/\s+/u);
+    derivedFirstName = first || '';
+    if (!derivedLastName && rest.length) {
+      derivedLastName = rest.join(' ');
+    }
+  }
+
   const user = await usersModel.upsertFromBuwana({
     buwana_id: buwanaId,
     email: claims.email || claims.preferred_username,
-    full_name: claims.name || claims.full_name || claims.nickname,
-    role: claims.role || 'user',
+    first_name: derivedFirstName || null,
+    last_name: derivedLastName || null,
+    full_name: rawFullName || null,
+    role: claims.role || undefined,
     last_login: new Date()
   });
 
+  const firstName = user.first_name || derivedFirstName || (user.full_name ? user.full_name.split(/\s+/u)[0] : null);
+  const lastLogin = user.last_login ? new Date(user.last_login) : null;
+
   req.session.user = {
     id: user.buwana_id,
+    buwanaId: user.buwana_id,
     email: user.email,
-    name: user.full_name,
-    role: user.role
+    name: user.full_name || firstName || null,
+    firstName: firstName || null,
+    lastLogin: lastLogin ? lastLogin.toISOString() : null,
+    role: user.role,
+    earthlingEmoji: user.earthling_emoji ?? null
   };
 
   req.session.tokens = {
