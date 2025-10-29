@@ -6,6 +6,7 @@ import successRouter from './success.js';
 import alertsRouter from './alerts.js';
 import hubsRouter from './hubs.js';
 import boatsRouter from './boats.js';
+import bottlesRouter from './bottles.js';
 import summaryRouter from './summary.js';
 import usersRouter from './users.js';
 
@@ -18,6 +19,7 @@ router.use('/success', successRouter);
 router.use('/alerts', alertsRouter);
 router.use('/hubs', hubsRouter);
 router.use('/boats', boatsRouter);
+router.use('/bottles', bottlesRouter);
 router.use('/users', usersRouter);
 router.use('/', summaryRouter);
 
