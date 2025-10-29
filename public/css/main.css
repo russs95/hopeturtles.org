@@ -144,6 +144,9 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  width: clamp(240px, 32vw, 360px);
+  max-width: 100%;
+  flex: 0 0 clamp(240px, 32vw, 360px);
 }
 
 .brand-link {
@@ -151,6 +154,12 @@ a:hover {
   align-items: flex-start;
   gap: 0.75rem;
   text-decoration: none;
+}
+
+.brand-link,
+.brand-link:hover,
+.brand-link:focus {
+  text-decoration: none !important;
 }
 
 .brand-logo {
@@ -173,7 +182,8 @@ a:hover {
   white-space: pre;
   display: inline-block;
   line-height: 1.1;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  text-decoration: none !important;
 }
 
 .primary-nav {
@@ -489,23 +499,31 @@ a:hover {
 }
 
 .users-table,
-.missions-table {
+.missions-table,
+.hubs-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 640px;
 }
 
+.hubs-table {
+  min-width: 720px;
+}
+
 .users-table th,
 .users-table td,
 .missions-table th,
-.missions-table td {
+.missions-table td,
+.hubs-table th,
+.hubs-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(1, 121, 25, 0.1);
   vertical-align: top;
 }
 
 .users-table thead th,
-.missions-table thead th {
+.missions-table thead th,
+.hubs-table thead th {
   text-align: left;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -514,7 +532,8 @@ a:hover {
 }
 
 .users-table tbody tr:last-child td,
-.missions-table tbody tr:last-child td {
+.missions-table tbody tr:last-child td,
+.hubs-table tbody tr:last-child td {
   border-bottom: none;
 }
 
