@@ -177,13 +177,13 @@ a:hover {
 
 .brand-ascii {
   font-family: 'Fira Code', 'Courier New', monospace;
-  color: var(--color-primary);
+  color: var(--color-text);
   margin: 0;
   letter-spacing: 0.08em;
   white-space: pre;
   display: inline-block;
   line-height: 1.1;
-  font-size: calc(0.85 * var(--hw));
+  font-size: calc(0.77 * var(--hw));
   text-decoration: none !important;
 }
 
