@@ -18,18 +18,16 @@
           <h3>Credits</h3>
           <p>Made with regenerative intent by the HopeTurtles collective.</p>
           <% if (includeWebsiteCarbon) { %>
-            <div class="carbon-badge">
-              <a
-                href="https://www.websitecarbon.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Website Carbon footprint"
-              >
-                <img src="https://api.websitecarbon.com/badge.svg" alt="Website Carbon badge" />
-              </a>
-            </div>
+            <div id="wcb" class="carbonbadge<%= theme === 'dark' ? ' wcb-d' : '' %>"></div>
+            <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
           <% } %>
         </div>
+        <% if (currentUser) { %>
+          <div>
+            <h3>Account</h3>
+            <a class="button ghost" href="/auth/logout">Logout</a>
+          </div>
+        <% } %>
       </div>
       <p class="footer-meta">© <%= new Date().getFullYear() %> HopeTurtles.org · Ocean currents of care</p>
     </footer>
