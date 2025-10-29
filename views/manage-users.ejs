@@ -1,0 +1,78 @@
+<%- include('partials/header', { pageTitle, theme }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout manage-users" data-role-options='<%- JSON.stringify(roleOptions) %>' data-can-edit="<%= canEditRoles %>">
+  <section class="page-header">
+    <h1>Manage users</h1>
+    <p>Review and adjust access across the HopeTurtles community.</p>
+  </section>
+
+  <% const getRoleLabel = function (role) {
+    const match = roleOptions.find(function (option) {
+      return option.value === role;
+    });
+    if (match) {
+      return match.label;
+    }
+    if (!role) {
+      return '—';
+    }
+    return role.replace(/_/g, ' ');
+  }; %>
+
+  <section class="panel">
+    <div class="table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th scope="col">Emoji</th>
+            <th scope="col">Name</th>
+            <th scope="col">Buwana ID</th>
+            <th scope="col">Role</th>
+            <th scope="col">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(function (user) { %>
+            <tr data-user-id="<%= user.buwana_id %>">
+              <td data-label="Emoji" class="emoji-cell"><%= user.earthling_emoji || '🐢' %></td>
+              <td data-label="Name">
+                <strong><%= user.full_name || 'Unnamed turtle' %></strong>
+                <div class="muted"><%= user.email || 'No email on file' %></div>
+              </td>
+              <td data-label="Buwana ID">#<%= user.buwana_id %></td>
+              <td data-label="Role" class="role-cell">
+                <% if (canEditRoles) { %>
+                  <label class="sr-only" for="role-<%= user.buwana_id %>">Change role for <%= user.full_name || 'user ' + user.buwana_id %></label>
+                  <select
+                    id="role-<%= user.buwana_id %>"
+                    class="role-select"
+                    data-user-id="<%= user.buwana_id %>"
+                    data-current-role="<%= user.role %>"
+                  >
+                    <% roleOptions.forEach(function (option) { %>
+                      <option value="<%= option.value %>" <%= option.value === user.role ? 'selected' : '' %>>
+                        <%= option.label %>
+                      </option>
+                    <% }) %>
+                  </select>
+                <% } else { %>
+                  <span class="role-label"><%= getRoleLabel(user.role) %></span>
+                <% } %>
+              </td>
+              <td data-label="Created">
+                <time datetime="<%= new Date(user.created_at).toISOString() %>">
+                  <%= new Date(user.created_at).toLocaleDateString() %>
+                </time>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% if (users.length === 0) { %>
+        <p class="muted">No registered users yet.</p>
+      <% } %>
+    </div>
+  </section>
+</main>
+<% const pageScripts = ['/js/manage-users.js']; %>
+<%- include('partials/footer', { pageScripts }) %>

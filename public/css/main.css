@@ -148,7 +148,7 @@ a:hover {
 
 .brand-link {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   text-decoration: none;
 }
@@ -163,6 +163,13 @@ a:hover {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-primary);
+}
+
+.brand-ascii {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  color: var(--color-primary);
+  margin: 0;
+  letter-spacing: 0.08em;
 }
 
 .primary-nav {
@@ -185,6 +192,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .button {
@@ -392,6 +400,59 @@ a:hover {
   font-weight: 700;
 }
 
+.panel {
+  background: var(--color-surface);
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-elevated);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.panel-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--color-text);
+  opacity: 0.75;
+}
+
+.user-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.user-stats-grid div {
+  background: rgba(1, 121, 25, 0.05);
+  border-radius: 0.8rem;
+  padding: 1rem;
+}
+
+.user-stats-grid dt {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.user-stats-grid dd {
+  margin: 0.35rem 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
 .mission-cards,
 .success-grid {
   display: grid;
@@ -416,6 +477,100 @@ a:hover {
   display: grid;
   gap: 0.5rem;
   font-size: 0.9rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.users-table th,
+.users-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(1, 121, 25, 0.1);
+  vertical-align: top;
+}
+
+.users-table thead th {
+  text-align: left;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.emoji-cell {
+  font-size: 1.6rem;
+}
+
+.muted {
+  color: var(--color-text);
+  opacity: 0.65;
+  font-size: 0.85rem;
+}
+
+.role-cell {
+  min-width: 180px;
+}
+
+.role-select {
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(1, 121, 25, 0.35);
+  background: rgba(1, 121, 25, 0.05);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.role-select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.role-label {
+  font-weight: 600;
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(1, 121, 25, 0.1);
+}
+
+.manage-users-feedback {
+  display: none;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  font-weight: 600;
+}
+
+.manage-users-feedback.is-visible {
+  display: block;
+}
+
+.manage-users-feedback--info {
+  background: rgba(1, 121, 25, 0.12);
+  color: var(--color-primary);
+}
+
+.manage-users-feedback--success {
+  background: rgba(35, 176, 83, 0.18);
+  color: #0f5225;
+}
+
+.manage-users-feedback--error {
+  background: rgba(217, 83, 79, 0.18);
+  color: #8a1f1c;
 }
 
 .success-grid.full {

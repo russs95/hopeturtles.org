@@ -6,6 +6,40 @@
     <p>Mission control centre for Hope Turtles.</p>
   </section>
 
+  <% if (canViewUserStats && userStats) { %>
+    <section class="panel user-stats-panel">
+      <header class="panel-header">
+        <div>
+          <h2>User insights</h2>
+          <p class="panel-subtitle">Quick look at the HopeTurtles crew.</p>
+        </div>
+        <a class="button ghost" href="/admin/users">Manage users</a>
+      </header>
+      <dl class="user-stats-grid">
+        <div>
+          <dt>Total users</dt>
+          <dd><%= userStats.totalUsers %></dd>
+        </div>
+        <div>
+          <dt>Active accounts</dt>
+          <dd><%= userStats.activeUsers %></dd>
+        </div>
+        <div>
+          <dt>Joined last 24 hours</dt>
+          <dd><%= userStats.joinedLast24Hours %></dd>
+        </div>
+        <div>
+          <dt>Suspended</dt>
+          <dd><%= userStats.suspendedUsers %></dd>
+        </div>
+        <div>
+          <dt>Admin team</dt>
+          <dd><%= userStats.adminUsers %></dd>
+        </div>
+      </dl>
+    </section>
+  <% } %>
+
   <section class="metric-grid">
     <div class="metric-card">
       <h3>Missions</h3>

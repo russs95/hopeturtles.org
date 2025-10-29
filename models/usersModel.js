@@ -10,7 +10,8 @@ const selectableFields = [
   'role',
   'account_status',
   'created_at',
-  'last_login'
+  'last_login',
+  'earthling_emoji'
 ];
 
 usersModel.listUsers = async (filters = {}) => {
@@ -133,6 +134,26 @@ usersModel.upsertFromBuwana = async (user) => {
 usersModel.getActiveCount = async () => {
   const rows = await query('SELECT COUNT(*) AS total FROM users_tb WHERE account_status = "active"');
   return rows[0]?.total || 0;
+};
+
+usersModel.getDashboardStats = async () => {
+  const [row] = await query(
+    `SELECT
+      COUNT(*) AS total_users,
+      SUM(account_status = 'active') AS active_users,
+      SUM(account_status = 'suspended') AS suspended_users,
+      SUM(created_at >= (NOW() - INTERVAL 1 DAY)) AS joined_last_24h,
+      SUM(role = 'admin') AS admin_users
+    FROM users_tb`
+  );
+
+  return {
+    totalUsers: Number(row?.total_users ?? 0),
+    activeUsers: Number(row?.active_users ?? 0),
+    suspendedUsers: Number(row?.suspended_users ?? 0),
+    joinedLast24Hours: Number(row?.joined_last_24h ?? 0),
+    adminUsers: Number(row?.admin_users ?? 0)
+  };
 };
 
 export default usersModel;

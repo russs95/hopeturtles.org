@@ -3,10 +3,11 @@ import missionsController from '../controllers/missionsController.js';
 import turtlesController from '../controllers/turtlesController.js';
 import successController from '../controllers/successController.js';
 import dashboardController from '../controllers/dashboardController.js';
-import { ensureAdmin, ensureAuth } from '../middleware/auth.js';
+import { ensureAdmin, ensureAdminOrFounder, ensureAuth } from '../middleware/auth.js';
 import { getPlatformSummary } from '../models/summaryModel.js';
 import missionsModel from '../models/missionsModel.js';
 import successModel from '../models/successModel.js';
+import { renderManagementPage } from '../controllers/usersController.js';
 
 const router = Router();
 
@@ -38,6 +39,7 @@ router.get('/login', (req, res) => {
 
 router.get('/dashboard', ensureAuth, dashboardController.renderDashboard);
 router.get('/admin', ensureAuth, ensureAdmin, dashboardController.renderAdmin);
+router.get('/admin/users', ensureAuth, ensureAdminOrFounder, renderManagementPage);
 
 router.post('/theme', (req, res) => {
   const { theme } = req.body;

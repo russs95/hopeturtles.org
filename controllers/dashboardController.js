@@ -5,15 +5,20 @@ import successModel from '../models/successModel.js';
 import alertsModel from '../models/alertsModel.js';
 import hubsModel from '../models/hubsModel.js';
 import boatsModel from '../models/boatsModel.js';
+import usersModel from '../models/usersModel.js';
 
 export const renderDashboard = async (req, res, next) => {
   try {
-    const [missions, turtles, telemetry, successEntries, alerts] = await Promise.all([
+    const currentUser = req.session?.user;
+    const canViewUserStats = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.id === 1));
+
+    const [missions, turtles, telemetry, successEntries, alerts, userStats] = await Promise.all([
       missionsModel.getAll(),
       turtlesModel.getAll(),
       telemetryModel.getLatest(),
       successModel.getRecent(10),
-      alertsModel.getActive()
+      alertsModel.getActive(),
+      canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null)
     ]);
     return res.render('dashboard', {
       pageTitle: 'Dashboard',
@@ -21,7 +26,9 @@ export const renderDashboard = async (req, res, next) => {
       turtles,
       telemetry,
       successEntries,
-      alerts
+      alerts,
+      userStats,
+      canViewUserStats
     });
   } catch (error) {
     return next(error);

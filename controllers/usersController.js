@@ -1,6 +1,28 @@
 import usersModel from '../models/usersModel.js';
 
 const VALID_STATUSES = ['active', 'suspended', 'deleted'];
+const ROLE_OPTIONS = [
+  { value: 'user', label: 'Basic user' },
+  { value: 'turtle_master', label: 'Turtle master' },
+  { value: 'hub_master', label: 'Hub master' },
+  { value: 'core_team', label: 'Core team' },
+  { value: 'admin', label: 'Admin' }
+];
+
+export const renderManagementPage = async (req, res, next) => {
+  try {
+    const users = await usersModel.listUsers();
+    const canEditRoles = req.session?.user?.role === 'admin';
+    return res.render('manage-users', {
+      pageTitle: 'Manage Users',
+      users,
+      roleOptions: ROLE_OPTIONS,
+      canEditRoles
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
 
 export const listUsers = async (req, res, next) => {
   try {
@@ -87,6 +109,7 @@ export const deactivateUser = async (req, res, next) => {
 };
 
 export default {
+  renderManagementPage,
   listUsers,
   createUser,
   updateUserRole,
