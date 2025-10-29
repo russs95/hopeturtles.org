@@ -1,9 +1,44 @@
 <%- include('partials/header', { pageTitle, theme }) %>
 <%- include('partials/nav') %>
 <main id="main" class="layout dashboard">
-  <section class="page-header">
-    <h1>Dashboard</h1>
-    <p>Mission control centre for Hope Turtles.</p>
+  <section class="page-header dashboard-header">
+    <div class="dashboard-header__intro">
+      <h1>Dashboard</h1>
+      <p>Mission control centre for Hope Turtles.</p>
+    </div>
+    <% if (dashboardUser) {
+         const userFirstName =
+           dashboardUser.first_name ||
+           (dashboardUser.full_name ? dashboardUser.full_name.split(/\s+/u)[0] : null) ||
+           (currentUser && currentUser.firstName) ||
+           'Crew member';
+         const lastLoginDisplay = dashboardUser.last_login
+           ? new Date(dashboardUser.last_login).toLocaleString('en-US', {
+               dateStyle: 'medium',
+               timeStyle: 'short'
+             })
+           : 'Never';
+    %>
+      <aside class="dashboard-user-card" aria-label="Current user summary">
+        <p class="dashboard-user-card__greeting">
+          Logged in as <strong><%= userFirstName %></strong>
+        </p>
+        <ul class="dashboard-user-card__meta">
+          <li>
+            <span class="dashboard-user-card__label">Last login</span>
+            <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
+          </li>
+          <li>
+            <span class="dashboard-user-card__label">Role</span>
+            <span class="dashboard-user-card__value"><%= dashboardUser.role || 'user' %></span>
+          </li>
+          <li>
+            <span class="dashboard-user-card__label">Buwana ID</span>
+            <span class="dashboard-user-card__value"><%= dashboardUser.buwana_id %></span>
+          </li>
+        </ul>
+      </aside>
+    <% } %>
   </section>
 
   <% if (canViewUserStats && userStats) { %>
