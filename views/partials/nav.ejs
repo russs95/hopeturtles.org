@@ -2,16 +2,29 @@
   <div class="brand">
     <a href="/" class="brand-link" aria-label="HopeTurtles.org home">
       <span class="sr-only">HopeTurtles.org</span>
-      <pre
-        class="brand-ascii"
-        aria-hidden="true"
-        style="font-size: 1.1hw; white-space: pre; display: inline-block; line-height: 1;"
-      >   _______   ___&#32;&#32;
- /        \ |  0| &#32;
-|         |/ __\| &#32;
-|______ ___/     &#32;
-  |__| |__|   HopeTurtles.org
+      <pre class="brand-ascii" aria-hidden="true" data-logo-src="/turtles-ascii-logo.txt">
+        HopeTurtles.org
       </pre>
+      <script>
+        (function () {
+          const script = document.currentScript;
+          const target =
+            script && script.previousElementSibling && script.previousElementSibling.classList.contains('brand-ascii')
+              ? script.previousElementSibling
+              : document.querySelector('.brand-ascii[data-logo-src]');
+          if (!target) return;
+          const src = target.dataset.logoSrc;
+          if (!src) return;
+          fetch(src)
+            .then((response) => (response.ok ? response.text() : Promise.reject()))
+            .then((text) => {
+              target.textContent = text.replace(/\s+$/u, '');
+            })
+            .catch(() => {
+              target.textContent = 'HopeTurtles.org';
+            });
+        })();
+      </script>
     </a>
   </div>
   <nav class="primary-nav" aria-label="Primary">
