@@ -2,6 +2,10 @@
 <%- include('partials/nav') %>
 <% const isAdmin = currentUser && currentUser.role === 'admin'; %>
 <% const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/gu, '-') : ''); %>
+<% const formatDateTime = (value) =>
+  value
+    ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+    : '—'; %>
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
     <div class="dashboard-header__intro">
@@ -79,6 +83,7 @@
   <% } %>
 
   <% if (isAdmin) { %>
+    <% const turtlesForManagement = Array.isArray(turtleDetails) ? turtleDetails : []; %>
     <% const defaultBoatStatus = 'Docked'; %>
     <% const boatStatuses = [
       'Docked',
@@ -91,6 +96,51 @@
       'Sunk'
     ]; %>
     <% const boatManagerOptions = Array.isArray(users) ? users : []; %>
+    <section class="panel turtle-management-panel" id="dashboard-turtles">
+      <header class="panel-header">
+        <div>
+          <h2>Turtle management</h2>
+          <p class="panel-subtitle">Assignments and telemetry coverage for every turtle.</p>
+        </div>
+      </header>
+      <div class="table-wrapper">
+        <table class="turtles-table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Mission</th>
+              <th scope="col">Hub</th>
+              <th scope="col">Boat</th>
+              <th scope="col">Manager</th>
+              <th scope="col">Last update</th>
+              <th scope="col">Logs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% turtlesForManagement.forEach(function (turtle) { %>
+              <tr>
+                <td data-label="ID">
+                  <strong>#<%= turtle.turtle_id %></strong>
+                  <% if (turtle.name) { %>
+                    <div class="muted"><%= turtle.name %></div>
+                  <% } %>
+                </td>
+                <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
+                <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
+                <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
+                <td data-label="Manager"><%= turtle.manager_name || '—' %></td>
+                <td data-label="Last update"><%= formatDateTime(turtle.last_update) %></td>
+                <td data-label="Logs" class="numeric-cell"><%= turtle.log_count ?? 0 %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% if (turtlesForManagement.length === 0) { %>
+        <p class="panel-empty">No turtles registered yet.</p>
+      <% } %>
+    </section>
+
     <section class="panel mission-management-panel" id="dashboard-missions">
       <header class="panel-header">
         <div>

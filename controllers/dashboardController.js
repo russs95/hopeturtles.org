@@ -48,7 +48,8 @@ export const renderDashboard = async (req, res, next) => {
       userStats,
       hubs,
       boats,
-      users
+      users,
+      turtleDetails
     ] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
@@ -58,7 +59,8 @@ export const renderDashboard = async (req, res, next) => {
       canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null),
       isAdmin ? hubsModel.getAllWithStats() : Promise.resolve([]),
       isAdmin ? boatsModel.getAllWithStats() : Promise.resolve([]),
-      isAdmin ? usersModel.getAll() : Promise.resolve([])
+      isAdmin ? usersModel.getAll() : Promise.resolve([]),
+      isAdmin ? turtlesModel.getAllWithRelations() : Promise.resolve([])
     ]);
     return res.render('dashboard', {
       pageTitle: 'Dashboard',
@@ -72,7 +74,8 @@ export const renderDashboard = async (req, res, next) => {
       dashboardUser,
       hubs: Array.isArray(hubs) ? hubs : [],
       boats: Array.isArray(boats) ? boats : [],
-      users: Array.isArray(users) ? users : []
+      users: Array.isArray(users) ? users : [],
+      turtleDetails: Array.isArray(turtleDetails) ? turtleDetails : []
     });
   } catch (error) {
     return next(error);

@@ -177,18 +177,18 @@ a:hover {
 
 .brand-ascii {
   font-family: 'Fira Code', 'Courier New', monospace;
-  color: var(--color-text);
+  color: var(--color-primary);
   margin: 0;
   letter-spacing: 0.08em;
   white-space: pre;
   display: inline-block;
   line-height: 1.1;
-  font-size: calc(0.55 * var(--hw));
+  font-size: calc(0.6 * var(--hw));
   text-decoration: none !important;
 }
 
 .brand-wordmark {
-  width: 175px;
+  width: 150px;
   height: auto;
   display: block;
   flex-shrink: 0;
@@ -299,7 +299,7 @@ a:hover {
 .lang-button {
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
-  border: 1px solid rgba(1, 121, 25, 0.35);
+  border: none;
   background: var(--color-surface);
   color: var(--color-primary);
   font-weight: 600;
@@ -309,6 +309,11 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.lang-button-icon {
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .lang-button-code {
@@ -369,7 +374,7 @@ a:hover {
 [data-theme='dark'] .lang-button {
   background: var(--color-surface);
   color: var(--color-accent);
-  border-color: rgba(35, 176, 83, 0.6);
+  border: none;
 }
 
 [data-theme='dark'] .lang-options {
@@ -520,7 +525,8 @@ a:hover {
 
 .users-table,
 .missions-table,
-.hubs-table {
+.hubs-table,
+.turtles-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 640px;
@@ -535,7 +541,9 @@ a:hover {
 .missions-table th,
 .missions-table td,
 .hubs-table th,
-.hubs-table td {
+.hubs-table td,
+.turtles-table th,
+.turtles-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(1, 121, 25, 0.1);
   vertical-align: top;
@@ -543,7 +551,8 @@ a:hover {
 
 .users-table thead th,
 .missions-table thead th,
-.hubs-table thead th {
+.hubs-table thead th,
+.turtles-table thead th {
   text-align: left;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -553,7 +562,8 @@ a:hover {
 
 .users-table tbody tr:last-child td,
 .missions-table tbody tr:last-child td,
-.hubs-table tbody tr:last-child td {
+.hubs-table tbody tr:last-child td,
+.turtles-table tbody tr:last-child td {
   border-bottom: none;
 }
 
