@@ -48,7 +48,12 @@ missionsModel.getAllWithStats = async (filters = {}) => {
         FROM bottles_tb b
         INNER JOIN turtles_tb t2 ON b.turtle_id = t2.turtle_id
         WHERE t2.mission_id = m.mission_id
-      ) AS bottle_count
+      ) AS bottle_count,
+      (
+        SELECT COUNT(*)
+        FROM hubs_tb h
+        WHERE h.mission_id = m.mission_id
+      ) AS hub_count
     FROM missions_tb m
     ${where}
     ORDER BY COALESCE(m.start_date, m.created_at) DESC, m.mission_id DESC

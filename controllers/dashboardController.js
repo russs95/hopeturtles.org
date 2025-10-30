@@ -39,14 +39,24 @@ export const renderDashboard = async (req, res, next) => {
     const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
     const isAdmin = canViewUserStats;
 
-    const [missions, turtles, telemetry, successEntries, alerts, userStats, hubs] = await Promise.all([
+    const [
+      missions,
+      turtles,
+      telemetry,
+      successEntries,
+      alerts,
+      userStats,
+      hubs,
+      boats
+    ] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       telemetryModel.getLatest(),
       successModel.getRecent(10),
       alertsModel.getActive(),
       canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null),
-      isAdmin ? hubsModel.getAllWithStats() : Promise.resolve([])
+      isAdmin ? hubsModel.getAllWithStats() : Promise.resolve([]),
+      isAdmin ? boatsModel.getAllWithStats() : Promise.resolve([])
     ]);
     return res.render('dashboard', {
       pageTitle: 'Dashboard',
@@ -58,7 +68,8 @@ export const renderDashboard = async (req, res, next) => {
       userStats,
       canViewUserStats,
       dashboardUser,
-      hubs: Array.isArray(hubs) ? hubs : []
+      hubs: Array.isArray(hubs) ? hubs : [],
+      boats: Array.isArray(boats) ? boats : []
     });
   } catch (error) {
     return next(error);
@@ -78,7 +89,7 @@ export const renderAdmin = async (req, res, next) => {
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       hubsModel.getAllWithStats(),
-      boatsModel.getAll(),
+      boatsModel.getAllWithStats(),
       alertsModel.getAll(),
       usersModel.getAll()
     ]);

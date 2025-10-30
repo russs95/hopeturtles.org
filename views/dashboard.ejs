@@ -1,6 +1,7 @@
 <%- include('partials/header', { pageTitle, theme }) %>
 <%- include('partials/nav') %>
 <% const isAdmin = currentUser && currentUser.role === 'admin'; %>
+<% const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/gu, '-') : ''); %>
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
     <div class="dashboard-header__intro">
@@ -95,6 +96,7 @@
               <th scope="col">Bottles</th>
               <th scope="col">Turtles</th>
               <th scope="col">Boats</th>
+              <th scope="col">Hubs</th>
             </tr>
           </thead>
           <tbody>
@@ -107,11 +109,25 @@
                   <% } %>
                 </td>
                 <td data-label="Status">
-                  <span class="mission-status" data-status="<%= mission.status %>"><%= mission.status %></span>
+                  <div
+                    class="inline-select"
+                    role="button"
+                    tabindex="0"
+                    data-editable-select
+                    data-endpoint="/api/missions/<%= mission.mission_id %>"
+                    data-field="status"
+                    data-value="<%= mission.status %>"
+                    data-options="planned|active|paused|completed"
+                    data-label="Update status for mission <%= mission.name %>"
+                    title="Click to change status"
+                  >
+                    <span class="status-pill mission-status" data-status="<%= mission.status %>"><%= mission.status %></span>
+                  </div>
                 </td>
                 <td data-label="Bottles" class="numeric-cell"><%= mission.bottle_count ?? 0 %></td>
                 <td data-label="Turtles" class="numeric-cell"><%= mission.turtle_count ?? 0 %></td>
                 <td data-label="Boats" class="numeric-cell"><%= mission.boat_count ?? 0 %></td>
+                <td data-label="Hubs" class="numeric-cell"><%= mission.hub_count ?? 0 %></td>
               </tr>
             <% }) %>
           </tbody>
@@ -128,7 +144,7 @@
           <h2>Hub management</h2>
           <p class="panel-subtitle">Connected hubs with their linked missions and assets.</p>
         </div>
-        <a class="button" href="/admin#admin-hubs-form">+ Add Hub</a>
+        <button type="button" class="button" data-open-hub-form>+ Add Hub</button>
       </header>
       <div class="table-wrapper">
         <table class="hubs-table">
@@ -140,6 +156,7 @@
               <th scope="col">Boats</th>
               <th scope="col">Bottles</th>
               <th scope="col">Turtles</th>
+              <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -156,6 +173,25 @@
                 <td data-label="Boats" class="numeric-cell"><%= hub.boat_count ?? 0 %></td>
                 <td data-label="Bottles" class="numeric-cell"><%= hub.bottle_count ?? 0 %></td>
                 <td data-label="Turtles" class="numeric-cell"><%= hub.turtle_count ?? 0 %></td>
+                <td data-label="Status">
+                  <div
+                    class="inline-select"
+                    role="button"
+                    tabindex="0"
+                    data-editable-select
+                    data-endpoint="/api/hubs/<%= hub.hub_id %>"
+                    data-field="status"
+                    data-value="<%= hub.status || '' %>"
+                    data-options="Loading and Receiving|Loading but not Receiving|Paused|Aborted|Mission complete"
+                    data-label="Update status for hub <%= hub.name %>"
+                    data-placeholder="Set status"
+                    title="Click to change status"
+                  >
+                    <span class="status-pill hub-status" data-status="<%= formatStatusKey(hub.status) %>">
+                      <%= hub.status || 'Set status' %>
+                    </span>
+                  </div>
+                </td>
               </tr>
             <% }) %>
           </tbody>
@@ -163,6 +199,50 @@
       </div>
       <% if (hubs.length === 0) { %>
         <p class="panel-empty">No hubs have been created yet.</p>
+      <% } %>
+    </section>
+
+    <section class="panel boat-management-panel" id="dashboard-boats">
+      <header class="panel-header">
+        <div>
+          <h2>Boat management</h2>
+          <p class="panel-subtitle">Boats supporting active hubs and missions.</p>
+        </div>
+        <a class="button" href="/admin#admin-boats">+ Add boat</a>
+      </header>
+      <div class="table-wrapper">
+        <table class="boats-table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Mission</th>
+              <th scope="col">Hub</th>
+              <th scope="col">Turtles</th>
+              <th scope="col">Bottles</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% boats.forEach(function (boat) { %>
+              <tr>
+                <td data-label="Name">
+                  <strong><%= boat.name %></strong>
+                  <% if (boat.registration) { %>
+                    <div class="muted"><%= boat.registration %></div>
+                  <% } %>
+                </td>
+                <td data-label="Mission"><%= boat.mission_name || '—' %></td>
+                <td data-label="Hub"><%= boat.hub_name || '—' %></td>
+                <td data-label="Turtles" class="numeric-cell"><%= boat.turtle_count ?? 0 %></td>
+                <td data-label="Bottles" class="numeric-cell"><%= boat.bottle_count ?? 0 %></td>
+                <td data-label="Status"><%= boat.status || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% if (boats.length === 0) { %>
+        <p class="panel-empty">No boats are registered yet.</p>
       <% } %>
     </section>
 

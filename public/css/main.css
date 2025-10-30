@@ -576,17 +576,21 @@ a:hover {
   background: rgba(1, 121, 25, 0.1);
 }
 
-.mission-status {
+.status-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.mission-status {
   background: rgba(1, 121, 25, 0.12);
   color: var(--color-primary);
   text-transform: capitalize;
-  font-size: 0.85rem;
 }
 
 .mission-status[data-status='active'] {
@@ -607,6 +611,73 @@ a:hover {
 .mission-status[data-status='planned'] {
   background: rgba(1, 121, 25, 0.14);
   color: var(--color-primary);
+}
+
+.hub-status {
+  background: rgba(1, 121, 25, 0.08);
+  color: var(--color-primary);
+}
+
+.hub-status[data-status='loading-and-receiving'],
+.hub-status[data-status='loading-but-not-receiving'] {
+  background: rgba(1, 121, 25, 0.14);
+}
+
+.hub-status[data-status='paused'] {
+  background: rgba(249, 191, 59, 0.22);
+  color: #8a5b00;
+}
+
+.hub-status[data-status='aborted'] {
+  background: rgba(205, 52, 52, 0.2);
+  color: #6b1515;
+}
+
+.hub-status[data-status='mission-complete'] {
+  background: rgba(0, 90, 143, 0.2);
+  color: #004a6f;
+}
+
+.inline-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.1rem;
+  border-radius: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.inline-select:hover {
+  background: rgba(1, 121, 25, 0.08);
+}
+
+.inline-select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.inline-select.is-editing {
+  cursor: default;
+  background: transparent;
+}
+
+.inline-select.is-editing .status-pill {
+  display: none;
+}
+
+.inline-select.is-saving {
+  opacity: 0.7;
+}
+
+.inline-select__control {
+  font: inherit;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(1, 121, 25, 0.35);
+  min-width: 10rem;
+  background: #fff;
+  color: var(--color-text);
 }
 
 .panel-empty {
