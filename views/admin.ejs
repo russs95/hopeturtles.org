@@ -106,13 +106,22 @@
       <header class="mission-dialog__header">
         <div>
           <h2 id="createHubTitle">Create hub</h2>
-          <p class="panel-subtitle">Define a new HopeTurtles hub.</p>
+          <p class="panel-subtitle">Add a new project hub to collect, receive and prepare bottles and hope turtles.</p>
         </div>
       </header>
       <div class="mission-form-grid">
         <label class="full-width">
           Name
           <input name="name" required />
+        </label>
+        <label class="full-width">
+          Mission
+          <select name="mission_id">
+            <option value="">No mission connected</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
         </label>
         <label class="full-width">
           Country
@@ -123,8 +132,22 @@
           <input name="region" />
         </label>
         <label class="full-width">
+          Status
+          <select name="status">
+            <option value="Loading and Receiving">Loading and Receiving</option>
+            <option value="Loading but not Receiving">Loading but not Receiving</option>
+            <option value="Paused">Paused</option>
+            <option value="Aborted">Aborted</option>
+            <option value="Mission complete">Mission complete</option>
+          </select>
+        </label>
+        <label class="full-width">
           Special instructions
           <textarea name="description" rows="3"></textarea>
+        </label>
+        <label class="full-width">
+          Mailing address
+          <textarea name="mailing_address" rows="3"></textarea>
         </label>
         <label class="full-width">
           Coordinator
@@ -239,9 +262,27 @@
     <h2>Hubs</h2>
     <form class="form-card admin-form" data-endpoint="/api/hubs" data-method="POST">
       <label>Name <input name="name" required /></label>
+      <label>Mission
+        <select name="mission_id">
+          <option value="">No mission connected</option>
+          <% missions.forEach(function (mission) { %>
+            <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+          <% }) %>
+        </select>
+      </label>
       <label>Country <input name="country" /></label>
       <label>Region <input name="region" /></label>
+      <label>Status
+        <select name="status">
+          <option value="Loading and Receiving">Loading and Receiving</option>
+          <option value="Loading but not Receiving">Loading but not Receiving</option>
+          <option value="Paused">Paused</option>
+          <option value="Aborted">Aborted</option>
+          <option value="Mission complete">Mission complete</option>
+        </select>
+      </label>
       <label>Special instructions <textarea name="description" rows="3"></textarea></label>
+      <label>Mailing address <textarea name="mailing_address" rows="3"></textarea></label>
       <label>Coordinator
         <select name="coordinator_id">
           <option value="">No coordinator assigned</option>

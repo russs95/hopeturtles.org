@@ -6,12 +6,13 @@ const hubsModel = createModel('hubs_tb', 'hub_id');
 hubsModel.getAllWithStats = async () => {
   const sql = `
     SELECT
-      h.*, 
-      mission_map.mission_name,
+      h.*,
+      COALESCE(mission_link.name, mission_map.mission_name) AS mission_name,
       COALESCE(boat_counts.boat_count, 0) AS boat_count,
       COALESCE(bottle_counts.bottle_count, 0) AS bottle_count,
       COALESCE(turtle_counts.turtle_count, 0) AS turtle_count
     FROM hubs_tb h
+    LEFT JOIN missions_tb AS mission_link ON mission_link.mission_id = h.mission_id
     LEFT JOIN (
       SELECT
         t.hub_id,
