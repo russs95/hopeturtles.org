@@ -68,6 +68,20 @@
           });
         })();
       </script>
+      <img
+        class="brand-wordmark brand-wordmark--light"
+        src="/logos/hopeturtle-wordmark-light.png"
+        alt="HopeTurtles wordmark"
+        width="175"
+        height="40"
+      />
+      <img
+        class="brand-wordmark brand-wordmark--dark"
+        src="/logos/hopeturtle-wordmark-dark.png"
+        alt="HopeTurtles wordmark"
+        width="175"
+        height="40"
+      />
     </a>
   </div>
   <nav class="primary-nav" aria-label="Primary">
@@ -89,7 +103,7 @@
         aria-controls="languageMenu"
       >
         <span class="sr-only">Change language</span>
-        <span class="lang-button-code"><%= (lang || 'en').toUpperCase() %></span>
+        <span aria-hidden="true" class="lang-button-icon">💬</span>
       </button>
       <ul id="languageMenu" class="lang-options" role="listbox" hidden>
         <% languages.forEach(function (option) { %>
@@ -108,6 +122,16 @@
         <% }) %>
       </ul>
     </div>
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
+      aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
+      type="button"
+    >
+      <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
+      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
+    </button>
     <% if (currentUser) { %>
       <a class="button" href="/dashboard">Dashboard</a>
     <% } else { %>
@@ -121,15 +145,5 @@
         Signup
       </a>
     <% } %>
-    <button
-      id="themeToggle"
-      class="theme-toggle"
-      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
-      aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
-      type="button"
-    >
-      <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
-      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
-    </button>
   </div>
 </header>

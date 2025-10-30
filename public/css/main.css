@@ -183,8 +183,27 @@ a:hover {
   white-space: pre;
   display: inline-block;
   line-height: 1.1;
-  font-size: calc(0.77 * var(--hw));
+  font-size: calc(0.55 * var(--hw));
   text-decoration: none !important;
+}
+
+.brand-wordmark {
+  width: 175px;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand-wordmark--dark {
+  display: none;
+}
+
+[data-theme='dark'] .brand-wordmark--light {
+  display: none;
+}
+
+[data-theme='dark'] .brand-wordmark--dark {
+  display: block;
 }
 
 .primary-nav {
