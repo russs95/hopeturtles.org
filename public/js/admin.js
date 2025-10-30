@@ -121,6 +121,142 @@ adminForms.forEach((form) => {
   });
 });
 
+const inlineSelects = document.querySelectorAll('[data-editable-select]');
+
+const parseOptions = (element) =>
+  (element.dataset.options || '')
+    .split('|')
+    .map((option) => option.trim())
+    .filter(Boolean);
+
+const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'unset');
+
+const updateInlineSelectDisplay = (element, newValue) => {
+  const placeholder = element.dataset.placeholder || 'Set status';
+  const badge = element.querySelector('.status-pill');
+  const valueToShow = newValue || placeholder;
+
+  if (badge) {
+    badge.textContent = valueToShow;
+    badge.dataset.status = formatStatusKey(newValue);
+  } else {
+    element.textContent = valueToShow;
+  }
+};
+
+const setupEditableSelect = (element) => {
+  const options = parseOptions(element);
+  if (!options.length) {
+    return;
+  }
+
+  const openEditor = () => {
+    if (element.dataset.editing === 'true') {
+      return;
+    }
+
+    const select = document.createElement('select');
+    select.className = 'inline-select__control';
+    const currentValue = element.dataset.value || '';
+    const label = element.dataset.label || 'Update value';
+    select.setAttribute('aria-label', label);
+
+    options.forEach((option) => {
+      const optionEl = document.createElement('option');
+      optionEl.value = option;
+      optionEl.textContent = option;
+      if (option === currentValue) {
+        optionEl.selected = true;
+      }
+      select.append(optionEl);
+    });
+
+    element.dataset.editing = 'true';
+    element.classList.add('is-editing');
+    element.append(select);
+
+    const closeEditor = (restoreFocus = true) => {
+      element.classList.remove('is-editing');
+      element.dataset.editing = 'false';
+      element.dataset.saving = 'false';
+      if (select.parentElement === element) {
+        select.remove();
+      }
+      if (restoreFocus) {
+        element.focus();
+      }
+    };
+
+    const commitChange = async (newValue) => {
+      if (newValue === currentValue) {
+        closeEditor();
+        return;
+      }
+
+      element.dataset.saving = 'true';
+      element.classList.add('is-saving');
+
+      try {
+        const response = await fetch(element.dataset.endpoint, {
+          method: element.dataset.method || 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [element.dataset.field]: newValue })
+        });
+        const json = await response.json();
+        if (!json.success) {
+          throw new Error(json.message || 'Request failed');
+        }
+        element.dataset.value = newValue;
+        updateInlineSelectDisplay(element, newValue);
+      } catch (error) {
+        console.error(error);
+        alert('Unable to update this record right now.');
+      } finally {
+        element.classList.remove('is-saving');
+        closeEditor();
+      }
+    };
+
+    select.addEventListener('change', () => {
+      commitChange(select.value).catch(() => {
+        closeEditor();
+      });
+    });
+
+    select.addEventListener('blur', () => {
+      if (element.dataset.saving === 'true') {
+        return;
+      }
+      closeEditor(false);
+    });
+
+    select.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeEditor();
+      }
+    });
+
+    requestAnimationFrame(() => {
+      select.focus();
+    });
+  };
+
+  element.addEventListener('click', (event) => {
+    event.preventDefault();
+    openEditor();
+  });
+
+  element.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openEditor();
+    }
+  });
+};
+
+inlineSelects.forEach(setupEditableSelect);
+
 deleteButtons.forEach((button) => {
   button.addEventListener('click', async (event) => {
     event.preventDefault();
