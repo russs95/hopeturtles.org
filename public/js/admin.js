@@ -2,6 +2,7 @@ const adminForms = document.querySelectorAll('.admin-form');
 const deleteButtons = document.querySelectorAll('.admin-table .delete');
 const missionDialog = document.getElementById('createMissionDialog');
 const hubDialog = document.getElementById('createHubDialog');
+const boatDialog = document.getElementById('createBoatDialog');
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
@@ -79,6 +80,7 @@ const setupDialog = (dialog, triggerSelector, closeSelector) => {
 
 setupDialog(missionDialog, '[data-open-mission-form]', '[data-close-mission-form]');
 setupDialog(hubDialog, '[data-open-hub-form]', '[data-close-hub-form]');
+setupDialog(boatDialog, '[data-open-boat-form]', '[data-close-boat-form]');
 
 adminForms.forEach((form) => {
   form.addEventListener('submit', async (event) => {
