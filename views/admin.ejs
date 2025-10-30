@@ -101,13 +101,56 @@
     </form>
   </dialog>
 
+  <dialog id="createHubDialog" class="hub-dialog" aria-labelledby="createHubTitle">
+    <form class="form-card admin-form hub-form" data-endpoint="/api/hubs" data-method="POST">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="createHubTitle">Create hub</h2>
+          <p class="panel-subtitle">Define a new HopeTurtles hub.</p>
+        </div>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Name
+          <input name="name" required />
+        </label>
+        <label class="full-width">
+          Country
+          <input name="country" />
+        </label>
+        <label class="full-width">
+          Region
+          <input name="region" />
+        </label>
+        <label class="full-width">
+          Special instructions
+          <textarea name="description" rows="3"></textarea>
+        </label>
+        <label class="full-width">
+          Coordinator
+          <select name="coordinator_id">
+            <option value="">No coordinator assigned</option>
+            <% users.forEach(function (user) { %>
+              <option value="<%= user.buwana_id %>"><%= user.full_name || user.email || user.buwana_id %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-hub-form>Cancel</button>
+        <button type="submit" class="button">Create hub</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
+  </dialog>
+
   <section class="panel hub-management-panel" id="admin-hubs">
     <header class="panel-header">
       <div>
         <h2>Hub management</h2>
         <p class="panel-subtitle">Connected hubs with their linked missions and assets.</p>
       </div>
-      <a class="button" href="#admin-hubs-form">+ Add Hub</a>
+      <button type="button" class="button" data-open-hub-form>+ Add Hub</button>
     </header>
     <div class="table-wrapper">
       <table class="hubs-table">
@@ -198,6 +241,15 @@
       <label>Name <input name="name" required /></label>
       <label>Country <input name="country" /></label>
       <label>Region <input name="region" /></label>
+      <label>Special instructions <textarea name="description" rows="3"></textarea></label>
+      <label>Coordinator
+        <select name="coordinator_id">
+          <option value="">No coordinator assigned</option>
+          <% users.forEach(function (user) { %>
+            <option value="<%= user.buwana_id %>"><%= user.full_name || user.email || user.buwana_id %></option>
+          <% }) %>
+        </select>
+      </label>
       <button type="submit" class="button">Create hub</button>
       <p class="form-feedback" role="status"></p>
     </form>

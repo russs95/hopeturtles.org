@@ -67,12 +67,20 @@ export const renderDashboard = async (req, res, next) => {
 
 export const renderAdmin = async (req, res, next) => {
   try {
-    const [missionsResult, turtlesResult, hubsResult, boatsResult, alertsResult] = await Promise.all([
+    const [
+      missionsResult,
+      turtlesResult,
+      hubsResult,
+      boatsResult,
+      alertsResult,
+      usersResult
+    ] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
       hubsModel.getAllWithStats(),
       boatsModel.getAll(),
-      alertsModel.getAll()
+      alertsModel.getAll(),
+      usersModel.getAll()
     ]);
     return res.render('admin', {
       pageTitle: 'Admin Tools',
@@ -80,7 +88,8 @@ export const renderAdmin = async (req, res, next) => {
       turtles: Array.isArray(turtlesResult) ? turtlesResult : [],
       hubs: Array.isArray(hubsResult) ? hubsResult : [],
       boats: Array.isArray(boatsResult) ? boatsResult : [],
-      alerts: Array.isArray(alertsResult) ? alertsResult : []
+      alerts: Array.isArray(alertsResult) ? alertsResult : [],
+      users: Array.isArray(usersResult) ? usersResult : []
     });
   } catch (error) {
     return next(error);

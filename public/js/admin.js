@@ -1,11 +1,9 @@
 const adminForms = document.querySelectorAll('.admin-form');
 const deleteButtons = document.querySelectorAll('.admin-table .delete');
 const missionDialog = document.getElementById('createMissionDialog');
-const missionTrigger = document.querySelector('[data-open-mission-form]');
-const missionCloseButtons = missionDialog
-  ? missionDialog.querySelectorAll('[data-close-mission-form]')
-  : [];
-const hasNativeDialog = Boolean(missionDialog && typeof missionDialog.showModal === 'function');
+const hubDialog = document.getElementById('createHubDialog');
+
+const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
 const formatDateTimeForMysql = (value) => {
   if (!value || typeof value !== 'string') {
@@ -22,50 +20,65 @@ const formatDateTimeForMysql = (value) => {
   return `${datePart} ${timePart}`;
 };
 
-const showMissionDialog = () => {
-  if (!missionDialog) return;
-  if (hasNativeDialog) {
-    missionDialog.showModal();
+const showDialog = (dialog) => {
+  if (!dialog) return;
+  if (supportsNativeDialog(dialog)) {
+    dialog.showModal();
   } else {
-    missionDialog.removeAttribute('hidden');
-    missionDialog.setAttribute('data-open', 'true');
+    dialog.removeAttribute('hidden');
+    dialog.setAttribute('data-open', 'true');
   }
 };
 
-const hideMissionDialog = () => {
-  if (!missionDialog) return;
-  if (hasNativeDialog) {
-    missionDialog.close();
+const hideDialog = (dialog) => {
+  if (!dialog) return;
+  if (supportsNativeDialog(dialog)) {
+    dialog.close();
   } else {
-    missionDialog.setAttribute('data-open', 'false');
-    missionDialog.setAttribute('hidden', '');
+    dialog.setAttribute('data-open', 'false');
+    dialog.setAttribute('hidden', '');
   }
 };
 
-if (missionDialog && !hasNativeDialog) {
-  missionDialog.setAttribute('hidden', '');
-}
+const setupDialog = (dialog, triggerSelector, closeSelector) => {
+  if (!dialog) {
+    return;
+  }
 
-if (missionTrigger) {
-  missionTrigger.addEventListener('click', (event) => {
-    event.preventDefault();
-    showMissionDialog();
-  });
-}
+  if (!supportsNativeDialog(dialog)) {
+    dialog.setAttribute('hidden', '');
+  }
 
-missionCloseButtons.forEach((button) => {
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    hideMissionDialog();
-  });
-});
+  if (triggerSelector) {
+    const triggers = document.querySelectorAll(triggerSelector);
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        showDialog(dialog);
+      });
+    });
+  }
 
-if (missionDialog && hasNativeDialog) {
-  missionDialog.addEventListener('cancel', (event) => {
-    event.preventDefault();
-    hideMissionDialog();
-  });
-}
+  if (closeSelector) {
+    const closeButtons = dialog.querySelectorAll(closeSelector);
+    closeButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        hideDialog(dialog);
+      });
+    });
+  }
+
+  if (supportsNativeDialog(dialog)) {
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      hideDialog(dialog);
+    });
+  }
+};
+
+setupDialog(missionDialog, '[data-open-mission-form]', '[data-close-mission-form]');
+setupDialog(hubDialog, '[data-open-hub-form]', '[data-close-hub-form]');
 
 adminForms.forEach((form) => {
   form.addEventListener('submit', async (event) => {
@@ -95,7 +108,7 @@ adminForms.forEach((form) => {
         setTimeout(() => {
           const dialog = form.closest('dialog');
           if (dialog) {
-            hideMissionDialog();
+            hideDialog(dialog);
           }
           window.location.reload();
         }, 600);
