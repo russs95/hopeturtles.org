@@ -184,26 +184,22 @@ a:hover {
   display: inline-block;
   line-height: 1.1;
   font-size: calc(0.6 * var(--hw));
+  font-weight: 700;
   text-decoration: none !important;
 }
 
-.brand-wordmark {
-  width: 150px;
-  height: auto;
+.brand-wordmark-text {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 2em;
+  font-weight: 400;
+  color: var(--color-primary);
+  margin: auto;
   display: block;
-  flex-shrink: 0;
+  line-height: 1;
 }
 
-.brand-wordmark--dark {
-  display: none;
-}
-
-[data-theme='dark'] .brand-wordmark--light {
-  display: none;
-}
-
-[data-theme='dark'] .brand-wordmark--dark {
-  display: block;
+.brand-wordmark-emphasis {
+  font-weight: 700;
 }
 
 .primary-nav {
@@ -225,7 +221,7 @@ a:hover {
 .nav-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 15px;
   flex-wrap: wrap;
 }
 
