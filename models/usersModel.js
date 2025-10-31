@@ -47,7 +47,7 @@ usersModel.createUser = async (userData) => {
     created_at: userData.created_at ?? new Date(),
     last_login: userData.last_login ?? null,
     role: userData.role ?? 'user',
-    language_id: userData.language_id,
+    language_id: userData.language_id ?? 'EN',
     location_watershed: userData.location_watershed,
     location_full: userData.location_full ?? null,
     country_id: userData.country_id ?? null,
@@ -155,6 +155,10 @@ usersModel.upsertFromBuwana = async (user) => {
       updateData.full_name = user.full_name ?? existing.full_name ?? fullName;
     }
 
+    if (user.language_id !== undefined || !existing.language_id) {
+      updateData.language_id = user.language_id ?? existing.language_id ?? 'EN';
+    }
+
     await usersModel.update(user.buwana_id, updateData);
     return usersModel.getById(user.buwana_id);
   }
@@ -167,7 +171,8 @@ usersModel.upsertFromBuwana = async (user) => {
     full_name: user.full_name ?? fullName,
     role: user.role ?? 'user',
     created_at: user.created_at ?? new Date(),
-    last_login: user.last_login ?? new Date()
+    last_login: user.last_login ?? new Date(),
+    language_id: user.language_id ?? 'EN'
   });
 
   return usersModel.getById(user.buwana_id);

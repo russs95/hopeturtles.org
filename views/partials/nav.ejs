@@ -1,14 +1,14 @@
 <header class="site-header">
   <div class="brand">
-    <a href="/" class="brand-link" aria-label="HopeTurtles.org home" title="HopeTurtles.org | a human2human project">
-      <span class="sr-only">HopeTurtles.org</span>
+    <a href="/" class="brand-link" aria-label="HopeTurtles home" title="HopeTurtles | a human2human project">
+      <span class="sr-only">HopeTurtles</span>
       <pre
         class="brand-ascii"
         aria-hidden="true"
         data-logo-src="/turtles-ascii-logo.txt"
         data-logo-alt-src="/turtles-asci-logo-2.txt"
       >
-        HopeTurtles.org
+        HopeTurtles
       </pre>
       <script>
         (function () {
@@ -19,7 +19,7 @@
               : document.querySelector('.brand-ascii[data-logo-src]');
           if (!target) return;
           const sources = [target.dataset.logoSrc, target.dataset.logoAltSrc].filter(Boolean);
-          const fallback = 'HopeTurtles.org';
+          const fallback = 'HopeTurtles';
 
           const loadLogo = (src) =>
             fetch(src)
@@ -69,7 +69,7 @@
         })();
       </script>
       <span class="brand-wordmark-text" aria-hidden="true">
-        Hope<strong class="brand-wordmark-emphasis">Turtles</strong>.org
+        Hope<strong class="brand-wordmark-emphasis">Turtles</strong>
       </span>
     </a>
   </div>
