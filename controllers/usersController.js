@@ -39,7 +39,7 @@ export const listUsers = async (req, res, next) => {
 
 export const createUser = async (req, res, next) => {
   try {
-    const requiredFields = ['buwana_id', 'email', 'first_name', 'language_id', 'location_watershed'];
+    const requiredFields = ['buwana_id', 'email', 'first_name', 'location_watershed'];
     const missing = requiredFields.filter((field) => req.body[field] === undefined || req.body[field] === null);
 
     if (missing.length) {
