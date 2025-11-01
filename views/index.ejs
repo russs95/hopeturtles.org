@@ -2,20 +2,8 @@
 <%- include('partials/nav') %>
 <main id="main" class="layout">
   <section class="hero">
-    <div class="hero-text">
-      <pre class="ascii-turtle" aria-hidden="true">
-   _________   ___&#32;&#32;
- /          \ |  0|&#32;
-|           |/ __\|&#32;
-|_____________/&#32;&#32;&#32;&#32;&#32;
-  |__|   |__|&#32;&#32;&#32;&#32;&#32;
-      </pre>
-      <h1><%= t.hero_title || 'Hope Turtles: Deliveries of Regeneration' %></h1>
-      <p><%= t.hero_blurb || 'Autonomous floating companions riding ocean currents to deliver regenerative aid and track our shared impact.' %></p>
-      <div class="hero-actions">
-        <a class="button" href="/missions"><%= t.explore_missions || 'Explore Missions' %></a>
-        <a class="button ghost" href="#success"><%= t.view_success || 'Celebrate Success' %></a>
-      </div>
+    <div class="hero-image">
+      <img src="/images/hopeturtles-floating-1000px.webp" alt="Illustration of a Hope Turtle floating in the ocean" loading="lazy" />
     </div>
     <div class="hero-metrics">
       <div class="metric-card">
@@ -70,7 +58,7 @@
       <% }) %>
     </div>
     <div class="success-actions">
-      <a class="button" href="/success"><%= t.submit_success || 'Submit a success story' %></a>
+      <a class="button" href="/success"><%= t.submit_success || 'Record a Landed Turtle' %></a>
     </div>
   </section>
 </main>

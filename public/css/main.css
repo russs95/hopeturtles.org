@@ -404,17 +404,17 @@ a:hover {
   padding: 4rem 0 3rem;
 }
 
-.ascii-turtle {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  color: var(--color-primary);
-  background: rgba(1, 121, 25, 0.1);
-  padding: 1rem;
-  border-radius: 1rem;
-  transition: transform 0.4s ease;
+.hero-image {
+  display: flex;
+  justify-content: center;
 }
 
-.ascii-turtle:hover {
-  transform: translate3d(4px, -6px, 0);
+.hero-image img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-elevated);
 }
 
 .hero-metrics {
