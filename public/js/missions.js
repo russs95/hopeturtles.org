@@ -1,10 +1,23 @@
 const missionFilter = document.getElementById('missionFilter');
 const missionList = document.querySelector('.mission-list');
 const mapCanvas = document.getElementById('mapCanvas');
+const DEFAULT_CENTER = [0, 0];
+const DEFAULT_ZOOM = 5.5;
 let map;
 let markers = [];
 
 const mapboxToken = mapCanvas?.parentElement?.dataset.mapToken;
+
+const parseCoordinate = (value) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
 
 const getTileLayer = () => {
   if (mapboxToken) {
@@ -24,7 +37,7 @@ const getTileLayer = () => {
 
 const initMap = () => {
   if (!mapCanvas) return;
-  map = L.map('mapCanvas').setView([0, 0], 2);
+  map = L.map('mapCanvas').setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   getTileLayer().addTo(map);
 };
 
@@ -36,15 +49,34 @@ const clearMarkers = () => {
 const renderMarkers = (missions = []) => {
   if (!map) return;
   clearMarkers();
+  let viewHasBeenSet = false;
   missions
-    .filter((mission) => mission.target_lat && mission.target_lng)
+    .map((mission) => {
+      const lat = parseCoordinate(mission.target_lat);
+      const lng = parseCoordinate(mission.target_lng);
+      return lat === null || lng === null
+        ? null
+        : {
+            ...mission,
+            target_lat: lat,
+            target_lng: lng
+          };
+    })
+    .filter(Boolean)
     .forEach((mission) => {
       const marker = L.marker([mission.target_lat, mission.target_lng]).addTo(map);
       marker.bindPopup(
         `<strong>${mission.name}</strong><br/>Status: ${mission.status}<br/>Lat: ${mission.target_lat}<br/>Lng: ${mission.target_lng}`
       );
       markers.push(marker);
+      if (!viewHasBeenSet) {
+        map.setView([mission.target_lat, mission.target_lng], DEFAULT_ZOOM);
+        viewHasBeenSet = true;
+      }
     });
+  if (!viewHasBeenSet) {
+    map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+  }
 };
 
 const fetchMissions = async (status = '') => {
