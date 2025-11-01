@@ -6,6 +6,15 @@
   value
     ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
     : '—'; %>
+<% const formatDateTimeForInput = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (input) => String(input).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(
+    date.getMinutes()
+  )}`;
+}; %>
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
     <div class="dashboard-header__intro">
@@ -244,6 +253,18 @@
                   <% } %>
                 </td>
                 <td data-label="Status">
+                  <% const missionEditPayload = encodeURIComponent(
+                       JSON.stringify({
+                         id: mission.mission_id,
+                         name: mission.name || '',
+                         description: mission.description || '',
+                         status: mission.status || '',
+                         startDate: formatDateTimeForInput(mission.start_date),
+                         endDate: formatDateTimeForInput(mission.end_date),
+                         targetLat: mission.target_lat != null ? mission.target_lat : '',
+                         targetLng: mission.target_lng != null ? mission.target_lng : ''
+                       })
+                     ); %>
                   <div
                     class="inline-select"
                     role="button"
@@ -253,6 +274,9 @@
                     data-field="status"
                     data-value="<%= mission.status %>"
                     data-options="planned|active|paused|completed"
+                    data-extra-option="✏️Edit Mission"
+                    data-edit-action="mission"
+                    data-mission="<%= missionEditPayload %>"
                     data-label="Update status for mission <%= mission.name %>"
                     title="Click to change status"
                   >
@@ -510,6 +534,60 @@
         <div class="mission-dialog__actions">
           <button type="button" class="button ghost" data-close-mission-form>Cancel</button>
           <button type="submit" class="button">Create mission</button>
+        </div>
+        <p class="form-feedback" role="status"></p>
+      </form>
+    </dialog>
+
+    <dialog id="editMissionDialog" class="mission-dialog" aria-labelledby="editMissionTitle">
+      <form class="form-card admin-form mission-form" data-edit-mission-form data-method="PUT">
+        <header class="mission-dialog__header">
+          <div>
+            <h2 id="editMissionTitle">Edit mission</h2>
+            <p class="panel-subtitle">
+              Update the mission plan for <span data-mission-name>this mission</span>.
+            </p>
+          </div>
+          <button type="button" class="dialog-close" data-close-edit-mission-form aria-label="Close">&times;</button>
+        </header>
+        <div class="mission-form-grid">
+          <label class="full-width">
+            Name
+            <input name="name" required />
+          </label>
+          <label class="full-width">
+            Description
+            <textarea name="description" rows="3"></textarea>
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option value="planned">planned</option>
+              <option value="active">active</option>
+              <option value="paused">paused</option>
+              <option value="completed">completed</option>
+            </select>
+          </label>
+          <label>
+            Start date
+            <input type="datetime-local" name="start_date" />
+          </label>
+          <label>
+            End date
+            <input type="datetime-local" name="end_date" />
+          </label>
+          <label>
+            Target latitude
+            <input type="number" step="0.000001" name="target_lat" />
+          </label>
+          <label>
+            Target longitude
+            <input type="number" step="0.000001" name="target_lng" />
+          </label>
+        </div>
+        <div class="mission-dialog__actions">
+          <button type="button" class="button ghost" data-close-edit-mission-form>Cancel</button>
+          <button type="submit" class="button">Save changes</button>
         </div>
         <p class="form-feedback" role="status"></p>
       </form>

@@ -141,7 +141,7 @@ a:hover {
   border-bottom-color: rgba(35, 176, 83, 0.4);
 }
 
-.brand {
+.brand { 
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -191,15 +191,18 @@ a:hover {
 .brand-wordmark-text {
   font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
   font-size: 1.3em;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin: auto;
+  font-weight: 300;
+  color: #6b7280;
+  margin: 0;
   display: block;
   line-height: 1;
+  white-space: normal;
+  text-align: left;
 }
 
 .brand-wordmark-emphasis {
-  font-weight: 900;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .primary-nav {
@@ -305,6 +308,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+  margin-right: -25px;
 }
 
 .lang-button-icon {
@@ -1146,12 +1150,38 @@ a:hover {
 
 @media (max-width: 768px) {
   .site-header {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    order: 1;
+  }
+
+  .brand-link {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .brand-wordmark-text {
+    font-size: 1.15em;
+  }
+
+  .nav-controls {
+    margin-left: auto;
+    order: 2;
+    flex-wrap: nowrap;
   }
 
   .primary-nav {
+    order: 3;
     width: 100%;
-    justify-content: space-around;
+    justify-content: center;
+    margin-top: 0.5rem;
   }
 }

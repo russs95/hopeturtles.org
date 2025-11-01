@@ -1,9 +1,12 @@
 const adminForms = document.querySelectorAll('.admin-form');
 const deleteButtons = document.querySelectorAll('.admin-table .delete');
 const missionDialog = document.getElementById('createMissionDialog');
+const editMissionDialog = document.getElementById('editMissionDialog');
 const hubDialog = document.getElementById('createHubDialog');
 const boatDialog = document.getElementById('createBoatDialog');
 const turtleDialog = document.getElementById('createTurtleDialog');
+const missionEditForm = editMissionDialog ? editMissionDialog.querySelector('[data-edit-mission-form]') : null;
+const missionEditNameTarget = editMissionDialog ? editMissionDialog.querySelector('[data-mission-name]') : null;
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
@@ -83,6 +86,7 @@ setupDialog(missionDialog, '[data-open-mission-form]', '[data-close-mission-form
 setupDialog(hubDialog, '[data-open-hub-form]', '[data-close-hub-form]');
 setupDialog(boatDialog, '[data-open-boat-form]', '[data-close-boat-form]');
 setupDialog(turtleDialog, '[data-open-turtle-form]', '[data-close-turtle-form]');
+setupDialog(editMissionDialog, null, '[data-close-edit-mission-form]');
 
 adminForms.forEach((form) => {
   form.addEventListener('submit', async (event) => {
@@ -133,6 +137,8 @@ const parseOptions = (element) =>
     .map((option) => option.trim())
     .filter(Boolean);
 
+const getExtraOption = (element) => (element.dataset.extraOption || '').trim();
+
 const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'unset');
 
 const updateInlineSelectDisplay = (element, newValue) => {
@@ -148,8 +154,81 @@ const updateInlineSelectDisplay = (element, newValue) => {
   }
 };
 
+const decodeMissionData = (element) => {
+  if (!element.dataset.mission) {
+    return null;
+  }
+  try {
+    return JSON.parse(decodeURIComponent(element.dataset.mission));
+  } catch (error) {
+    console.error('Failed to parse mission data', error);
+    return null;
+  }
+};
+
+const storeMissionData = (element, mission) => {
+  if (!mission) {
+    return;
+  }
+  try {
+    element.dataset.mission = encodeURIComponent(JSON.stringify(mission));
+  } catch (error) {
+    console.error('Failed to store mission data', error);
+  }
+};
+
+const prepareMissionEditForm = (mission) => {
+  if (!missionEditForm || !mission) {
+    return;
+  }
+  if (typeof missionEditForm.reset === 'function') {
+    missionEditForm.reset();
+  }
+  missionEditForm.dataset.endpoint = `/api/missions/${mission.id}`;
+  missionEditForm.dataset.method = 'PUT';
+  const setFieldValue = (selector, value) => {
+    const field = missionEditForm.querySelector(selector);
+    if (field) {
+      field.value = value ?? '';
+    }
+  };
+
+  setFieldValue('[name="name"]', mission.name || '');
+  const descriptionField = missionEditForm.querySelector('[name="description"]');
+  if (descriptionField) {
+    descriptionField.value = mission.description || '';
+  }
+  setFieldValue('[name="status"]', mission.status || 'planned');
+  setFieldValue('[name="start_date"]', mission.startDate || '');
+  setFieldValue('[name="end_date"]', mission.endDate || '');
+  setFieldValue('[name="target_lat"]', mission.targetLat ?? '');
+  setFieldValue('[name="target_lng"]', mission.targetLng ?? '');
+
+  const feedback = missionEditForm.querySelector('.form-feedback');
+  if (feedback) {
+    feedback.textContent = '';
+  }
+
+  if (missionEditNameTarget) {
+    missionEditNameTarget.textContent = mission.name || 'this mission';
+  }
+};
+
+const openMissionEditDialog = (element) => {
+  const missionData = decodeMissionData(element);
+  if (!missionData) {
+    return;
+  }
+  prepareMissionEditForm(missionData);
+  showDialog(editMissionDialog);
+};
+
 const setupEditableSelect = (element) => {
   const options = parseOptions(element);
+  const extraOption = getExtraOption(element);
+  if (extraOption) {
+    options.push(extraOption);
+  }
   if (!options.length) {
     return;
   }
@@ -197,6 +276,17 @@ const setupEditableSelect = (element) => {
         return;
       }
 
+      if (extraOption && newValue === extraOption) {
+        select.value = currentValue;
+        closeEditor();
+        if (element.dataset.editAction === 'mission') {
+          window.setTimeout(() => {
+            openMissionEditDialog(element);
+          }, 0);
+        }
+        return;
+      }
+
       element.dataset.saving = 'true';
       element.classList.add('is-saving');
 
@@ -212,6 +302,13 @@ const setupEditableSelect = (element) => {
         }
         element.dataset.value = newValue;
         updateInlineSelectDisplay(element, newValue);
+        if (element.dataset.editAction === 'mission') {
+          const missionData = decodeMissionData(element);
+          if (missionData) {
+            missionData.status = newValue;
+            storeMissionData(element, missionData);
+          }
+        }
       } catch (error) {
         console.error(error);
         alert('Unable to update this record right now.');
@@ -259,7 +356,10 @@ const setupEditableSelect = (element) => {
   });
 };
 
-inlineSelects.forEach(setupEditableSelect);
+inlineSelects.forEach((element) => {
+  updateInlineSelectDisplay(element, element.dataset.value || '');
+  setupEditableSelect(element);
+});
 
 deleteButtons.forEach((button) => {
   button.addEventListener('click', async (event) => {
