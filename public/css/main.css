@@ -193,7 +193,7 @@ a:hover {
   font-size: 1.3em;
   font-weight: 300;
   color: #6b7280;
-  margin: 0;
+  margin: auto;
   display: block;
   line-height: 1;
   white-space: normal;
@@ -215,10 +215,12 @@ a:hover {
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
   transition: background 0.3s ease, color 0.3s ease;
+  color: #6b7280;
 }
 
 .primary-nav a:hover {
   background: rgba(1, 121, 25, 0.12);
+  color: var(--color-primary);
 }
 
 .nav-controls {
@@ -522,7 +524,7 @@ a:hover {
   margin: 0;
 }
 
-.status-pill {
+.mission-card .status-pill {
   position: absolute;
   top: 1.1rem;
   right: 1.1rem;
@@ -539,7 +541,7 @@ a:hover {
   color: var(--color-primary);
 }
 
-.status-pill::before {
+.mission-card .status-pill::before {
   content: '';
   display: inline-block;
   width: 0.45rem;
@@ -549,37 +551,37 @@ a:hover {
   opacity: 0.65;
 }
 
-.status-pill.status-planned {
+.mission-card .status-pill.status-planned {
   background: rgba(240, 177, 22, 0.18);
   color: #a06607;
 }
 
-.status-pill.status-active {
+.mission-card .status-pill.status-active {
   background: rgba(1, 121, 25, 0.18);
   color: var(--color-primary);
 }
 
-.status-pill.status-completed {
+.mission-card .status-pill.status-completed {
   background: rgba(9, 132, 227, 0.18);
   color: #0a5fa5;
 }
 
-[data-theme='dark'] .status-pill {
+[data-theme='dark'] .mission-card .status-pill {
   background: rgba(35, 176, 83, 0.22);
   color: #6ce699;
 }
 
-[data-theme='dark'] .status-pill.status-active {
+[data-theme='dark'] .mission-card .status-pill.status-active {
   background: rgba(35, 176, 83, 0.3);
   color: #6ce699;
 }
 
-[data-theme='dark'] .status-pill.status-planned {
+[data-theme='dark'] .mission-card .status-pill.status-planned {
   background: rgba(240, 177, 22, 0.25);
   color: #f6d28f;
 }
 
-[data-theme='dark'] .status-pill.status-completed {
+[data-theme='dark'] .mission-card .status-pill.status-completed {
   background: rgba(9, 132, 227, 0.25);
   color: #73c4ff;
 }
