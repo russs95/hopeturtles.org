@@ -20,6 +20,7 @@ turtlesModel.getAllWithRelations = async () => {
       t.turtle_id,
       t.name,
       t.status,
+      t.profile_photo_id,
       t.last_update,
       t.mission_id,
       t.hub_id,
@@ -34,12 +35,14 @@ turtlesModel.getAllWithRelations = async () => {
         u.email,
         ''
       ) AS manager_name,
-      COALESCE(log_counts.log_count, 0) AS log_count
+      COALESCE(log_counts.log_count, 0) AS log_count,
+      profile_photo.url AS profile_photo_url
     FROM turtles_tb t
     LEFT JOIN missions_tb m ON t.mission_id = m.mission_id
     LEFT JOIN hubs_tb h ON t.hub_id = h.hub_id
     LEFT JOIN boats_tb b ON t.boat_id = b.boat_id
     LEFT JOIN users_tb u ON t.turtle_manager = u.buwana_id
+    LEFT JOIN photos_tb profile_photo ON profile_photo.photo_id = t.profile_photo_id
     LEFT JOIN (
       SELECT turtle_id, COUNT(*) AS log_count
       FROM telemetry_tb
