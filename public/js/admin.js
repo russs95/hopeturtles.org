@@ -5,6 +5,19 @@ const editMissionDialog = document.getElementById('editMissionDialog');
 const hubDialog = document.getElementById('createHubDialog');
 const boatDialog = document.getElementById('createBoatDialog');
 const turtleDialog = document.getElementById('createTurtleDialog');
+const turtleSecretDialog = document.getElementById('turtleSecretDialog');
+const turtleSecretValue = turtleSecretDialog
+  ? turtleSecretDialog.querySelector('[data-turtle-secret]')
+  : null;
+const turtleSecretName = turtleSecretDialog
+  ? turtleSecretDialog.querySelector('[data-turtle-name]')
+  : null;
+const turtleSecretCopyButton = turtleSecretDialog
+  ? turtleSecretDialog.querySelector('[data-copy-secret]')
+  : null;
+const turtleSecretFeedback = turtleSecretDialog
+  ? turtleSecretDialog.querySelector('[data-copy-feedback]')
+  : null;
 const missionEditForm = editMissionDialog ? editMissionDialog.querySelector('[data-edit-mission-form]') : null;
 const missionEditNameTarget = editMissionDialog ? editMissionDialog.querySelector('[data-mission-name]') : null;
 
@@ -44,6 +57,92 @@ const hideDialog = (dialog) => {
     dialog.setAttribute('hidden', '');
   }
 };
+
+const openTurtleSecretDialog = (secret, turtleName) => {
+  if (!turtleSecretDialog) {
+    return;
+  }
+  if (!supportsNativeDialog(turtleSecretDialog)) {
+    turtleSecretDialog.setAttribute('hidden', '');
+  }
+  if (turtleSecretValue) {
+    turtleSecretValue.textContent = secret;
+  }
+  if (turtleSecretName) {
+    turtleSecretName.textContent = turtleName || 'your Hopeturtle';
+  }
+  if (turtleSecretFeedback) {
+    turtleSecretFeedback.textContent = '';
+  }
+  showDialog(turtleSecretDialog);
+};
+
+const closeTurtleSecretDialog = () => {
+  if (!turtleSecretDialog) {
+    return;
+  }
+  hideDialog(turtleSecretDialog);
+  window.location.reload();
+};
+
+if (turtleSecretDialog && supportsNativeDialog(turtleSecretDialog)) {
+  turtleSecretDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeTurtleSecretDialog();
+  });
+}
+
+if (turtleSecretDialog) {
+  const closeButtons = turtleSecretDialog.querySelectorAll('[data-close-secret]');
+  closeButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeTurtleSecretDialog();
+    });
+  });
+}
+
+const copyTurtleSecretToClipboard = async () => {
+  if (!turtleSecretValue) {
+    return;
+  }
+  const secret = turtleSecretValue.textContent.trim();
+  if (!secret) {
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(secret);
+    if (turtleSecretFeedback) {
+      turtleSecretFeedback.textContent = 'Secret copied to clipboard.';
+    }
+  } catch (error) {
+    const textarea = document.createElement('textarea');
+    textarea.value = secret;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      if (turtleSecretFeedback) {
+        turtleSecretFeedback.textContent = 'Secret copied to clipboard.';
+      }
+    } catch (fallbackError) {
+      if (turtleSecretFeedback) {
+        turtleSecretFeedback.textContent = 'Copy failed. Please copy manually.';
+      }
+    }
+    document.body.removeChild(textarea);
+  }
+};
+
+if (turtleSecretCopyButton) {
+  turtleSecretCopyButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    copyTurtleSecretToClipboard();
+  });
+}
 
 const setupDialog = (dialog, triggerSelector, closeSelector) => {
   if (!dialog) {
@@ -118,7 +217,11 @@ adminForms.forEach((form) => {
           if (dialog) {
             hideDialog(dialog);
           }
-          window.location.reload();
+          if (json.secret) {
+            openTurtleSecretDialog(json.secret, payload.name || (json.data && json.data.name));
+          } else {
+            window.location.reload();
+          }
         }, 600);
       } else {
         feedback.textContent = json.message || 'Failed to save.';

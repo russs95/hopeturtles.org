@@ -1,7 +1,14 @@
+import crypto from 'crypto';
 import turtlesModel from '../models/turtlesModel.js';
 import telemetryModel from '../models/telemetryModel.js';
 import photosModel from '../models/photosModel.js';
 import missionsModel from '../models/missionsModel.js';
+
+const createTurtleSecret = () => {
+  const secret = crypto.randomBytes(32).toString('hex');
+  const secretHash = crypto.createHash('sha256').update(secret).digest('hex');
+  return { secret, secretHash };
+};
 
 export const getTurtles = async (req, res, next) => {
   try {
@@ -26,8 +33,9 @@ export const getTurtleById = async (req, res, next) => {
 
 export const createTurtle = async (req, res, next) => {
   try {
-    const turtle = await turtlesModel.create(req.body);
-    return res.status(201).json({ success: true, data: turtle });
+    const { secret, secretHash } = createTurtleSecret();
+    const turtle = await turtlesModel.create({ ...req.body, secret_hash: secretHash });
+    return res.status(201).json({ success: true, data: turtle, secret });
   } catch (error) {
     return next(error);
   }

@@ -258,6 +258,36 @@
     <% } %>
   </section>
 
+  <dialog id="turtleSecretDialog" class="mission-dialog" aria-labelledby="turtleSecretTitle" hidden>
+    <div class="form-card admin-form">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="turtleSecretTitle">Hopeturtle secret key</h2>
+          <p class="panel-subtitle">Share this secret only with the Hopeturtle it belongs to.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-secret aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <p class="full-width">
+          In order to ensure secure communications and accurate telemetry, we have a secret key for every Hopeturtle.
+          Please copy your hopeturtle's secret key and install it in the <code>serviced/secret_key.txt</code> file on your HopeTurtles OS.
+          Keep the key safe so no one else has access.
+        </p>
+        <p class="full-width">
+          Secret for <strong data-turtle-name>your Hopeturtle</strong>:
+        </p>
+        <div class="full-width secret-key-card">
+          <pre class="secret-key-value" data-turtle-secret></pre>
+          <button type="button" class="button ghost" data-copy-secret>Copy secret</button>
+        </div>
+        <p class="copy-feedback full-width muted" data-copy-feedback role="status" aria-live="polite"></p>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button" data-close-secret>Done</button>
+      </div>
+    </div>
+  </dialog>
+
   <section class="admin-section" id="admin-turtles">
     <h2>Turtles</h2>
     <form class="form-card admin-form" data-endpoint="/api/turtles" data-method="POST">
