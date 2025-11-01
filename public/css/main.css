@@ -190,8 +190,8 @@ a:hover {
 
 .brand-wordmark-text {
   font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 1.2em;
-  font-weight: 400;
+  font-size: 1.3em;
+  font-weight: 700;
   color: var(--color-primary);
   margin: auto;
   display: block;
@@ -199,7 +199,7 @@ a:hover {
 }
 
 .brand-wordmark-emphasis {
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .primary-nav {
@@ -494,6 +494,102 @@ a:hover {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
+}
+
+.mission-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding-top: 3.25rem;
+}
+
+.mission-card .card-header {
+  margin: 0;
+}
+
+.mission-card .card-header h2,
+.mission-card .card-header h3 {
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.mission-card > p {
+  margin: 0;
+}
+
+.status-pill {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: rgba(1, 121, 25, 0.15);
+  color: var(--color-primary);
+}
+
+.status-pill::before {
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.65;
+}
+
+.status-pill.status-planned {
+  background: rgba(240, 177, 22, 0.18);
+  color: #a06607;
+}
+
+.status-pill.status-active {
+  background: rgba(1, 121, 25, 0.18);
+  color: var(--color-primary);
+}
+
+.status-pill.status-completed {
+  background: rgba(9, 132, 227, 0.18);
+  color: #0a5fa5;
+}
+
+[data-theme='dark'] .status-pill {
+  background: rgba(35, 176, 83, 0.22);
+  color: #6ce699;
+}
+
+[data-theme='dark'] .status-pill.status-active {
+  background: rgba(35, 176, 83, 0.3);
+  color: #6ce699;
+}
+
+[data-theme='dark'] .status-pill.status-planned {
+  background: rgba(240, 177, 22, 0.25);
+  color: #f6d28f;
+}
+
+[data-theme='dark'] .status-pill.status-completed {
+  background: rgba(9, 132, 227, 0.25);
+  color: #73c4ff;
+}
+
+.mission-card-map {
+  height: 180px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(1, 121, 25, 0.12);
+}
+
+.mission-card-map .map-canvas {
+  height: 100%;
+  width: 100%;
 }
 
 .card,

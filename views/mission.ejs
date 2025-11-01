@@ -20,10 +20,12 @@
 
   <section class="mission-list">
     <% missions.forEach(function (mission) { %>
-      <article class="card" id="mission-<%= mission.mission_id %>" data-status="<%= mission.status %>">
-        <header>
+      <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
+      <% const statusLabel = mission.status ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1) : 'Unknown'; %>
+      <article class="card mission-card" id="mission-<%= mission.mission_id %>" data-status="<%= mission.status %>">
+        <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
+        <header class="card-header">
           <h2><%= mission.name %></h2>
-          <span class="status <%= mission.status %>"><%= mission.status %></span>
         </header>
         <p><%= mission.description %></p>
         <dl class="mission-meta">

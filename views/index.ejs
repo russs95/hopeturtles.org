@@ -1,4 +1,5 @@
-<%- include('partials/header', { pageTitle, theme }) %>
+<% const extraStyles = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css']; %>
+<%- include('partials/header', { pageTitle, theme, extraStyles }) %>
 <%- include('partials/nav') %>
 <main id="main" class="layout">
   <section class="hero">
@@ -28,12 +29,32 @@
     </header>
     <div class="mission-cards">
       <% missions.forEach(function (mission) { %>
-        <article class="card">
-          <h3><%= mission.name %></h3>
+        <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
+        <% const statusLabel = mission.status ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1) : 'Unknown'; %>
+        <% const hasTarget = mission.target_lat != null && mission.target_lng != null; %>
+        <article class="card mission-card" data-status="<%= mission.status %>">
+          <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
+          <header class="card-header">
+            <h3><%= mission.name %></h3>
+          </header>
+          <% if (hasTarget) { %>
+            <div
+              class="mission-card-map"
+              data-map-token="<%= mapboxToken %>"
+              data-lat="<%= mission.target_lat %>"
+              data-lng="<%= mission.target_lng %>"
+              data-zoom="7.4"
+            >
+              <div
+                id="missionPreviewMap-<%= mission.mission_id %>"
+                class="map-canvas"
+                aria-label="Map preview for <%= mission.name %>"
+              ></div>
+            </div>
+          <% } %>
           <p><%= mission.description %></p>
           <ul class="card-meta">
-            <li><strong>Status:</strong> <%= mission.status %></li>
-            <li><strong>Target:</strong> <%= mission.target_lat %>, <%= mission.target_lng %></li>
+            <li><strong>Target:</strong> <%= hasTarget ? mission.target_lat + ', ' + mission.target_lng : 'To be announced' %></li>
           </ul>
           <a href="/missions#mission-<%= mission.mission_id %>" class="button ghost">View details</a>
         </article>
@@ -62,4 +83,8 @@
     </div>
   </section>
 </main>
-<%- include('partials/footer') %>
+<% const pageScripts = [
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  '/js/home.js'
+]; %>
+<%- include('partials/footer', { pageScripts }) %>
