@@ -144,6 +144,37 @@ if (turtleSecretCopyButton) {
   });
 }
 
+const requestTurtleSecret = async (turtleId, turtleName, element) => {
+  if (!turtleId) {
+    alert('Unable to retrieve the secret for this turtle.');
+    return;
+  }
+
+  if (element) {
+    element.dataset.saving = 'true';
+    element.classList.add('is-saving');
+  }
+
+  try {
+    const response = await fetch(`/api/turtles/${encodeURIComponent(turtleId)}/secret`, {
+      method: 'POST'
+    });
+    const json = await response.json();
+    if (!json.success || !json.secret) {
+      throw new Error(json.message || 'Request failed');
+    }
+    openTurtleSecretDialog(json.secret, turtleName);
+  } catch (error) {
+    console.error(error);
+    alert('Unable to retrieve the secret right now.');
+  } finally {
+    if (element) {
+      element.classList.remove('is-saving');
+      element.dataset.saving = 'false';
+    }
+  }
+};
+
 const setupDialog = (dialog, triggerSelector, closeSelector) => {
   if (!dialog) {
     return;
@@ -194,21 +225,38 @@ adminForms.forEach((form) => {
     const method = form.dataset.method || 'POST';
     const feedback = form.querySelector('.form-feedback');
     const formData = new FormData(form);
-    const payload = Object.fromEntries(formData.entries());
+    const usesMultipart = form.enctype === 'multipart/form-data';
+    const turtleNameFromForm = formData.get('name');
+    let payload = null;
+    let requestBody;
+    let headers;
 
-    ['start_date', 'end_date'].forEach((field) => {
-      if (payload[field]) {
-        payload[field] = formatDateTimeForMysql(payload[field]);
-      }
-    });
+    if (usesMultipart) {
+      ['start_date', 'end_date'].forEach((field) => {
+        const value = formData.get(field);
+        if (value) {
+          formData.set(field, formatDateTimeForMysql(value));
+        }
+      });
+      requestBody = formData;
+    } else {
+      payload = Object.fromEntries(formData.entries());
+      ['start_date', 'end_date'].forEach((field) => {
+        if (payload[field]) {
+          payload[field] = formatDateTimeForMysql(payload[field]);
+        }
+      });
+      headers = { 'Content-Type': 'application/json' };
+      requestBody = JSON.stringify(payload);
+    }
 
     feedback.textContent = 'Saving…';
     try {
-      const response = await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const requestOptions = { method, body: requestBody };
+      if (headers) {
+        requestOptions.headers = headers;
+      }
+      const response = await fetch(endpoint, requestOptions);
       const json = await response.json();
       if (json.success) {
         feedback.textContent = 'Saved!';
@@ -218,7 +266,8 @@ adminForms.forEach((form) => {
             hideDialog(dialog);
           }
           if (json.secret) {
-            openTurtleSecretDialog(json.secret, payload.name || (json.data && json.data.name));
+            const turtleName = (payload && payload.name) || turtleNameFromForm || (json.data && json.data.name);
+            openTurtleSecretDialog(json.secret, turtleName);
           } else {
             window.location.reload();
           }
@@ -244,10 +293,25 @@ const getExtraOption = (element) => (element.dataset.extraOption || '').trim();
 
 const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'unset');
 
+const formatDisplayValue = (element, value) => {
+  if (!element || !value) {
+    return value;
+  }
+  const transform = element.dataset.displayTransform;
+  if (transform === 'turtle-status') {
+    return value
+      .split('_')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+  return value;
+};
+
 const updateInlineSelectDisplay = (element, newValue) => {
   const placeholder = element.dataset.placeholder || 'Set status';
   const badge = element.querySelector('.status-pill');
-  const valueToShow = newValue || placeholder;
+  const valueToShow = newValue ? formatDisplayValue(element, newValue) : placeholder;
 
   if (badge) {
     badge.textContent = valueToShow;
@@ -350,7 +414,9 @@ const setupEditableSelect = (element) => {
     options.forEach((option) => {
       const optionEl = document.createElement('option');
       optionEl.value = option;
-      optionEl.textContent = option;
+      const isExtraOption = extraOption && option === extraOption;
+      const displayValue = isExtraOption ? option : formatDisplayValue(element, option) || option;
+      optionEl.textContent = displayValue;
       if (option === currentValue) {
         optionEl.selected = true;
       }
@@ -386,6 +452,10 @@ const setupEditableSelect = (element) => {
           window.setTimeout(() => {
             openMissionEditDialog(element);
           }, 0);
+        } else if (element.dataset.editAction === 'turtle-secret') {
+          const turtleId = element.dataset.turtleId;
+          const turtleName = element.dataset.turtleName;
+          requestTurtleSecret(turtleId, turtleName, element);
         }
         return;
       }

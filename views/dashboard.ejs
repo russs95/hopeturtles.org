@@ -2,6 +2,14 @@
 <%- include('partials/nav') %>
 <% const isAdmin = currentUser && currentUser.role === 'admin'; %>
 <% const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/gu, '-') : ''); %>
+<% const formatTurtleStatus = (value) => {
+  if (!value) return 'Set status';
+  return value
+    .split(/_/gu)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}; %>
 <% const formatDateTime = (value) =>
   value
     ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
@@ -121,10 +129,10 @@
               <th scope="col">ID</th>
               <th scope="col">Mission</th>
               <th scope="col">Hub</th>
-              <th scope="col">Boat</th>
               <th scope="col">Manager</th>
               <th scope="col">Last update</th>
               <th scope="col">Logs</th>
+              <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -138,10 +146,36 @@
                 </td>
                 <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
                 <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
-                <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
                 <td data-label="Manager"><%= turtle.manager_name || '—' %></td>
                 <td data-label="Last update"><%= formatDateTime(turtle.last_update) %></td>
                 <td data-label="Logs" class="numeric-cell"><%= turtle.log_count ?? 0 %></td>
+                <td data-label="Status">
+                  <div
+                    class="inline-select"
+                    role="button"
+                    tabindex="0"
+                    data-editable-select
+                    data-endpoint="/api/turtles/<%= turtle.turtle_id %>"
+                    data-field="status"
+                    data-value="<%= turtle.status || '' %>"
+                    data-options="idle|en_route|arrived|lost"
+                    data-extra-option="Get Secret"
+                    data-edit-action="turtle-secret"
+                    data-turtle-id="<%= turtle.turtle_id %>"
+                    data-turtle-name="<%= turtle.name || '' %>"
+                    data-label="Update status for turtle <%= turtle.name || '#' + turtle.turtle_id %>"
+                    data-placeholder="Set status"
+                    data-display-transform="turtle-status"
+                    title="Click to change status"
+                  >
+                    <span
+                      class="status-pill turtle-status-pill"
+                      data-status="<%= formatStatusKey(turtle.status) %>"
+                    >
+                      <%= formatTurtleStatus(turtle.status) %>
+                    </span>
+                  </div>
+                </td>
               </tr>
             <% }) %>
           </tbody>
@@ -153,7 +187,12 @@
   </section>
 
     <dialog id="createTurtleDialog" class="mission-dialog" aria-labelledby="createTurtleTitle">
-      <form class="form-card admin-form turtle-form" data-endpoint="/api/turtles" data-method="POST">
+      <form
+        class="form-card admin-form turtle-form"
+        data-endpoint="/api/turtles"
+        data-method="POST"
+        enctype="multipart/form-data"
+      >
         <header class="mission-dialog__header">
           <div>
             <h2 id="createTurtleTitle">Add turtle</h2>
@@ -211,8 +250,8 @@
             </select>
           </label>
           <label class="full-width">
-            Description
-            <textarea name="description" rows="3"></textarea>
+            Profile photo
+            <input type="file" name="profile_photo" accept="image/*" />
           </label>
         </div>
         <div class="mission-dialog__actions">

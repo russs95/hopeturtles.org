@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import path from 'path';
 import turtlesModel from '../models/turtlesModel.js';
 import telemetryModel from '../models/telemetryModel.js';
 import photosModel from '../models/photosModel.js';
@@ -35,7 +36,31 @@ export const createTurtle = async (req, res, next) => {
   try {
     const { secret, secretHash } = createTurtleSecret();
     const turtle = await turtlesModel.create({ ...req.body, secret_hash: secretHash });
-    return res.status(201).json({ success: true, data: turtle, secret });
+    let turtleWithPhoto = turtle;
+
+    if (req.file) {
+      try {
+        const uploadedByRaw = req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
+        const uploadedByNumber =
+          uploadedByRaw !== null && uploadedByRaw !== undefined
+            ? Number(uploadedByRaw)
+            : null;
+        const photo = await photosModel.create({
+          related_type: 'turtle',
+          related_id: turtle.turtle_id,
+          uploaded_by: Number.isFinite(uploadedByNumber) ? uploadedByNumber : null,
+          url: path.posix.join('/uploads', req.file.filename)
+        });
+        turtleWithPhoto = await turtlesModel.update(turtle.turtle_id, {
+          profile_photo_id: photo.photo_id
+        });
+        turtleWithPhoto.profile_photo_url = photo.url;
+      } catch (photoError) {
+        console.error('Failed to attach profile photo to turtle', photoError);
+      }
+    }
+
+    return res.status(201).json({ success: true, data: turtleWithPhoto, secret });
   } catch (error) {
     return next(error);
   }
@@ -45,6 +70,23 @@ export const updateTurtle = async (req, res, next) => {
   try {
     const turtle = await turtlesModel.update(req.params.id, req.body);
     return res.json({ success: true, data: turtle });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const regenerateTurtleSecret = async (req, res, next) => {
+  try {
+    const turtleId = req.params.id;
+    const turtle = await turtlesModel.getById(turtleId);
+    if (!turtle) {
+      return res.status(404).json({ success: false, message: 'Turtle not found' });
+    }
+
+    const { secret, secretHash } = createTurtleSecret();
+    const updated = await turtlesModel.update(turtleId, { secret_hash: secretHash });
+
+    return res.json({ success: true, data: updated, secret });
   } catch (error) {
     return next(error);
   }
@@ -90,6 +132,7 @@ export default {
   getTurtleById,
   createTurtle,
   updateTurtle,
+  regenerateTurtleSecret,
   deleteTurtle,
   renderTurtlePage
 };

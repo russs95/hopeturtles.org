@@ -765,6 +765,57 @@ a:hover {
   color: #004a6f;
 }
 
+.turtle-status-pill {
+  background: rgba(1, 121, 25, 0.12);
+  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.turtle-status-pill[data-status='idle'] {
+  background: rgba(107, 114, 128, 0.18);
+  color: #374151;
+}
+
+.turtle-status-pill[data-status='en-route'] {
+  background: rgba(0, 90, 143, 0.18);
+  color: #004a6f;
+}
+
+.turtle-status-pill[data-status='arrived'] {
+  background: rgba(35, 176, 83, 0.2);
+  color: #0f5225;
+}
+
+.turtle-status-pill[data-status='lost'] {
+  background: rgba(205, 52, 52, 0.2);
+  color: #6b1515;
+}
+
+[data-theme='dark'] .turtle-status-pill {
+  background: rgba(35, 176, 83, 0.18);
+  color: #d9ffe5;
+}
+
+[data-theme='dark'] .turtle-status-pill[data-status='idle'] {
+  background: rgba(156, 163, 175, 0.25);
+  color: #f3f4f6;
+}
+
+[data-theme='dark'] .turtle-status-pill[data-status='en-route'] {
+  background: rgba(96, 165, 250, 0.24);
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .turtle-status-pill[data-status='arrived'] {
+  background: rgba(74, 222, 128, 0.28);
+  color: #ecfdf5;
+}
+
+[data-theme='dark'] .turtle-status-pill[data-status='lost'] {
+  background: rgba(248, 113, 113, 0.28);
+  color: #fee2e2;
+}
+
 .inline-select {
   display: inline-flex;
   align-items: center;
