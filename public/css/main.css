@@ -1143,6 +1143,40 @@ a:hover {
   grid-column: 1 / -1;
 }
 
+.secret-key-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.secret-key-value {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px dashed rgba(1, 121, 25, 0.35);
+  border-radius: 0.75rem;
+  font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.95rem;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+[data-theme='dark'] .secret-key-value {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(193, 236, 208, 0.6);
+}
+
+@media (min-width: 640px) {
+  .secret-key-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .secret-key-value {
+    flex: 1 1 auto;
+  }
+}
+
 .mission-dialog__actions {
   display: flex;
   justify-content: flex-end;
