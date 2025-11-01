@@ -166,6 +166,14 @@ const requestTurtleSecret = async (turtleId, turtleName, element) => {
     openTurtleSecretDialog(json.secret, turtleName);
   } catch (error) {
     console.error(error);
+    console.groupCollapsed('Turtle secret modal troubleshooting');
+    console.info('Attempted to open the secret modal for turtle %s (%s).', turtleId, turtleName || 'unnamed');
+    console.info('If the database request fails, retry the following steps:');
+    console.info('1. Navigate to the Dashboard and locate the Turtle management panel.');
+    console.info('2. Click the status dropdown for the desired turtle.');
+    console.info('3. Choose the "Get Secret" option to reopen the modal.');
+    console.info('4. If the modal still does not appear, verify the turtle has a secret_key in the database.');
+    console.groupEnd();
     alert('Unable to retrieve the secret right now.');
   } finally {
     if (element) {
