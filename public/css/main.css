@@ -695,6 +695,7 @@ a:hover {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  position: relative;
 }
 
 .turtle-profile__photo img {
@@ -708,14 +709,32 @@ a:hover {
   font-size: 1.1rem;
 }
 
-.turtle-profile__meta {
+.turtle-profile__badge {
+  position: absolute;
+  inset: 0 0 auto 0;
+  padding: 0.5rem 0.6rem 1.75rem;
+  background: linear-gradient(180deg, rgba(9, 26, 3, 0.75), rgba(9, 26, 3, 0));
+  color: #fff;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
+  text-transform: none;
+  pointer-events: none;
 }
 
-.turtle-profile__name {
-  font-size: 0.9rem;
+.turtle-profile__badge-id {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.turtle-profile__badge-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .role-cell {
@@ -1276,6 +1295,22 @@ a:hover {
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+.turtle-secret-panel {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.turtle-secret-panel h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.turtle-secret-panel .secret-key-card {
+  width: 100%;
 }
 
 @media (max-width: 768px) {

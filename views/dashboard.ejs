@@ -10,6 +10,7 @@
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }; %>
+<% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
 <% const formatDateTime = (value) =>
   value
     ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
@@ -99,9 +100,86 @@
     </section>
   <% } %>
 
+  <% const myTurtles = Array.isArray(managedTurtles) ? managedTurtles : []; %>
+  <section class="panel my-turtles-panel" id="my-turtles">
+    <header class="panel-header">
+      <div>
+        <h2>My Turtles</h2>
+        <p class="panel-subtitle">Overview of the turtles you are managing.</p>
+      </div>
+      <a class="button" href="/turtles/new">+ Launch Turtle</a>
+    </header>
+    <% if (myTurtles.length > 0) { %>
+      <div class="table-wrapper">
+        <table class="turtles-table my-turtles-table">
+          <thead>
+            <tr>
+              <th scope="col">Profile</th>
+              <th scope="col">Name</th>
+              <th scope="col">Mission</th>
+              <th scope="col">Hub</th>
+              <th scope="col">Boat</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% myTurtles.forEach(function (turtle) { %>
+              <tr>
+                <td data-label="Profile">
+                  <div class="turtle-profile">
+                    <div class="turtle-profile__photo">
+                      <div class="turtle-profile__badge">
+                        <span class="turtle-profile__badge-id">#<%= turtle.turtle_id %></span>
+                        <% if (turtle.name) { %>
+                          <span class="turtle-profile__badge-name"><%= turtle.name %></span>
+                        <% } %>
+                      </div>
+                      <% if (turtle.profile_photo_url) { %>
+                        <img
+                          src="<%= turtle.profile_photo_url %>"
+                          alt="Profile photo for <%= turtle.name || '#' + turtle.turtle_id %>"
+                          loading="lazy"
+                        />
+                      <% } else { %>
+                        <span class="turtle-profile__placeholder-text">#<%= turtle.turtle_id %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </td>
+                <td data-label="Name"><%= turtle.name || '—' %></td>
+                <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
+                <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
+                <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
+                <td data-label="Status"><%= formatTurtleStatus(turtle.status) %></td>
+                <td data-label="Actions">
+                  <button
+                    type="button"
+                    class="button ghost my-turtles__edit"
+                    data-my-turtle-edit
+                    data-turtle-id="<%= turtle.turtle_id %>"
+                    data-turtle-name="<%= turtle.name || '' %>"
+                    data-turtle-status="<%= turtle.status || '' %>"
+                    data-turtle-mission="<%= turtle.mission_id || '' %>"
+                    data-turtle-hub="<%= turtle.hub_id || '' %>"
+                    data-turtle-boat="<%= turtle.boat_id || '' %>"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <p class="panel-empty">You aren't managing any turtles yet.</p>
+    <% } %>
+  </section>
+
   <% if (isAdmin) { %>
     <% const turtlesForManagement = Array.isArray(turtleDetails) ? turtleDetails : []; %>
-    <% const turtleStatuses = ['idle', 'en_route', 'arrived', 'lost']; %>
+    <% const turtleStatuses = turtleStatusOptions; %>
     <% const defaultBoatStatus = 'Docked'; %>
     <% const boatStatuses = [
       'Docked',
@@ -141,6 +219,12 @@
                 <td data-label="Profile">
                   <div class="turtle-profile">
                     <div class="turtle-profile__photo">
+                      <div class="turtle-profile__badge">
+                        <span class="turtle-profile__badge-id">#<%= turtle.turtle_id %></span>
+                        <% if (turtle.name) { %>
+                          <span class="turtle-profile__badge-name"><%= turtle.name %></span>
+                        <% } %>
+                      </div>
                       <% if (turtle.profile_photo_url) { %>
                         <img
                           src="<%= turtle.profile_photo_url %>"
@@ -149,12 +233,6 @@
                         />
                       <% } else { %>
                         <span class="turtle-profile__placeholder-text">#<%= turtle.turtle_id %></span>
-                      <% } %>
-                    </div>
-                    <div class="turtle-profile__meta">
-                      <strong class="turtle-profile__id">#<%= turtle.turtle_id %></strong>
-                      <% if (turtle.name) { %>
-                        <div class="muted turtle-profile__name"><%= turtle.name %></div>
                       <% } %>
                     </div>
                   </div>
@@ -174,10 +252,6 @@
                     data-field="status"
                     data-value="<%= turtle.status || '' %>"
                     data-options="idle|en_route|arrived|lost"
-                    data-extra-option="Get Secret"
-                    data-edit-action="turtle-secret"
-                    data-turtle-id="<%= turtle.turtle_id %>"
-                    data-turtle-name="<%= turtle.name || '' %>"
                     data-label="Update status for turtle <%= turtle.name || '#' + turtle.turtle_id %>"
                     data-placeholder="Set status"
                     data-display-transform="turtle-status"
@@ -275,36 +349,6 @@
         </div>
         <p class="form-feedback" role="status"></p>
       </form>
-    </dialog>
-
-    <dialog id="turtleSecretDialog" class="mission-dialog" aria-labelledby="turtleSecretTitle" hidden>
-      <div class="form-card admin-form">
-        <header class="mission-dialog__header">
-          <div>
-            <h2 id="turtleSecretTitle">Hopeturtle secret key</h2>
-            <p class="panel-subtitle">Share this secret only with the Hopeturtle it belongs to.</p>
-          </div>
-          <button type="button" class="dialog-close" data-close-secret aria-label="Close">&times;</button>
-        </header>
-        <div class="mission-form-grid">
-          <p class="full-width">
-            In order to ensure secure communications and accurate telemetry, we have a secret key for every Hopeturtle.
-            Please copy your hopeturtle's secret key and install it in the <code>serviced/secret_key.txt</code> file on your HopeTurtles OS.
-            Keep the key safe so no one else has access.
-          </p>
-          <p class="full-width">
-            Secret for <strong data-turtle-name>your Hopeturtle</strong>:
-          </p>
-          <div class="full-width secret-key-card">
-            <pre class="secret-key-value" data-turtle-secret></pre>
-            <button type="button" class="button ghost" data-copy-secret>Copy secret</button>
-          </div>
-          <p class="copy-feedback full-width muted" data-copy-feedback role="status" aria-live="polite"></p>
-        </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button" data-close-secret>Done</button>
-        </div>
-      </div>
     </dialog>
 
     <section class="panel mission-management-panel" id="dashboard-missions">
@@ -678,6 +722,77 @@
     </dialog>
   <% } %>
 
+  <dialog id="manageTurtleDialog" class="mission-dialog" aria-labelledby="manageTurtleTitle">
+    <form class="form-card admin-form turtle-form" data-manage-turtle-form data-method="PUT">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="manageTurtleTitle">Manage turtle</h2>
+          <p class="panel-subtitle">
+            Update turtle details or retrieve its secret key.
+          </p>
+        </div>
+        <button type="button" class="dialog-close" data-close-manage-turtle aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Turtle name
+          <input name="name" />
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <option value="">No status</option>
+            <% turtleStatusOptions.forEach(function (status) { %>
+              <option value="<%= status %>"><%= status %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Mission
+          <select name="mission_id">
+            <option value="">No mission assigned</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Hub
+          <select name="hub_id">
+            <option value="">No hub assigned</option>
+            <% hubs.forEach(function (hub) { %>
+              <option value="<%= hub.hub_id %>"><%= hub.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Boat
+          <select name="boat_id">
+            <option value="">No boat assigned</option>
+            <% boats.forEach(function (boat) { %>
+              <option value="<%= boat.boat_id %>"><%= boat.name %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+      <section class="turtle-secret-panel" aria-live="polite">
+        <h3>Secret key</h3>
+        <p class="muted">Share this secret only with the turtle it belongs to.</p>
+        <div class="secret-key-card" data-secret-card hidden>
+          <pre class="secret-key-value" data-managed-turtle-secret></pre>
+          <button type="button" class="button ghost" data-copy-managed-secret>Copy secret</button>
+        </div>
+        <button type="button" class="button ghost" data-request-managed-secret>View secret key</button>
+        <p class="copy-feedback muted" data-managed-secret-feedback role="status"></p>
+      </section>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-manage-turtle>Cancel</button>
+        <button type="submit" class="button">Save changes</button>
+      </div>
+      <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
+    </form>
+  </dialog>
+
   <section class="metric-grid">
     <div class="metric-card">
       <h3>Missions</h3>
@@ -746,7 +861,8 @@
 </main>
 <% const pageScripts = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js',
-  '/js/dashboard.js'
+  '/js/dashboard.js',
+  '/js/managed-turtles.js'
 ]; %>
 <% if (isAdmin) { pageScripts.push('/js/admin.js'); } %>
 <%- include('partials/footer', { pageScripts }) %>
