@@ -5,10 +5,31 @@ import telemetryModel from '../models/telemetryModel.js';
 import photosModel from '../models/photosModel.js';
 import missionsModel from '../models/missionsModel.js';
 
+const allowedTurtleStatuses = new Set(['idle', 'en_route', 'arrived', 'lost']);
+
 const createTurtleSecret = () => {
   const secret = crypto.randomBytes(32).toString('hex');
   const secretHash = crypto.createHash('sha256').update(secret).digest('hex');
   return { secret, secretHash };
+};
+
+const normalizeStatus = (status) => {
+  if (!status) {
+    return 'idle';
+  }
+  const normalized = String(status).toLowerCase();
+  return allowedTurtleStatuses.has(normalized) ? normalized : 'idle';
+};
+
+const toNullableInteger = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+  return Math.trunc(numericValue);
 };
 
 export const getTurtles = async (req, res, next) => {
@@ -61,6 +82,48 @@ export const createTurtle = async (req, res, next) => {
     }
 
     return res.status(201).json({ success: true, data: turtleWithPhoto, secret });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const launchManagedTurtle = async (req, res, next) => {
+  try {
+    const currentUser = req.session?.user || null;
+    const managerIdRaw = currentUser?.buwanaId ?? currentUser?.id ?? null;
+
+    if (!managerIdRaw) {
+      return res
+        .status(403)
+        .json({ success: false, message: 'You are not authorised to launch turtles.' });
+    }
+
+    const name = (req.body?.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Turtle name is required.' });
+    }
+
+    const { secret, secretHash } = createTurtleSecret();
+    const status = normalizeStatus(req.body?.status);
+    const missionId = toNullableInteger(req.body?.mission_id);
+    const hubId = toNullableInteger(req.body?.hub_id);
+    const boatId = toNullableInteger(req.body?.boat_id);
+    const numericManagerId = toNullableInteger(managerIdRaw);
+    const turtleManager = numericManagerId ?? managerIdRaw;
+
+    const payload = {
+      name,
+      status,
+      mission_id: missionId,
+      hub_id: hubId,
+      boat_id: boatId,
+      turtle_manager: turtleManager,
+      secret_hash: secretHash
+    };
+
+    const turtle = await turtlesModel.create(payload);
+
+    return res.status(201).json({ success: true, data: turtle, secret });
   } catch (error) {
     return next(error);
   }
@@ -131,6 +194,7 @@ export default {
   getTurtles,
   getTurtleById,
   createTurtle,
+  launchManagedTurtle,
   updateTurtle,
   regenerateTurtleSecret,
   deleteTurtle,
