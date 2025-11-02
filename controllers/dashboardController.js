@@ -39,6 +39,14 @@ export const renderDashboard = async (req, res, next) => {
     const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
     const isAdmin = canViewUserStats;
 
+    const hubsPromise = isAdmin ? hubsModel.getAllWithStats() : hubsModel.getAll();
+    const boatsPromise = isAdmin ? boatsModel.getAllWithStats() : boatsModel.getAll();
+    const usersPromise = isAdmin ? usersModel.getAll() : Promise.resolve([]);
+    const turtleDetailsPromise = isAdmin ? turtlesModel.getAllWithRelations() : Promise.resolve([]);
+    const managedTurtlesPromise = buwanaId
+      ? turtlesModel.getManagedWithRelations(buwanaId)
+      : Promise.resolve([]);
+
     const [
       missions,
       turtles,
@@ -49,7 +57,8 @@ export const renderDashboard = async (req, res, next) => {
       hubs,
       boats,
       users,
-      turtleDetails
+      turtleDetails,
+      managedTurtles
     ] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAll(),
@@ -57,10 +66,11 @@ export const renderDashboard = async (req, res, next) => {
       successModel.getRecent(10),
       alertsModel.getActive(),
       canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null),
-      isAdmin ? hubsModel.getAllWithStats() : Promise.resolve([]),
-      isAdmin ? boatsModel.getAllWithStats() : Promise.resolve([]),
-      isAdmin ? usersModel.getAll() : Promise.resolve([]),
-      isAdmin ? turtlesModel.getAllWithRelations() : Promise.resolve([])
+      hubsPromise,
+      boatsPromise,
+      usersPromise,
+      turtleDetailsPromise,
+      managedTurtlesPromise
     ]);
     return res.render('dashboard', {
       pageTitle: 'Dashboard',
@@ -75,7 +85,8 @@ export const renderDashboard = async (req, res, next) => {
       hubs: Array.isArray(hubs) ? hubs : [],
       boats: Array.isArray(boats) ? boats : [],
       users: Array.isArray(users) ? users : [],
-      turtleDetails: Array.isArray(turtleDetails) ? turtleDetails : []
+      turtleDetails: Array.isArray(turtleDetails) ? turtleDetails : [],
+      managedTurtles: Array.isArray(managedTurtles) ? managedTurtles : []
     });
   } catch (error) {
     return next(error);

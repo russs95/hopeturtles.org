@@ -5,19 +5,6 @@ const editMissionDialog = document.getElementById('editMissionDialog');
 const hubDialog = document.getElementById('createHubDialog');
 const boatDialog = document.getElementById('createBoatDialog');
 const turtleDialog = document.getElementById('createTurtleDialog');
-const turtleSecretDialog = document.getElementById('turtleSecretDialog');
-const turtleSecretValue = turtleSecretDialog
-  ? turtleSecretDialog.querySelector('[data-turtle-secret]')
-  : null;
-const turtleSecretName = turtleSecretDialog
-  ? turtleSecretDialog.querySelector('[data-turtle-name]')
-  : null;
-const turtleSecretCopyButton = turtleSecretDialog
-  ? turtleSecretDialog.querySelector('[data-copy-secret]')
-  : null;
-const turtleSecretFeedback = turtleSecretDialog
-  ? turtleSecretDialog.querySelector('[data-copy-feedback]')
-  : null;
 const missionEditForm = editMissionDialog ? editMissionDialog.querySelector('[data-edit-mission-form]') : null;
 const missionEditNameTarget = editMissionDialog ? editMissionDialog.querySelector('[data-mission-name]') : null;
 
@@ -55,131 +42,6 @@ const hideDialog = (dialog) => {
   } else {
     dialog.setAttribute('data-open', 'false');
     dialog.setAttribute('hidden', '');
-  }
-};
-
-const openTurtleSecretDialog = (secret, turtleName) => {
-  if (!turtleSecretDialog) {
-    return;
-  }
-  if (!supportsNativeDialog(turtleSecretDialog)) {
-    turtleSecretDialog.setAttribute('hidden', '');
-  }
-  if (turtleSecretValue) {
-    turtleSecretValue.textContent = secret;
-  }
-  if (turtleSecretName) {
-    turtleSecretName.textContent = turtleName || 'your Hopeturtle';
-  }
-  if (turtleSecretFeedback) {
-    turtleSecretFeedback.textContent = '';
-  }
-  showDialog(turtleSecretDialog);
-};
-
-const closeTurtleSecretDialog = () => {
-  if (!turtleSecretDialog) {
-    return;
-  }
-  hideDialog(turtleSecretDialog);
-  window.location.reload();
-};
-
-if (turtleSecretDialog && supportsNativeDialog(turtleSecretDialog)) {
-  turtleSecretDialog.addEventListener('cancel', (event) => {
-    event.preventDefault();
-    closeTurtleSecretDialog();
-  });
-}
-
-if (turtleSecretDialog) {
-  const closeButtons = turtleSecretDialog.querySelectorAll('[data-close-secret]');
-  closeButtons.forEach((button) => {
-    button.addEventListener('click', (event) => {
-      event.preventDefault();
-      closeTurtleSecretDialog();
-    });
-  });
-}
-
-const copyTurtleSecretToClipboard = async () => {
-  if (!turtleSecretValue) {
-    return;
-  }
-  const secret = turtleSecretValue.textContent.trim();
-  if (!secret) {
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(secret);
-    if (turtleSecretFeedback) {
-      turtleSecretFeedback.textContent = 'Secret copied to clipboard.';
-    }
-  } catch (error) {
-    const textarea = document.createElement('textarea');
-    textarea.value = secret;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'absolute';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      document.execCommand('copy');
-      if (turtleSecretFeedback) {
-        turtleSecretFeedback.textContent = 'Secret copied to clipboard.';
-      }
-    } catch (fallbackError) {
-      if (turtleSecretFeedback) {
-        turtleSecretFeedback.textContent = 'Copy failed. Please copy manually.';
-      }
-    }
-    document.body.removeChild(textarea);
-  }
-};
-
-if (turtleSecretCopyButton) {
-  turtleSecretCopyButton.addEventListener('click', (event) => {
-    event.preventDefault();
-    copyTurtleSecretToClipboard();
-  });
-}
-
-const requestTurtleSecret = async (turtleId, turtleName, element) => {
-  if (!turtleId) {
-    alert('Unable to retrieve the secret for this turtle.');
-    return;
-  }
-
-  if (element) {
-    element.dataset.saving = 'true';
-    element.classList.add('is-saving');
-  }
-
-  try {
-    const response = await fetch(`/api/turtles/${encodeURIComponent(turtleId)}/secret`, {
-      method: 'POST'
-    });
-    const json = await response.json();
-    if (!json.success || !json.secret) {
-      throw new Error(json.message || 'Request failed');
-    }
-    openTurtleSecretDialog(json.secret, turtleName);
-  } catch (error) {
-    console.error(error);
-    console.groupCollapsed('Turtle secret modal troubleshooting');
-    console.info('Attempted to open the secret modal for turtle %s (%s).', turtleId, turtleName || 'unnamed');
-    console.info('If the database request fails, retry the following steps:');
-    console.info('1. Navigate to the Dashboard and locate the Turtle management panel.');
-    console.info('2. Click the status dropdown for the desired turtle.');
-    console.info('3. Choose the "Get Secret" option to reopen the modal.');
-    console.info('4. If the modal still does not appear, verify the turtle has a secret_key in the database.');
-    console.groupEnd();
-    alert('Unable to retrieve the secret right now.');
-  } finally {
-    if (element) {
-      element.classList.remove('is-saving');
-      element.dataset.saving = 'false';
-    }
   }
 };
 
@@ -273,12 +135,7 @@ adminForms.forEach((form) => {
           if (dialog) {
             hideDialog(dialog);
           }
-          if (json.secret) {
-            const turtleName = (payload && payload.name) || turtleNameFromForm || (json.data && json.data.name);
-            openTurtleSecretDialog(json.secret, turtleName);
-          } else {
-            window.location.reload();
-          }
+          window.location.reload();
         }, 600);
       } else {
         feedback.textContent = json.message || 'Failed to save.';
@@ -460,10 +317,6 @@ const setupEditableSelect = (element) => {
           window.setTimeout(() => {
             openMissionEditDialog(element);
           }, 0);
-        } else if (element.dataset.editAction === 'turtle-secret') {
-          const turtleId = element.dataset.turtleId;
-          const turtleName = element.dataset.turtleName;
-          requestTurtleSecret(turtleId, turtleName, element);
         }
         return;
       }
