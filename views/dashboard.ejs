@@ -107,7 +107,7 @@
         <h2>My Turtles</h2>
         <p class="panel-subtitle">Overview of the turtles you are managing.</p>
       </div>
-      <a class="button" href="/turtles/new">+ Launch Turtle</a>
+      <button type="button" class="button" data-launch-turtle>+ Launch Turtle</button>
     </header>
     <% if (myTurtles.length > 0) { %>
       <div class="table-wrapper">
@@ -790,6 +790,75 @@
         <button type="submit" class="button">Save changes</button>
       </div>
       <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
+    </form>
+  </dialog>
+
+  <dialog id="launchTurtleDialog" class="mission-dialog" aria-labelledby="launchTurtleTitle">
+    <form class="form-card turtle-form" data-launch-turtle-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="launchTurtleTitle">Launch turtle</h2>
+          <p class="panel-subtitle">
+            Register a turtle under your care and prepare it for deployment.
+          </p>
+        </div>
+        <button type="button" class="dialog-close" data-close-launch-turtle aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Turtle name
+          <input name="name" required />
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <% turtleStatusOptions.forEach(function (status) { %>
+              <option value="<%= status %>" <%= status === 'idle' ? 'selected' : '' %>><%= status %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Mission
+          <select name="mission_id">
+            <option value="">No mission assigned</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Hub
+          <select name="hub_id">
+            <option value="">No hub assigned</option>
+            <% hubs.forEach(function (hub) { %>
+              <option value="<%= hub.hub_id %>"><%= hub.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Boat
+          <select name="boat_id">
+            <option value="">No boat assigned</option>
+            <% boats.forEach(function (boat) { %>
+              <option value="<%= boat.boat_id %>"><%= boat.name %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+      <section class="turtle-secret-panel" data-launch-secret hidden aria-live="polite">
+        <h3>Secret key</h3>
+        <p class="muted">Share this secret only with the turtle it belongs to.</p>
+        <div class="secret-key-card">
+          <pre class="secret-key-value" data-launch-secret-value></pre>
+          <button type="button" class="button ghost" data-launch-secret-copy>Copy secret</button>
+        </div>
+        <p class="copy-feedback muted" data-launch-secret-feedback role="status"></p>
+      </section>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-launch-turtle>Cancel</button>
+        <button type="submit" class="button">Launch turtle</button>
+      </div>
+      <p class="form-feedback" role="status" data-launch-turtle-feedback></p>
     </form>
   </dialog>
 

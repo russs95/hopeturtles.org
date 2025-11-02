@@ -7,6 +7,7 @@ import {
   getTurtles,
   getTurtleById,
   createTurtle,
+  launchManagedTurtle,
   updateTurtle,
   deleteTurtle,
   regenerateTurtleSecret
@@ -35,6 +36,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get('/', getTurtles);
+router.post('/launch', ensureAuth, launchManagedTurtle);
 router.get('/:id', getTurtleById);
 router.post('/', ensureAuth, ensureAdmin, upload.single('profile_photo'), createTurtle);
 router.put('/:id', ensureAuth, ensureAdmin, updateTurtle);

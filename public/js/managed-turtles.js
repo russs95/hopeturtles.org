@@ -24,6 +24,33 @@ const formFeedback = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-managed-turtle-feedback]')
   : null;
 
+const launchTurtleDialog = document.getElementById('launchTurtleDialog');
+const launchTurtleForm = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-turtle-form]')
+  : null;
+const launchTurtleButtons = document.querySelectorAll('[data-launch-turtle]');
+const launchTurtleCloseButtons = launchTurtleDialog
+  ? launchTurtleDialog.querySelectorAll('[data-close-launch-turtle]')
+  : [];
+const launchFeedback = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-turtle-feedback]')
+  : null;
+const launchSecretSection = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-secret]')
+  : null;
+const launchSecretValue = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-secret-value]')
+  : null;
+const launchSecretCopyButton = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-secret-copy]')
+  : null;
+const launchSecretFeedback = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-secret-feedback]')
+  : null;
+const launchSubmitButton = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('button[type="submit"]')
+  : null;
+
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
 const showDialog = (dialog) => {
@@ -47,6 +74,8 @@ const hideDialog = (dialog) => {
 };
 
 let currentTurtleId = null;
+let launchedTurtleId = null;
+let launchWasSuccessful = false;
 
 const resetSecretState = () => {
   if (!secretButton) return;
@@ -61,6 +90,34 @@ const resetSecretState = () => {
   if (secretFeedback) {
     secretFeedback.textContent = '';
   }
+};
+
+const resetLaunchDialog = () => {
+  if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
+    launchTurtleForm.reset();
+  }
+  const statusField = launchTurtleForm ? launchTurtleForm.querySelector('[name="status"]') : null;
+  if (statusField) {
+    statusField.value = 'idle';
+  }
+  if (launchSubmitButton) {
+    launchSubmitButton.disabled = false;
+    launchSubmitButton.textContent = 'Launch turtle';
+  }
+  if (launchFeedback) {
+    launchFeedback.textContent = '';
+  }
+  if (launchSecretSection) {
+    launchSecretSection.hidden = true;
+  }
+  if (launchSecretValue) {
+    launchSecretValue.textContent = '';
+  }
+  if (launchSecretFeedback) {
+    launchSecretFeedback.textContent = '';
+  }
+  launchWasSuccessful = false;
+  launchedTurtleId = null;
 };
 
 const populateManageForm = (turtle) => {
@@ -131,6 +188,26 @@ const closeManageTurtleDialog = () => {
   currentTurtleId = null;
 };
 
+const openLaunchTurtleDialog = () => {
+  if (!launchTurtleDialog) {
+    return;
+  }
+  resetLaunchDialog();
+  showDialog(launchTurtleDialog);
+};
+
+const closeLaunchTurtleDialog = () => {
+  if (!launchTurtleDialog) {
+    return;
+  }
+  hideDialog(launchTurtleDialog);
+  const shouldReload = launchWasSuccessful;
+  resetLaunchDialog();
+  if (shouldReload) {
+    window.location.reload();
+  }
+};
+
 if (manageTurtleDialog) {
   if (supportsNativeDialog(manageTurtleDialog)) {
     manageTurtleDialog.addEventListener('cancel', (event) => {
@@ -144,6 +221,108 @@ if (manageTurtleDialog) {
       event.preventDefault();
       closeManageTurtleDialog();
     });
+  });
+}
+
+if (launchTurtleDialog) {
+  if (supportsNativeDialog(launchTurtleDialog)) {
+    launchTurtleDialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeLaunchTurtleDialog();
+    });
+  }
+
+  launchTurtleCloseButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeLaunchTurtleDialog();
+    });
+  });
+}
+
+launchTurtleButtons.forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    openLaunchTurtleDialog();
+  });
+});
+
+if (launchTurtleForm) {
+  launchTurtleForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(launchTurtleForm);
+    const payload = {
+      name: (formData.get('name') || '').trim(),
+      status: (formData.get('status') || 'idle').trim(),
+      mission_id: formData.get('mission_id') || null,
+      hub_id: formData.get('hub_id') || null,
+      boat_id: formData.get('boat_id') || null
+    };
+
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === '') {
+        payload[key] = null;
+      }
+    });
+
+    ['mission_id', 'hub_id', 'boat_id'].forEach((key) => {
+      if (payload[key] !== null) {
+        const numericValue = Number(payload[key]);
+        payload[key] = Number.isFinite(numericValue) ? numericValue : null;
+      }
+    });
+
+    if (!payload.status) {
+      payload.status = 'idle';
+    } else {
+      payload.status = payload.status.toLowerCase();
+    }
+
+    if (launchFeedback) {
+      launchFeedback.textContent = 'Launching…';
+    }
+    if (launchSubmitButton) {
+      launchSubmitButton.disabled = true;
+      launchSubmitButton.textContent = 'Launching…';
+    }
+
+    try {
+      const response = await fetch('/api/turtles/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.message || 'Request failed');
+      }
+
+      launchedTurtleId = json.data?.turtle_id ?? null;
+      launchWasSuccessful = true;
+      if (launchFeedback) {
+        launchFeedback.textContent = 'Turtle launched! Secret ready below.';
+      }
+      if (launchSecretSection && launchSecretValue && json.secret) {
+        launchSecretSection.hidden = false;
+        launchSecretValue.textContent = json.secret;
+        if (launchSecretFeedback) {
+          launchSecretFeedback.textContent = 'Secret ready to copy.';
+        }
+      }
+      if (launchSubmitButton) {
+        launchSubmitButton.textContent = 'Launch turtle';
+      }
+    } catch (error) {
+      launchWasSuccessful = false;
+      launchedTurtleId = null;
+      if (launchFeedback) {
+        launchFeedback.textContent = error.message || 'Unable to launch turtle.';
+      }
+      if (launchSubmitButton) {
+        launchSubmitButton.disabled = false;
+        launchSubmitButton.textContent = 'Launch turtle';
+      }
+    }
   });
 }
 
@@ -194,6 +373,25 @@ if (secretCopyButton) {
     const copied = await copySecretToClipboard(secret);
     if (secretFeedback) {
       secretFeedback.textContent = copied
+        ? 'Secret copied to clipboard.'
+        : 'Copy failed. Please copy manually.';
+    }
+  });
+}
+
+if (launchSecretCopyButton) {
+  launchSecretCopyButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    if (!launchSecretValue) {
+      return;
+    }
+    const secret = launchSecretValue.textContent.trim();
+    if (!secret) {
+      return;
+    }
+    const copied = await copySecretToClipboard(secret);
+    if (launchSecretFeedback) {
+      launchSecretFeedback.textContent = copied
         ? 'Secret copied to clipboard.'
         : 'Copy failed. Please copy manually.';
     }
