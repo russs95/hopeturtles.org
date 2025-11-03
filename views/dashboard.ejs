@@ -11,6 +11,30 @@
     .join(' ');
 }; %>
 <% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
+<% const bottleStatusOptions = [
+  'please ship',
+  'shipping',
+  'hub received',
+  'verifying',
+  'delivering to boat',
+  'boat transit',
+  'hopeturtle transit',
+  'arrived'
+]; %>
+<% const formatBottleStatus = (value) => {
+  if (!value) return '—';
+  return value
+    .split(/\s+/gu)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}; %>
+<% const formatWeight = (value) => {
+  if (value === undefined || value === null || String(value).trim() === '') return '—';
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return '—';
+  return `${numeric.toLocaleString()} g`;
+}; %>
 <% const formatDateTime = (value) =>
   value
     ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
@@ -175,6 +199,79 @@
     <% } else { %>
       <p class="panel-empty">You aren't managing any turtles yet.</p>
     <% } %>
+  </section>
+
+  <% const myBottles = Array.isArray(userBottles) ? userBottles : []; %>
+  <section class="panel my-bottles-panel" id="my-bottles">
+    <header class="panel-header">
+      <div>
+        <h2>My Aid Bottles</h2>
+        <p class="panel-subtitle">Bottles you've registered and packed for missions.</p>
+      </div>
+      <button type="button" class="button" data-open-register-bottle>+ Register Bottle</button>
+    </header>
+    <p class="form-feedback" role="status" data-my-bottles-feedback hidden></p>
+    <div class="table-wrapper" data-my-bottles-table <%= myBottles.length ? '' : 'hidden' %>>
+      <table class="bottles-table">
+        <thead>
+          <tr>
+            <th scope="col">bottle_basic_pic</th>
+            <th scope="col">mission</th>
+            <th scope="col">contents</th>
+            <th scope="col">weight</th>
+            <th scope="col">status</th>
+            <th scope="col">verified</th>
+          </tr>
+        </thead>
+        <tbody data-my-bottles-body>
+          <% myBottles.forEach(function (bottle) { %>
+            <tr data-bottle-row data-bottle-id="<%= bottle.bottle_id %>">
+              <td data-label="bottle_basic_pic">
+                <div class="bottle-cell">
+                  <div class="bottle-photo <%= bottle.basic_photo_url ? '' : 'bottle-photo--placeholder' %>">
+                    <% if (bottle.basic_photo_url) { %>
+                      <img
+                        src="<%= bottle.basic_photo_url %>"
+                        alt="Bottle <%= bottle.serial_number ? '#' + bottle.serial_number : bottle.bottle_id %>"
+                        loading="lazy"
+                      />
+                    <% } else { %>
+                      <span class="bottle-photo__placeholder">No photo</span>
+                    <% } %>
+                  </div>
+                  <div class="bottle-meta">
+                    <span class="bottle-serial">
+                      Serial
+                      <span><%= bottle.serial_number ? '#' + bottle.serial_number : '—' %></span>
+                    </span>
+                    <span class="muted">ID <%= bottle.bottle_id %></span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="mission"><%= bottle.mission_name || '—' %></td>
+              <td data-label="contents">
+                <div class="bottle-contents"><%= bottle.contents || '—' %></div>
+              </td>
+              <td data-label="weight"><%= formatWeight(bottle.weight_grams) %></td>
+              <td data-label="status">
+                <span class="status-pill bottle-status-pill" data-status="<%= formatStatusKey(bottle.status) %>">
+                  <%= formatBottleStatus(bottle.status) %>
+                </span>
+              </td>
+              <td data-label="verified">
+                <% const isBottleVerified = Number(bottle.verified) === 1 || bottle.verified === true; %>
+                <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
+                  <%= isBottleVerified ? 'Verified' : 'Pending' %>
+                </span>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="panel-empty" data-my-bottles-empty <%= myBottles.length ? 'hidden' : '' %>>
+      You haven't registered any bottles yet.
+    </p>
   </section>
 
   <% if (isAdmin) { %>
@@ -859,6 +956,56 @@
         <button type="submit" class="button">Launch turtle</button>
       </div>
       <p class="form-feedback" role="status" data-launch-turtle-feedback></p>
+    </form>
+  </dialog>
+
+  <dialog id="registerBottleDialog" class="mission-dialog" aria-labelledby="registerBottleTitle">
+    <form class="form-card bottle-form" data-register-bottle-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="registerBottleTitle">Register aid bottle</h2>
+          <p class="panel-subtitle">Log a new bottle in the system and link it to a mission.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-register-bottle aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Serial number
+          <input name="serial_number" required />
+        </label>
+        <label>
+          Mission
+          <select name="mission_id">
+            <option value="">No mission assigned</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Weight (grams)
+          <input type="number" name="weight_grams" min="0" step="0.01" />
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <% bottleStatusOptions.forEach(function (status) { %>
+              <option value="<%= status %>" <%= status === 'please ship' ? 'selected' : '' %>>
+                <%= formatBottleStatus(status) %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="full-width">
+          Contents
+          <textarea name="contents" rows="3" placeholder="List items packed inside the bottle"></textarea>
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-register-bottle>Cancel</button>
+        <button type="submit" class="button">Register bottle</button>
+      </div>
+      <p class="form-feedback" role="status" data-register-bottle-feedback></p>
     </form>
   </dialog>
 
