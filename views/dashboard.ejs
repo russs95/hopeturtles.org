@@ -118,6 +118,91 @@
   <% const activeHopeTurtles = myTurtles.filter(function (turtle) {
     return turtle && String(turtle.status || '').toLowerCase() !== 'lost';
   }); %>
+  <% const myBottles = Array.isArray(userBottles) ? userBottles : []; %>
+  <section class="panel my-bottles-panel" id="my-bottles">
+    <header class="panel-header">
+      <div>
+        <h2>My Aid Bottles</h2>
+        <p class="panel-subtitle">Bottles you've registered and packed for missions.</p>
+      </div>
+      <button type="button" class="button" data-open-register-bottle>+ Register Bottle</button>
+    </header>
+    <p class="form-feedback" role="status" data-my-bottles-feedback hidden></p>
+    <div class="table-wrapper" data-my-bottles-table <%= myBottles.length ? '' : 'hidden' %>>
+      <table class="bottles-table">
+        <thead>
+          <tr>
+            <th scope="col">Aid Bottle</th>
+            <th scope="col">mission</th>
+            <th scope="col">contents</th>
+            <th scope="col">weight</th>
+            <th scope="col">status</th>
+            <th scope="col">verified</th>
+            <th scope="col">delivery details</th>
+          </tr>
+        </thead>
+        <tbody data-my-bottles-body>
+          <% myBottles.forEach(function (bottle) { %>
+            <tr
+              data-bottle-row
+              data-bottle-id="<%= bottle.bottle_id %>"
+              data-serial-number="<%= bottle.serial_number || '' %>"
+              data-hub-name="<%= bottle.hub_name || '' %>"
+              data-hub-address="<%= bottle.hub_mailing_address || '' %>"
+            >
+              <td data-label="Aid Bottle">
+                <div class="bottle-cell">
+                  <div class="bottle-photo <%= bottle.basic_photo_url ? '' : 'bottle-photo--placeholder' %>">
+                    <% if (bottle.basic_photo_url) { %>
+                      <img
+                        src="<%= bottle.basic_photo_url %>"
+                        alt="Aid bottle <%= bottle.serial_number ? '#' + bottle.serial_number : 'photo' %>"
+                        loading="lazy"
+                      />
+                    <% } else { %>
+                      <span class="bottle-photo__placeholder">No photo</span>
+                    <% } %>
+                    <span class="bottle-photo__serial">
+                      <%= bottle.serial_number ? '#' + bottle.serial_number : '—' %>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td data-label="mission"><%= bottle.mission_name || '—' %></td>
+              <td data-label="contents">
+                <div class="bottle-contents"><%= bottle.contents || '—' %></div>
+              </td>
+              <td data-label="weight"><%= formatWeight(bottle.weight_grams) %></td>
+              <td data-label="status">
+                <span
+                  class="status-pill bottle-status-pill"
+                  data-status="<%= formatStatusKey(bottle.status) %>"
+                  data-open-delivery-details
+                >
+                  <%= formatBottleStatus(bottle.status) %>
+                </span>
+              </td>
+              <td data-label="verified">
+                <% const isBottleVerified = Number(bottle.verified) === 1 || bottle.verified === true; %>
+                <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
+                  <%= isBottleVerified ? 'Verified' : 'Pending' %>
+                </span>
+              </td>
+              <td data-label="delivery details" class="numeric-cell">
+                <button type="button" class="button ghost small" data-open-delivery-details>
+                  Delivery details
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="panel-empty" data-my-bottles-empty <%= myBottles.length ? 'hidden' : '' %>>
+      You haven't registered any bottles yet.
+    </p>
+  </section>
+
   <section class="panel my-turtles-panel" id="my-turtles">
     <header class="panel-header">
       <div>
@@ -192,91 +277,6 @@
     <% } else { %>
       <p class="panel-empty">You aren't managing any turtles yet.</p>
     <% } %>
-  </section>
-
-  <% const myBottles = Array.isArray(userBottles) ? userBottles : []; %>
-  <section class="panel my-bottles-panel" id="my-bottles">
-    <header class="panel-header">
-      <div>
-        <h2>My Aid Bottles</h2>
-        <p class="panel-subtitle">Bottles you've registered and packed for missions.</p>
-      </div>
-      <button type="button" class="button" data-open-register-bottle>+ Register Bottle</button>
-    </header>
-    <p class="form-feedback" role="status" data-my-bottles-feedback hidden></p>
-    <div class="table-wrapper" data-my-bottles-table <%= myBottles.length ? '' : 'hidden' %>>
-      <table class="bottles-table">
-        <thead>
-          <tr>
-            <th scope="col">bottle_basic_pic</th>
-            <th scope="col">mission</th>
-            <th scope="col">contents</th>
-            <th scope="col">weight</th>
-            <th scope="col">status</th>
-            <th scope="col">verified</th>
-            <th scope="col">delivery details</th>
-          </tr>
-        </thead>
-        <tbody data-my-bottles-body>
-          <% myBottles.forEach(function (bottle) { %>
-            <tr
-              data-bottle-row
-              data-bottle-id="<%= bottle.bottle_id %>"
-              data-serial-number="<%= bottle.serial_number || '' %>"
-              data-hub-name="<%= bottle.hub_name || '' %>"
-              data-hub-address="<%= bottle.hub_mailing_address || '' %>"
-            >
-              <td data-label="bottle_basic_pic">
-                <div class="bottle-cell">
-                  <div class="bottle-photo <%= bottle.basic_photo_url ? '' : 'bottle-photo--placeholder' %>">
-                    <% if (bottle.basic_photo_url) { %>
-                      <img
-                        src="<%= bottle.basic_photo_url %>"
-                        alt="Bottle <%= bottle.serial_number ? '#' + bottle.serial_number : bottle.bottle_id %>"
-                        loading="lazy"
-                      />
-                    <% } else { %>
-                      <span class="bottle-photo__placeholder">No photo</span>
-                    <% } %>
-                  </div>
-                  <div class="bottle-meta">
-                    <span class="bottle-serial">
-                      Serial
-                      <span><%= bottle.serial_number ? '#' + bottle.serial_number : '—' %></span>
-                    </span>
-                    <span class="muted">ID <%= bottle.bottle_id %></span>
-                  </div>
-                </div>
-              </td>
-              <td data-label="mission"><%= bottle.mission_name || '—' %></td>
-              <td data-label="contents">
-                <div class="bottle-contents"><%= bottle.contents || '—' %></div>
-              </td>
-              <td data-label="weight"><%= formatWeight(bottle.weight_grams) %></td>
-              <td data-label="status">
-                <span class="status-pill bottle-status-pill" data-status="<%= formatStatusKey(bottle.status) %>">
-                  <%= formatBottleStatus(bottle.status) %>
-                </span>
-              </td>
-              <td data-label="verified">
-                <% const isBottleVerified = Number(bottle.verified) === 1 || bottle.verified === true; %>
-                <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
-                  <%= isBottleVerified ? 'Verified' : 'Pending' %>
-                </span>
-              </td>
-              <td data-label="delivery details" class="numeric-cell">
-                <button type="button" class="button ghost small" data-open-delivery-details>
-                  Delivery details
-                </button>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-    <p class="panel-empty" data-my-bottles-empty <%= myBottles.length ? 'hidden' : '' %>>
-      You haven't registered any bottles yet.
-    </p>
   </section>
 
   <% if (isAdmin) { %>
@@ -1046,21 +1046,33 @@
           &times;
         </button>
       </header>
-      <div class="mission-form-grid">
-        <p data-bottle-delivery-serial>
-          Please write your bottle's serial number using a permanent marker or nail polish:
-          <strong data-bottle-delivery-serial-value></strong>
-        </p>
-        <p data-bottle-delivery-hub hidden>
-          Please ship your bottle to hub
-          <strong data-bottle-delivery-hub-name></strong>
-          at:
-          <span data-bottle-delivery-hub-address></span>
-        </p>
-      </div>
-      <div class="mission-dialog__actions">
-        <button type="button" class="button" data-close-bottle-delivery>Close</button>
-      </div>
+      <form class="mission-dialog__form" data-bottle-delivery-form enctype="multipart/form-data">
+        <div class="mission-form-grid">
+          <p data-bottle-delivery-serial>
+            Please write your bottle's serial number using a permanent marker or nail polish:
+            <strong data-bottle-delivery-serial-value></strong>
+          </p>
+          <p data-bottle-delivery-hub hidden>
+            Please ship your bottle to hub
+            <strong data-bottle-delivery-hub-name></strong>
+            at:
+            <span data-bottle-delivery-hub-address></span>
+          </p>
+          <label class="full-width">
+            Please upload a top to bottom photo of your bottle that shows its serial number clearly.
+            <input type="file" name="bottle_basic_photo" accept="image/*" required />
+          </label>
+          <label class="full-width">
+            Optional: Upload a selfie of you and your aid bottle to inspire others.
+            <input type="file" name="bottle_selfie_photo" accept="image/*" />
+          </label>
+        </div>
+        <div class="mission-dialog__actions">
+          <button type="button" class="button ghost" data-close-bottle-delivery>Cancel</button>
+          <button type="submit" class="button" data-bottle-delivery-submit>Submit delivery details</button>
+        </div>
+        <p class="form-feedback" role="status" data-bottle-delivery-feedback hidden></p>
+      </form>
     </article>
   </dialog>
 
