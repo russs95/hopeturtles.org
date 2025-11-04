@@ -103,6 +103,18 @@ const bottlesTableWrapper = document.querySelector('[data-my-bottles-table]');
 const bottlesTableBody = document.querySelector('[data-my-bottles-body]');
 const bottlesEmptyState = document.querySelector('[data-my-bottles-empty]');
 const bottlesFeedback = document.querySelector('[data-my-bottles-feedback]');
+const bottleDeliveryDialog = document.getElementById('bottleDeliveryDetailsDialog');
+const bottleDeliverySerialValue =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-serial-value]') ?? null;
+const bottleDeliveryHubSection =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-hub]') ?? null;
+const bottleDeliveryHubName =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-hub-name]') ?? null;
+const bottleDeliveryHubAddress =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-hub-address]') ?? null;
+const closeBottleDeliveryButtons = bottleDeliveryDialog
+  ? bottleDeliveryDialog.querySelectorAll('[data-close-bottle-delivery]')
+  : [];
 
 const escapeHtml = (value) => {
   if (value === undefined || value === null) {
@@ -160,6 +172,13 @@ const formatBottleContents = (value) => {
   return escapeHtml(value).replace(/\r?\n/gu, '<br />');
 };
 
+const formatMultilineText = (value) => {
+  if (!value) {
+    return '';
+  }
+  return escapeHtml(value).replace(/\r?\n/gu, '<br />');
+};
+
 const toggleBottlesTableState = () => {
   if (!bottlesTableWrapper || !bottlesEmptyState || !bottlesTableBody) {
     return;
@@ -167,6 +186,43 @@ const toggleBottlesTableState = () => {
   const hasRows = bottlesTableBody.children.length > 0;
   bottlesTableWrapper.hidden = !hasRows;
   bottlesEmptyState.hidden = hasRows;
+};
+
+const showBottleDeliveryModal = (bottle) => {
+  if (!bottleDeliveryDialog || !bottle) {
+    return;
+  }
+
+  const serialNumber = bottle.serial_number ? String(bottle.serial_number) : '';
+  if (bottleDeliverySerialValue) {
+    bottleDeliverySerialValue.textContent = serialNumber || '—';
+  }
+
+  const hubName = bottle.hub_name ? String(bottle.hub_name) : '';
+  const hubAddress = bottle.hub_mailing_address ? String(bottle.hub_mailing_address) : '';
+  const hasHubInfo = Boolean(hubName || hubAddress);
+
+  if (bottleDeliveryHubSection) {
+    bottleDeliveryHubSection.hidden = !hasHubInfo;
+  }
+
+  if (hasHubInfo) {
+    if (bottleDeliveryHubName) {
+      bottleDeliveryHubName.textContent = hubName;
+    }
+    if (bottleDeliveryHubAddress) {
+      bottleDeliveryHubAddress.innerHTML = formatMultilineText(hubAddress);
+    }
+  } else {
+    if (bottleDeliveryHubName) {
+      bottleDeliveryHubName.textContent = '';
+    }
+    if (bottleDeliveryHubAddress) {
+      bottleDeliveryHubAddress.innerHTML = '';
+    }
+  }
+
+  bottleDeliveryDialog.showModal();
 };
 
 const showBottlesFeedback = (message, isError = false) => {
@@ -192,10 +248,6 @@ const resetRegisterBottleForm = () => {
     return;
   }
   registerBottleForm.reset();
-  const statusSelect = registerBottleForm.querySelector('select[name="status"]');
-  if (statusSelect) {
-    statusSelect.value = 'please ship';
-  }
   if (registerBottleFeedback) {
     registerBottleFeedback.textContent = '';
     registerBottleFeedback.classList.remove('is-error', 'is-success');
@@ -219,6 +271,8 @@ const createBottleRow = (bottle) => {
   const isVerified = String(bottle.verified) === '1' || bottle.verified === 1 || bottle.verified === true;
   const verifiedValue = isVerified ? 'true' : 'false';
   const verifiedLabel = isVerified ? 'Verified' : 'Pending';
+  const hubName = bottle.hub_name ? String(bottle.hub_name) : '';
+  const hubAddress = bottle.hub_mailing_address ? String(bottle.hub_mailing_address) : '';
 
   const photoMarkup = basicPhotoUrl
     ? `<img src="${escapeAttribute(basicPhotoUrl)}" alt="${escapeAttribute(photoAlt)}" loading="lazy" />`
@@ -249,7 +303,16 @@ const createBottleRow = (bottle) => {
         ${escapeHtml(verifiedLabel)}
       </span>
     </td>
+    <td data-label="delivery details" class="numeric-cell">
+      <button type="button" class="button ghost small" data-open-delivery-details>
+        Delivery details
+      </button>
+    </td>
   `;
+
+  row.dataset.serialNumber = bottle.serial_number ? String(bottle.serial_number) : '';
+  row.dataset.hubName = hubName;
+  row.dataset.hubAddress = hubAddress;
 
   return row;
 };
@@ -276,36 +339,51 @@ const handleRegisterBottleSubmit = async (event) => {
   }
 
   const formData = new FormData(registerBottleForm);
-  const serialNumber = formData.get('serial_number');
-
-  if (!serialNumber || !String(serialNumber).trim()) {
-    if (registerBottleFeedback) {
-      registerBottleFeedback.textContent = 'Serial number is required.';
-      registerBottleFeedback.classList.add('is-error');
-    }
-    return;
-  }
-
-  const payload = {
-    serial_number: String(serialNumber).trim()
-  };
+  const payload = {};
 
   const missionId = formData.get('mission_id');
-  if (missionId) {
-    payload.mission_id = Number(missionId);
+  if (missionId && String(missionId).trim() !== '') {
+    const parsedMission = Number(missionId);
+    if (!Number.isNaN(parsedMission)) {
+      payload.mission_id = parsedMission;
+    }
+  }
+
+  const brand = formData.get('brand');
+  if (brand && String(brand).trim()) {
+    payload.brand = String(brand).trim();
+  }
+
+  const volume = formData.get('volume_ml');
+  if (volume && String(volume).trim() !== '') {
+    const parsedVolume = Number(volume);
+    if (!Number.isNaN(parsedVolume) && parsedVolume >= 0) {
+      payload.volume_ml = parsedVolume;
+    }
+  }
+
+  const hubId = formData.get('hub_id');
+  if (hubId && String(hubId).trim() !== '') {
+    const parsedHub = Number(hubId);
+    if (!Number.isNaN(parsedHub)) {
+      payload.hub_id = parsedHub;
+    }
+  }
+
+  const turtleId = formData.get('turtle_id');
+  if (turtleId && String(turtleId).trim() !== '') {
+    const parsedTurtle = Number(turtleId);
+    if (!Number.isNaN(parsedTurtle)) {
+      payload.turtle_id = parsedTurtle;
+    }
   }
 
   const weight = formData.get('weight_grams');
-  if (weight) {
+  if (weight && String(weight).trim() !== '') {
     const parsedWeight = Number(weight);
     if (!Number.isNaN(parsedWeight)) {
       payload.weight_grams = parsedWeight;
     }
-  }
-
-  const status = formData.get('status');
-  if (status) {
-    payload.status = String(status);
   }
 
   const contents = formData.get('contents');
@@ -331,18 +409,23 @@ const handleRegisterBottleSubmit = async (event) => {
       throw new Error(json.message || 'Unable to register bottle.');
     }
 
+    let createdBottle = null;
     if (json.data) {
       addBottleRow(json.data);
       showBottlesFeedback('Bottle registered successfully.', false);
       window.setTimeout(() => {
         showBottlesFeedback('', false);
       }, 5000);
+      createdBottle = json.data;
     }
 
     if (registerBottleDialog) {
       registerBottleDialog.close();
     }
     resetRegisterBottleForm();
+    if (createdBottle) {
+      showBottleDeliveryModal(createdBottle);
+    }
   } catch (error) {
     if (registerBottleFeedback) {
       registerBottleFeedback.textContent = error.message || 'Unable to register bottle.';
@@ -374,7 +457,9 @@ if (openRegisterBottleButton && registerBottleDialog) {
   openRegisterBottleButton.addEventListener('click', () => {
     resetRegisterBottleForm();
     registerBottleDialog.showModal();
-    const firstInput = registerBottleForm?.querySelector('input[name="serial_number"]');
+    const firstInput =
+      registerBottleForm?.querySelector('input[name="brand"]') ??
+      registerBottleForm?.querySelector('select, input, textarea');
     if (firstInput) {
       firstInput.focus();
     }
@@ -386,6 +471,40 @@ if (closeRegisterBottleButtons && registerBottleDialog) {
     button.addEventListener('click', () => {
       registerBottleDialog.close();
     });
+  });
+}
+
+if (closeBottleDeliveryButtons && bottleDeliveryDialog) {
+  closeBottleDeliveryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      bottleDeliveryDialog.close();
+    });
+  });
+}
+
+if (bottleDeliveryDialog) {
+  bottleDeliveryDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    bottleDeliveryDialog.close();
+  });
+}
+
+if (bottlesTableBody) {
+  bottlesTableBody.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-open-delivery-details]');
+    if (!trigger) {
+      return;
+    }
+    const row = trigger.closest('tr[data-bottle-row]');
+    if (!row) {
+      return;
+    }
+    const bottle = {
+      serial_number: row.dataset.serialNumber || '',
+      hub_name: row.dataset.hubName || '',
+      hub_mailing_address: row.dataset.hubAddress || ''
+    };
+    showBottleDeliveryModal(bottle);
   });
 }
 

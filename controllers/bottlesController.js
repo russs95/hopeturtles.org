@@ -95,23 +95,20 @@ export const registerMyBottle = async (req, res, next) => {
     }
 
     const {
-      serial_number: serialNumber,
       brand,
       volume_ml: volume,
       mission_id: missionId,
+      hub_id: hubId,
+      turtle_id: turtleId,
       contents,
       weight_grams: weight,
       status
     } = req.body ?? {};
 
-    if (!serialNumber || !String(serialNumber).trim()) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Serial number is required to register a bottle.' });
-    }
+    const tempSerial = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const payload = {
-      serial_number: String(serialNumber).trim(),
+      serial_number: tempSerial,
       packed_by: userId,
       status: normalizeStatus(status),
       verified: 0,
@@ -136,6 +133,20 @@ export const registerMyBottle = async (req, res, next) => {
       }
     }
 
+    if (hubId !== undefined && hubId !== null && String(hubId).trim() !== '') {
+      const parsedHub = Number(hubId);
+      if (!Number.isNaN(parsedHub)) {
+        payload.hub_id = parsedHub;
+      }
+    }
+
+    if (turtleId !== undefined && turtleId !== null && String(turtleId).trim() !== '') {
+      const parsedTurtle = Number(turtleId);
+      if (!Number.isNaN(parsedTurtle)) {
+        payload.turtle_id = parsedTurtle;
+      }
+    }
+
     if (contents && String(contents).trim()) {
       payload.contents = String(contents).trim();
     }
@@ -148,14 +159,19 @@ export const registerMyBottle = async (req, res, next) => {
     }
 
     const created = await bottlesModel.create(payload);
+    const generatedSerial = String(created.bottle_id).padStart(7, '0');
+    await bottlesModel.update(created.bottle_id, { serial_number: generatedSerial });
     const bottleWithDetails = await bottlesModel.getByIdForPacker(created.bottle_id, userId);
 
     const responseBottle = bottleWithDetails
       ? bottleWithDetails
       : {
           ...created,
+          serial_number: generatedSerial,
           mission_name: null,
-          basic_photo_url: null
+          basic_photo_url: null,
+          hub_name: null,
+          hub_mailing_address: null
         };
 
     return res.status(201).json({ success: true, data: responseBottle });
