@@ -11,16 +11,6 @@
     .join(' ');
 }; %>
 <% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
-<% const bottleStatusOptions = [
-  'please ship',
-  'shipping',
-  'hub received',
-  'verifying',
-  'delivering to boat',
-  'boat transit',
-  'hopeturtle transit',
-  'arrived'
-]; %>
 <% const formatBottleStatus = (value) => {
   if (!value) return '—';
   return value
@@ -125,6 +115,9 @@
   <% } %>
 
   <% const myTurtles = Array.isArray(managedTurtles) ? managedTurtles : []; %>
+  <% const activeHopeTurtles = myTurtles.filter(function (turtle) {
+    return turtle && String(turtle.status || '').toLowerCase() !== 'lost';
+  }); %>
   <section class="panel my-turtles-panel" id="my-turtles">
     <header class="panel-header">
       <div>
@@ -221,11 +214,18 @@
             <th scope="col">weight</th>
             <th scope="col">status</th>
             <th scope="col">verified</th>
+            <th scope="col">delivery details</th>
           </tr>
         </thead>
         <tbody data-my-bottles-body>
           <% myBottles.forEach(function (bottle) { %>
-            <tr data-bottle-row data-bottle-id="<%= bottle.bottle_id %>">
+            <tr
+              data-bottle-row
+              data-bottle-id="<%= bottle.bottle_id %>"
+              data-serial-number="<%= bottle.serial_number || '' %>"
+              data-hub-name="<%= bottle.hub_name || '' %>"
+              data-hub-address="<%= bottle.hub_mailing_address || '' %>"
+            >
               <td data-label="bottle_basic_pic">
                 <div class="bottle-cell">
                   <div class="bottle-photo <%= bottle.basic_photo_url ? '' : 'bottle-photo--placeholder' %>">
@@ -263,6 +263,11 @@
                 <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
                   <%= isBottleVerified ? 'Verified' : 'Pending' %>
                 </span>
+              </td>
+              <td data-label="delivery details" class="numeric-cell">
+                <button type="button" class="button ghost small" data-open-delivery-details>
+                  Delivery details
+                </button>
               </td>
             </tr>
           <% }) %>
@@ -969,10 +974,6 @@
         <button type="button" class="dialog-close" data-close-register-bottle aria-label="Close">&times;</button>
       </header>
       <div class="mission-form-grid">
-        <label class="full-width">
-          Serial number
-          <input name="serial_number" required />
-        </label>
         <label>
           Mission
           <select name="mission_id">
@@ -983,18 +984,34 @@
           </select>
         </label>
         <label>
-          Weight (grams)
-          <input type="number" name="weight_grams" min="0" step="0.01" />
+          Brand
+          <input name="brand" />
         </label>
         <label>
-          Status
-          <select name="status">
-            <% bottleStatusOptions.forEach(function (status) { %>
-              <option value="<%= status %>" <%= status === 'please ship' ? 'selected' : '' %>>
-                <%= formatBottleStatus(status) %>
-              </option>
+          Volume (ml)
+          <input type="number" name="volume_ml" min="0" step="1" />
+        </label>
+        <label class="full-width">
+          Select the nearest hub to deliver your bottle too:
+          <select name="hub_id">
+            <option value="">No hub assigned</option>
+            <% hubs.forEach(function (hub) { %>
+              <option value="<%= hub.hub_id %>"><%= hub.name %></option>
             <% }) %>
           </select>
+        </label>
+        <label class="full-width">
+          If you are building your own turtle allocated this bottle to it:
+          <select name="turtle_id">
+            <option value="">No turtle selected</option>
+            <% activeHopeTurtles.forEach(function (turtle) { %>
+              <option value="<%= turtle.turtle_id %>"><%= turtle.name || ('Turtle #' + turtle.turtle_id) %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Weight (grams)
+          <input type="number" name="weight_grams" min="0" step="0.01" />
         </label>
         <label class="full-width">
           Contents
@@ -1007,6 +1024,44 @@
       </div>
       <p class="form-feedback" role="status" data-register-bottle-feedback></p>
     </form>
+  </dialog>
+
+  <dialog
+    id="bottleDeliveryDetailsDialog"
+    class="mission-dialog"
+    aria-labelledby="bottleDeliveryDetailsTitle"
+  >
+    <article class="form-card bottle-delivery-card">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="bottleDeliveryDetailsTitle">Bottle delivery details</h2>
+          <p class="panel-subtitle">Final steps to prepare and ship your bottle.</p>
+        </div>
+        <button
+          type="button"
+          class="dialog-close"
+          data-close-bottle-delivery
+          aria-label="Close"
+        >
+          &times;
+        </button>
+      </header>
+      <div class="mission-form-grid">
+        <p data-bottle-delivery-serial>
+          Please write your bottle's serial number using a permanent marker or nail polish:
+          <strong data-bottle-delivery-serial-value></strong>
+        </p>
+        <p data-bottle-delivery-hub hidden>
+          Please ship your bottle to hub
+          <strong data-bottle-delivery-hub-name></strong>
+          at:
+          <span data-bottle-delivery-hub-address></span>
+        </p>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button" data-close-bottle-delivery>Close</button>
+      </div>
+    </article>
   </dialog>
 
   <section class="metric-grid">
