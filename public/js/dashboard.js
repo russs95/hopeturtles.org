@@ -115,6 +115,12 @@ const bottleDeliveryHubAddress =
 const closeBottleDeliveryButtons = bottleDeliveryDialog
   ? bottleDeliveryDialog.querySelectorAll('[data-close-bottle-delivery]')
   : [];
+const bottleDeliveryForm =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-form]') ?? null;
+const bottleDeliveryFeedback =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-feedback]') ?? null;
+const bottleDeliverySubmitButton =
+  bottleDeliveryDialog?.querySelector('[data-bottle-delivery-submit]') ?? null;
 
 const escapeHtml = (value) => {
   if (value === undefined || value === null) {
@@ -188,9 +194,45 @@ const toggleBottlesTableState = () => {
   bottlesEmptyState.hidden = hasRows;
 };
 
+const resetBottleDeliveryForm = () => {
+  if (!bottleDeliveryForm) {
+    return;
+  }
+  bottleDeliveryForm.reset();
+  bottleDeliveryForm.dataset.bottleId = '';
+  if (bottleDeliveryFeedback) {
+    bottleDeliveryFeedback.textContent = '';
+    bottleDeliveryFeedback.hidden = true;
+    bottleDeliveryFeedback.classList.remove('is-error', 'is-success');
+  }
+};
+
+const updateBottleRow = (bottle) => {
+  if (!bottlesTableBody || !bottle) {
+    return;
+  }
+
+  const bottleId = bottle.bottle_id ? String(bottle.bottle_id) : '';
+  const existingRow = bottleId
+    ? bottlesTableBody.querySelector(`tr[data-bottle-row][data-bottle-id="${bottleId}"]`)
+    : null;
+  const newRow = createBottleRow(bottle);
+  if (existingRow) {
+    existingRow.replaceWith(newRow);
+  } else {
+    bottlesTableBody.prepend(newRow);
+  }
+};
+
 const showBottleDeliveryModal = (bottle) => {
   if (!bottleDeliveryDialog || !bottle) {
     return;
+  }
+
+  resetBottleDeliveryForm();
+
+  if (bottleDeliveryForm) {
+    bottleDeliveryForm.dataset.bottleId = bottle.bottle_id ? String(bottle.bottle_id) : '';
   }
 
   const serialNumber = bottle.serial_number ? String(bottle.serial_number) : '';
@@ -223,6 +265,70 @@ const showBottleDeliveryModal = (bottle) => {
   }
 
   bottleDeliveryDialog.showModal();
+};
+
+const handleBottleDeliverySubmit = async (event) => {
+  event.preventDefault();
+
+  if (!bottleDeliveryForm) {
+    return;
+  }
+
+  const bottleId = bottleDeliveryForm.dataset.bottleId;
+  if (!bottleId) {
+    if (bottleDeliveryFeedback) {
+      bottleDeliveryFeedback.textContent = 'Something went wrong. Please try again.';
+      bottleDeliveryFeedback.hidden = false;
+      bottleDeliveryFeedback.classList.add('is-error');
+      bottleDeliveryFeedback.classList.remove('is-success');
+    }
+    return;
+  }
+
+  const formData = new FormData(bottleDeliveryForm);
+  if (bottleDeliveryFeedback) {
+    bottleDeliveryFeedback.textContent = '';
+    bottleDeliveryFeedback.hidden = true;
+    bottleDeliveryFeedback.classList.remove('is-error', 'is-success');
+  }
+
+  if (bottleDeliverySubmitButton) {
+    bottleDeliverySubmitButton.disabled = true;
+  }
+
+  try {
+    const response = await fetch(`/api/my-bottles/${encodeURIComponent(bottleId)}/delivery`, {
+      method: 'POST',
+      body: formData
+    });
+    const json = await response.json();
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || 'Unable to save delivery details.');
+    }
+
+    if (json.data) {
+      updateBottleRow(json.data);
+      toggleBottlesTableState();
+    }
+
+    showBottlesFeedback('Delivery details saved. Thank you!', false);
+    bottleDeliveryDialog.close();
+  } catch (error) {
+    const message = error?.message || 'Unable to save delivery details.';
+    if (bottleDeliveryFeedback) {
+      bottleDeliveryFeedback.textContent = message;
+      bottleDeliveryFeedback.hidden = false;
+      bottleDeliveryFeedback.classList.add('is-error');
+      bottleDeliveryFeedback.classList.remove('is-success');
+    } else {
+      showBottlesFeedback(message, true);
+    }
+  } finally {
+    if (bottleDeliverySubmitButton) {
+      bottleDeliverySubmitButton.disabled = false;
+    }
+  }
 };
 
 const showBottlesFeedback = (message, isError = false) => {
@@ -261,9 +367,7 @@ const createBottleRow = (bottle) => {
 
   const basicPhotoUrl = bottle.basic_photo_url;
   const serialLabel = bottle.serial_number ? `#${escapeHtml(bottle.serial_number)}` : '—';
-  const photoAlt = bottle.serial_number
-    ? `Bottle #${bottle.serial_number}`
-    : `Bottle ${bottle.bottle_id}`;
+  const photoAlt = bottle.serial_number ? `Aid bottle #${bottle.serial_number}` : 'Aid bottle photo';
   const missionLabel = bottle.mission_name ? escapeHtml(bottle.mission_name) : '—';
   const statusSlug = slugifyStatus(bottle.status);
   const statusLabel = formatBottleStatusLabel(bottle.status);
@@ -279,14 +383,11 @@ const createBottleRow = (bottle) => {
     : '<span class="bottle-photo__placeholder">No photo</span>';
 
   row.innerHTML = `
-    <td data-label="bottle_basic_pic">
+    <td data-label="Aid Bottle">
       <div class="bottle-cell">
         <div class="bottle-photo ${basicPhotoUrl ? '' : 'bottle-photo--placeholder'}">
           ${photoMarkup}
-        </div>
-        <div class="bottle-meta">
-          <span class="bottle-serial">Serial <span>${serialLabel}</span></span>
-          <span class="muted">ID ${escapeHtml(bottle.bottle_id)}</span>
+          <span class="bottle-photo__serial">${serialLabel}</span>
         </div>
       </div>
     </td>
@@ -294,7 +395,11 @@ const createBottleRow = (bottle) => {
     <td data-label="contents"><div class="bottle-contents">${formatBottleContents(bottle.contents)}</div></td>
     <td data-label="weight">${escapeHtml(weightLabel)}</td>
     <td data-label="status">
-      <span class="status-pill bottle-status-pill" data-status="${escapeAttribute(statusSlug)}">
+      <span
+        class="status-pill bottle-status-pill"
+        data-status="${escapeAttribute(statusSlug)}"
+        data-open-delivery-details
+      >
         ${escapeHtml(statusLabel)}
       </span>
     </td>
@@ -483,10 +588,18 @@ if (closeBottleDeliveryButtons && bottleDeliveryDialog) {
 }
 
 if (bottleDeliveryDialog) {
+  bottleDeliveryDialog.addEventListener('close', () => {
+    resetBottleDeliveryForm();
+  });
+
   bottleDeliveryDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     bottleDeliveryDialog.close();
   });
+}
+
+if (bottleDeliveryForm) {
+  bottleDeliveryForm.addEventListener('submit', handleBottleDeliverySubmit);
 }
 
 if (bottlesTableBody) {
@@ -500,6 +613,7 @@ if (bottlesTableBody) {
       return;
     }
     const bottle = {
+      bottle_id: row.dataset.bottleId ? Number(row.dataset.bottleId) : null,
       serial_number: row.dataset.serialNumber || '',
       hub_name: row.dataset.hubName || '',
       hub_mailing_address: row.dataset.hubAddress || ''

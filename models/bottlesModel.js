@@ -22,13 +22,16 @@ bottlesModel.getForPackerWithDetails = async (packerId) => {
       b.verified,
       b.mission_id,
       b.bottle_basic_pic,
+      b.bottle_selfie_pic,
       m.name AS mission_name,
       photo.url AS basic_photo_url,
+      selfie.url AS selfie_photo_url,
       h.name AS hub_name,
       h.mailing_address AS hub_mailing_address
     FROM bottles_tb b
     LEFT JOIN missions_tb m ON b.mission_id = m.mission_id
     LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
+    LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
     LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
     WHERE b.packed_by = ?
     ORDER BY b.updated_at DESC, b.created_at DESC
@@ -56,13 +59,16 @@ bottlesModel.getByIdForPacker = async (bottleId, packerId) => {
       b.verified,
       b.mission_id,
       b.bottle_basic_pic,
+      b.bottle_selfie_pic,
       m.name AS mission_name,
       photo.url AS basic_photo_url,
+      selfie.url AS selfie_photo_url,
       h.name AS hub_name,
       h.mailing_address AS hub_mailing_address
     FROM bottles_tb b
     LEFT JOIN missions_tb m ON b.mission_id = m.mission_id
     LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
+    LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
     LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
     WHERE b.bottle_id = ? AND b.packed_by = ?
     LIMIT 1

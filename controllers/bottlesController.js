@@ -1,4 +1,6 @@
+import path from 'path';
 import bottlesModel from '../models/bottlesModel.js';
+import photosModel from '../models/photosModel.js';
 
 const getCurrentUserId = (req) => req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
 
@@ -170,6 +172,7 @@ export const registerMyBottle = async (req, res, next) => {
           serial_number: generatedSerial,
           mission_name: null,
           basic_photo_url: null,
+          selfie_photo_url: null,
           hub_name: null,
           hub_mailing_address: null
         };
@@ -186,6 +189,74 @@ export const registerMyBottle = async (req, res, next) => {
   }
 };
 
+export const submitBottleDeliveryDetails = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const bottleIdRaw = req.params.id;
+    const bottleId = Number(bottleIdRaw);
+    if (!Number.isFinite(bottleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid bottle identifier.' });
+    }
+
+    const bottle = await bottlesModel.getByIdForPacker(bottleId, userId);
+    if (!bottle) {
+      return res.status(404).json({ success: false, message: 'Bottle not found.' });
+    }
+
+    const files = req.files ?? {};
+    const basicPhoto = Array.isArray(files.bottle_basic_photo) ? files.bottle_basic_photo[0] : null;
+    const selfiePhoto = Array.isArray(files.bottle_selfie_photo) ? files.bottle_selfie_photo[0] : null;
+
+    if (!basicPhoto) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Please upload a photo of your aid bottle.' });
+    }
+
+    const uploadedByRaw = req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
+    const uploadedByNumber =
+      uploadedByRaw !== null && uploadedByRaw !== undefined ? Number(uploadedByRaw) : null;
+    const uploadedBy = Number.isFinite(uploadedByNumber) ? uploadedByNumber : null;
+
+    const updates = {};
+
+    const savePhoto = async (file) => {
+      const photo = await photosModel.create({
+        related_type: 'bottle',
+        related_id: bottleId,
+        uploaded_by: uploadedBy,
+        url: path.posix.join('/uploads', file.filename)
+      });
+      return photo;
+    };
+
+    const savedBasicPhoto = await savePhoto(basicPhoto);
+    updates.bottle_basic_pic = savedBasicPhoto.photo_id;
+    updates.status = 'please ship';
+
+    if (selfiePhoto) {
+      try {
+        const savedSelfiePhoto = await savePhoto(selfiePhoto);
+        updates.bottle_selfie_pic = savedSelfiePhoto.photo_id;
+      } catch (selfieError) {
+        console.error('Failed to attach bottle selfie photo', selfieError);
+      }
+    }
+
+    await bottlesModel.update(bottleId, updates);
+
+    const updatedBottle = await bottlesModel.getByIdForPacker(bottleId, userId);
+
+    return res.json({ success: true, data: updatedBottle });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export default {
   listBottles,
   getBottle,
@@ -193,5 +264,6 @@ export default {
   updateBottle,
   deleteBottle,
   listMyBottles,
-  registerMyBottle
+  registerMyBottle,
+  submitBottleDeliveryDetails
 };
