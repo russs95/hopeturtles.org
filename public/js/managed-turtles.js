@@ -6,7 +6,7 @@ const manageTurtleCloseButtons = manageTurtleDialog
   ? manageTurtleDialog.querySelectorAll('[data-close-manage-turtle]')
   : [];
 const secretButton = manageTurtleDialog
-  ? manageTurtleDialog.querySelector('[data-request-managed-secret]')
+  ? manageTurtleDialog.querySelector('[data-secret-action]')
   : null;
 const secretCard = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-secret-card]')
@@ -14,14 +14,14 @@ const secretCard = manageTurtleDialog
 const secretValue = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-managed-turtle-secret]')
   : null;
-const secretCopyButton = manageTurtleDialog
-  ? manageTurtleDialog.querySelector('[data-copy-managed-secret]')
-  : null;
 const secretFeedback = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-managed-secret-feedback]')
   : null;
 const formFeedback = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-managed-turtle-feedback]')
+  : null;
+const deleteTurtleButton = manageTurtleDialog
+  ? manageTurtleDialog.querySelector('[data-delete-turtle]')
   : null;
 
 const launchTurtleDialog = document.getElementById('launchTurtleDialog');
@@ -34,18 +34,6 @@ const launchTurtleCloseButtons = launchTurtleDialog
   : [];
 const launchFeedback = launchTurtleDialog
   ? launchTurtleDialog.querySelector('[data-launch-turtle-feedback]')
-  : null;
-const launchSecretSection = launchTurtleDialog
-  ? launchTurtleDialog.querySelector('[data-launch-secret]')
-  : null;
-const launchSecretValue = launchTurtleDialog
-  ? launchTurtleDialog.querySelector('[data-launch-secret-value]')
-  : null;
-const launchSecretCopyButton = launchTurtleDialog
-  ? launchTurtleDialog.querySelector('[data-launch-secret-copy]')
-  : null;
-const launchSecretFeedback = launchTurtleDialog
-  ? launchTurtleDialog.querySelector('[data-launch-secret-feedback]')
   : null;
 const launchSubmitButton = launchTurtleDialog
   ? launchTurtleDialog.querySelector('button[type="submit"]')
@@ -74,13 +62,13 @@ const hideDialog = (dialog) => {
 };
 
 let currentTurtleId = null;
-let launchedTurtleId = null;
 let launchWasSuccessful = false;
 
 const resetSecretState = () => {
   if (!secretButton) return;
   secretButton.disabled = false;
-  secretButton.textContent = 'View secret key';
+  secretButton.textContent = 'View secret';
+  secretButton.dataset.action = 'view';
   if (secretCard) {
     secretCard.hidden = true;
   }
@@ -107,17 +95,7 @@ const resetLaunchDialog = () => {
   if (launchFeedback) {
     launchFeedback.textContent = '';
   }
-  if (launchSecretSection) {
-    launchSecretSection.hidden = true;
-  }
-  if (launchSecretValue) {
-    launchSecretValue.textContent = '';
-  }
-  if (launchSecretFeedback) {
-    launchSecretFeedback.textContent = '';
-  }
   launchWasSuccessful = false;
-  launchedTurtleId = null;
 };
 
 const populateManageForm = (turtle) => {
@@ -251,32 +229,22 @@ if (launchTurtleForm) {
   launchTurtleForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(launchTurtleForm);
-    const payload = {
-      name: (formData.get('name') || '').trim(),
-      status: (formData.get('status') || 'idle').trim(),
-      mission_id: formData.get('mission_id') || null,
-      hub_id: formData.get('hub_id') || null,
-      boat_id: formData.get('boat_id') || null
-    };
-
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] === '') {
-        payload[key] = null;
+    const trimmedName = (formData.get('name') || '').trim();
+    if (!trimmedName) {
+      if (launchFeedback) {
+        launchFeedback.textContent = 'Please give your turtle a name.';
       }
-    });
-
-    ['mission_id', 'hub_id', 'boat_id'].forEach((key) => {
-      if (payload[key] !== null) {
-        const numericValue = Number(payload[key]);
-        payload[key] = Number.isFinite(numericValue) ? numericValue : null;
-      }
-    });
-
-    if (!payload.status) {
-      payload.status = 'idle';
-    } else {
-      payload.status = payload.status.toLowerCase();
+      return;
     }
+    formData.set('name', trimmedName);
+    const statusValue = (formData.get('status') || '').toString().trim().toLowerCase();
+    formData.set('status', statusValue || 'idle');
+    ['mission_id', 'hub_id', 'boat_id'].forEach((field) => {
+      const value = formData.get(field);
+      if (typeof value === 'string') {
+        formData.set(field, value.trim());
+      }
+    });
 
     if (launchFeedback) {
       launchFeedback.textContent = 'Launching…';
@@ -289,32 +257,30 @@ if (launchTurtleForm) {
     try {
       const response = await fetch('/api/turtles/launch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: formData
       });
       const json = await response.json();
       if (!json.success) {
         throw new Error(json.message || 'Request failed');
       }
 
-      launchedTurtleId = json.data?.turtle_id ?? null;
       launchWasSuccessful = true;
       if (launchFeedback) {
-        launchFeedback.textContent = 'Turtle launched! Secret ready below.';
+        launchFeedback.textContent = 'Turtle launched! Open the edit panel to view its secret.';
       }
-      if (launchSecretSection && launchSecretValue && json.secret) {
-        launchSecretSection.hidden = false;
-        launchSecretValue.textContent = json.secret;
-        if (launchSecretFeedback) {
-          launchSecretFeedback.textContent = 'Secret ready to copy.';
+      if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
+        launchTurtleForm.reset();
+        const statusField = launchTurtleForm.querySelector('[name="status"]');
+        if (statusField) {
+          statusField.value = 'idle';
         }
       }
       if (launchSubmitButton) {
+        launchSubmitButton.disabled = false;
         launchSubmitButton.textContent = 'Launch turtle';
       }
     } catch (error) {
       launchWasSuccessful = false;
-      launchedTurtleId = null;
       if (launchFeedback) {
         launchFeedback.textContent = error.message || 'Unable to launch turtle.';
       }
@@ -360,44 +326,6 @@ const copySecretToClipboard = async (secret) => {
   }
 };
 
-if (secretCopyButton) {
-  secretCopyButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    if (!secretValue) {
-      return;
-    }
-    const secret = secretValue.textContent.trim();
-    if (!secret) {
-      return;
-    }
-    const copied = await copySecretToClipboard(secret);
-    if (secretFeedback) {
-      secretFeedback.textContent = copied
-        ? 'Secret copied to clipboard.'
-        : 'Copy failed. Please copy manually.';
-    }
-  });
-}
-
-if (launchSecretCopyButton) {
-  launchSecretCopyButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    if (!launchSecretValue) {
-      return;
-    }
-    const secret = launchSecretValue.textContent.trim();
-    if (!secret) {
-      return;
-    }
-    const copied = await copySecretToClipboard(secret);
-    if (launchSecretFeedback) {
-      launchSecretFeedback.textContent = copied
-        ? 'Secret copied to clipboard.'
-        : 'Copy failed. Please copy manually.';
-    }
-  });
-}
-
 const requestSecret = async () => {
   if (!secretButton || !currentTurtleId) {
     return;
@@ -406,6 +334,7 @@ const requestSecret = async () => {
   secretButton.disabled = true;
   const originalText = secretButton.textContent;
   secretButton.textContent = 'Loading…';
+  secretButton.dataset.action = 'loading';
 
   try {
     const response = await fetch(`/api/turtles/${encodeURIComponent(currentTurtleId)}/secret`, {
@@ -424,21 +353,43 @@ const requestSecret = async () => {
     if (secretFeedback) {
       secretFeedback.textContent = 'Secret ready to copy.';
     }
-    secretButton.textContent = 'Refresh secret key';
+    secretButton.textContent = 'Copy secret';
+    secretButton.dataset.action = 'copy';
   } catch (error) {
     if (secretFeedback) {
       secretFeedback.textContent = 'Unable to retrieve the secret right now.';
     }
     secretButton.textContent = originalText;
+    secretButton.dataset.action = 'view';
+    secretButton.disabled = false;
   } finally {
     secretButton.disabled = false;
   }
 };
 
 if (secretButton) {
-  secretButton.addEventListener('click', (event) => {
+  secretButton.addEventListener('click', async (event) => {
     event.preventDefault();
-    requestSecret();
+    const action = secretButton.dataset.action || 'view';
+    if (action === 'copy') {
+      if (!secretValue) {
+        return;
+      }
+      const secret = secretValue.textContent.trim();
+      if (!secret) {
+        return;
+      }
+      const copied = await copySecretToClipboard(secret);
+      if (secretFeedback) {
+        secretFeedback.textContent = copied
+          ? 'Secret copied to clipboard.'
+          : 'Copy failed. Please copy manually.';
+      }
+      return;
+    }
+    if (!secretButton.disabled) {
+      requestSecret();
+    }
   });
 }
 
@@ -450,19 +401,16 @@ if (manageTurtleForm) {
     }
 
     const formData = new FormData(manageTurtleForm);
-    const payload = {
-      name: formData.get('name') || null,
-      status: formData.get('status') || null,
-      mission_id: formData.get('mission_id') || null,
-      hub_id: formData.get('hub_id') || null,
-      boat_id: formData.get('boat_id') || null
-    };
-
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] === '') {
-        payload[key] = null;
+    const stringFields = ['name', 'status', 'mission_id', 'hub_id', 'boat_id'];
+    stringFields.forEach((field) => {
+      const value = formData.get(field);
+      if (typeof value === 'string') {
+        formData.set(field, value.trim());
       }
     });
+    if (typeof formData.get('name') === 'string' && !formData.get('name')) {
+      formData.set('name', '');
+    }
 
     if (formFeedback) {
       formFeedback.textContent = 'Saving…';
@@ -471,8 +419,7 @@ if (manageTurtleForm) {
     try {
       const response = await fetch(manageTurtleForm.dataset.endpoint, {
         method: manageTurtleForm.dataset.method || 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: formData
       });
       const json = await response.json();
       if (!json.success) {
@@ -488,6 +435,48 @@ if (manageTurtleForm) {
       if (formFeedback) {
         formFeedback.textContent = error.message || 'Unable to save changes.';
       }
+    }
+  });
+}
+
+if (deleteTurtleButton) {
+  deleteTurtleButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    if (!currentTurtleId) {
+      return;
+    }
+    const confirmed = window.confirm(
+      'Delete this Hope Turtle? This action cannot be undone.'
+    );
+    if (!confirmed) {
+      return;
+    }
+    const originalText = deleteTurtleButton.textContent;
+    deleteTurtleButton.disabled = true;
+    deleteTurtleButton.textContent = 'Deleting…';
+    if (formFeedback) {
+      formFeedback.textContent = 'Removing turtle…';
+    }
+    try {
+      const response = await fetch(`/api/turtles/${encodeURIComponent(currentTurtleId)}`, {
+        method: 'DELETE'
+      });
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.message || 'Unable to delete turtle.');
+      }
+      if (formFeedback) {
+        formFeedback.textContent = 'Turtle deleted.';
+      }
+      window.setTimeout(() => {
+        window.location.reload();
+      }, 400);
+    } catch (error) {
+      if (formFeedback) {
+        formFeedback.textContent = error.message || 'Unable to delete turtle.';
+      }
+      deleteTurtleButton.disabled = false;
+      deleteTurtleButton.textContent = originalText;
     }
   });
 }

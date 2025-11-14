@@ -825,7 +825,12 @@
   <% } %>
 
   <dialog id="manageTurtleDialog" class="mission-dialog" aria-labelledby="manageTurtleTitle">
-    <form class="form-card admin-form turtle-form" data-manage-turtle-form data-method="PUT">
+    <form
+      class="form-card admin-form turtle-form"
+      data-manage-turtle-form
+      data-method="PUT"
+      enctype="multipart/form-data"
+    >
       <header class="mission-dialog__header">
         <div>
           <h2 id="manageTurtleTitle">Manage turtle</h2>
@@ -876,15 +881,19 @@
             <% }) %>
           </select>
         </label>
+        <label class="full-width">
+          Profile photo
+          <input type="file" name="profile_photo" accept="image/*" />
+          <span class="muted">Optional. JPG or PNG works best.</span>
+        </label>
       </div>
       <section class="turtle-secret-panel" aria-live="polite">
         <h3>Secret key</h3>
         <p class="muted">Share this secret only with the turtle it belongs to.</p>
         <div class="secret-key-card" data-secret-card hidden>
           <pre class="secret-key-value" data-managed-turtle-secret></pre>
-          <button type="button" class="button ghost" data-copy-managed-secret>Copy secret</button>
         </div>
-        <button type="button" class="button ghost" data-request-managed-secret>View secret key</button>
+        <button type="button" class="button ghost" data-secret-action>View secret</button>
         <p class="copy-feedback muted" data-managed-secret-feedback role="status"></p>
       </section>
       <div class="mission-dialog__actions">
@@ -892,11 +901,14 @@
         <button type="submit" class="button">Save changes</button>
       </div>
       <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
+      <div class="mission-dialog__actions mission-dialog__actions--danger">
+        <button type="button" class="button danger" data-delete-turtle>Delete turtle</button>
+      </div>
     </form>
   </dialog>
 
   <dialog id="launchTurtleDialog" class="mission-dialog" aria-labelledby="launchTurtleTitle">
-    <form class="form-card turtle-form" data-launch-turtle-form>
+    <form class="form-card turtle-form" data-launch-turtle-form enctype="multipart/form-data">
       <header class="mission-dialog__header">
         <div>
           <h2 id="launchTurtleTitle">Launch turtle</h2>
@@ -946,16 +958,12 @@
             <% }) %>
           </select>
         </label>
+        <label class="full-width">
+          Profile photo
+          <input type="file" name="profile_photo" accept="image/*" />
+          <span class="muted">Optional. Add a face to your new Hope Turtle.</span>
+        </label>
       </div>
-      <section class="turtle-secret-panel" data-launch-secret hidden aria-live="polite">
-        <h3>Secret key</h3>
-        <p class="muted">Share this secret only with the turtle it belongs to.</p>
-        <div class="secret-key-card">
-          <pre class="secret-key-value" data-launch-secret-value></pre>
-          <button type="button" class="button ghost" data-launch-secret-copy>Copy secret</button>
-        </div>
-        <p class="copy-feedback muted" data-launch-secret-feedback role="status"></p>
-      </section>
       <div class="mission-dialog__actions">
         <button type="button" class="button ghost" data-close-launch-turtle>Cancel</button>
         <button type="submit" class="button">Launch turtle</button>
