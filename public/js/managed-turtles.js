@@ -23,6 +23,12 @@ const formFeedback = manageTurtleDialog
 const deleteTurtleButton = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-delete-turtle]')
   : null;
+const featurePhotoPreview = manageTurtleDialog
+  ? manageTurtleDialog.querySelector('[data-feature-photo-preview]')
+  : null;
+const featurePhotoImage = manageTurtleDialog
+  ? manageTurtleDialog.querySelector('[data-feature-photo-image]')
+  : null;
 
 const launchTurtleDialog = document.getElementById('launchTurtleDialog');
 const launchTurtleForm = launchTurtleDialog
@@ -37,6 +43,12 @@ const launchFeedback = launchTurtleDialog
   : null;
 const launchSubmitButton = launchTurtleDialog
   ? launchTurtleDialog.querySelector('button[type="submit"]')
+  : null;
+const launchSuccessState = launchTurtleDialog
+  ? launchTurtleDialog.querySelector('[data-launch-success]')
+  : null;
+const launchSuccessCloseButton = launchSuccessState
+  ? launchSuccessState.querySelector('[data-launch-success-close]')
   : null;
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
@@ -80,6 +92,28 @@ const resetSecretState = () => {
   }
 };
 
+const updateFeaturePhotoPreview = (url) => {
+  if (!featurePhotoPreview || !featurePhotoImage) {
+    return;
+  }
+  if (url) {
+    featurePhotoImage.src = url;
+    featurePhotoPreview.hidden = false;
+  } else {
+    featurePhotoImage.removeAttribute('src');
+    featurePhotoPreview.hidden = true;
+  }
+};
+
+const toggleLaunchSuccessState = (isVisible) => {
+  if (launchTurtleForm) {
+    launchTurtleForm.hidden = Boolean(isVisible);
+  }
+  if (launchSuccessState) {
+    launchSuccessState.hidden = !isVisible;
+  }
+};
+
 const resetLaunchDialog = () => {
   if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
     launchTurtleForm.reset();
@@ -95,6 +129,7 @@ const resetLaunchDialog = () => {
   if (launchFeedback) {
     launchFeedback.textContent = '';
   }
+  toggleLaunchSuccessState(false);
   launchWasSuccessful = false;
 };
 
@@ -107,7 +142,7 @@ const populateManageForm = (turtle) => {
     manageTurtleForm.reset();
   }
 
-  const { name, status, missionId, hubId, boatId } = turtle;
+  const { name, status, missionId, hubId, boatId, photoUrl } = turtle;
   const nameField = manageTurtleForm.querySelector('[name="name"]');
   const statusField = manageTurtleForm.querySelector('[name="status"]');
   const missionField = manageTurtleForm.querySelector('[name="mission_id"]');
@@ -129,6 +164,7 @@ const populateManageForm = (turtle) => {
   if (boatField) {
     boatField.value = boatId || '';
   }
+  updateFeaturePhotoPreview(photoUrl || '');
 };
 
 const openManageTurtleDialog = (button) => {
@@ -146,7 +182,8 @@ const openManageTurtleDialog = (button) => {
     status: button.dataset.turtleStatus || '',
     missionId: button.dataset.turtleMission || '',
     hubId: button.dataset.turtleHub || '',
-    boatId: button.dataset.turtleBoat || ''
+    boatId: button.dataset.turtleBoat || '',
+    photoUrl: button.dataset.turtlePhotoUrl || ''
   };
 
   manageTurtleForm.dataset.endpoint = `/api/turtles/${encodeURIComponent(currentTurtleId)}`;
@@ -163,6 +200,7 @@ const openManageTurtleDialog = (button) => {
 const closeManageTurtleDialog = () => {
   hideDialog(manageTurtleDialog);
   resetSecretState();
+  updateFeaturePhotoPreview('');
   currentTurtleId = null;
 };
 
@@ -218,6 +256,13 @@ if (launchTurtleDialog) {
   });
 }
 
+if (launchSuccessCloseButton) {
+  launchSuccessCloseButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    closeLaunchTurtleDialog();
+  });
+}
+
 launchTurtleButtons.forEach((button) => {
   button.addEventListener('click', (event) => {
     event.preventDefault();
@@ -266,7 +311,7 @@ if (launchTurtleForm) {
 
       launchWasSuccessful = true;
       if (launchFeedback) {
-        launchFeedback.textContent = 'Turtle launched! Open the edit panel to view its secret.';
+        launchFeedback.textContent = '';
       }
       if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
         launchTurtleForm.reset();
@@ -275,6 +320,7 @@ if (launchTurtleForm) {
           statusField.value = 'idle';
         }
       }
+      toggleLaunchSuccessState(true);
       if (launchSubmitButton) {
         launchSubmitButton.disabled = false;
         launchSubmitButton.textContent = 'Launch turtle';

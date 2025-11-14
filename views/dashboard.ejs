@@ -1,6 +1,5 @@
 <%- include('partials/header', { pageTitle, theme }) %>
 <%- include('partials/nav') %>
-<% const isAdmin = currentUser && currentUser.role === 'admin'; %>
 <% const formatStatusKey = (value) => (value ? value.toLowerCase().replace(/[^a-z0-9]+/gu, '-') : ''); %>
 <% const formatTurtleStatus = (value) => {
   if (!value) return 'Set status';
@@ -24,19 +23,6 @@
   const numeric = Number(value);
   if (Number.isNaN(numeric)) return '—';
   return `${numeric.toLocaleString()} g`;
-}; %>
-<% const formatDateTime = (value) =>
-  value
-    ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-    : '—'; %>
-<% const formatDateTimeForInput = (value) => {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (input) => String(input).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(
-    date.getMinutes()
-  )}`;
 }; %>
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
@@ -133,12 +119,11 @@
         <thead>
           <tr>
             <th scope="col">Aid Bottle</th>
-            <th scope="col">mission</th>
-            <th scope="col">contents</th>
-            <th scope="col">weight</th>
-            <th scope="col">status</th>
-            <th scope="col">verified</th>
-            <th scope="col">delivery details</th>
+            <th scope="col">Mission</th>
+            <th scope="col">Contents</th>
+            <th scope="col">Weight</th>
+            <th scope="col">Verified</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody data-my-bottles-body>
@@ -168,12 +153,18 @@
                   </div>
                 </div>
               </td>
-              <td data-label="mission"><%= bottle.mission_name || '—' %></td>
-              <td data-label="contents">
+              <td data-label="Mission"><%= bottle.mission_name || '—' %></td>
+              <td data-label="Contents">
                 <div class="bottle-contents"><%= bottle.contents || '—' %></div>
               </td>
-              <td data-label="weight"><%= formatWeight(bottle.weight_grams) %></td>
-              <td data-label="status">
+              <td data-label="Weight"><%= formatWeight(bottle.weight_grams) %></td>
+              <td data-label="Verified">
+                <% const isBottleVerified = Number(bottle.verified) === 1 || bottle.verified === true; %>
+                <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
+                  <%= isBottleVerified ? 'Verified' : 'Pending' %>
+                </span>
+              </td>
+              <td data-label="Status">
                 <span
                   class="status-pill bottle-status-pill"
                   data-status="<%= formatStatusKey(bottle.status) %>"
@@ -181,17 +172,6 @@
                 >
                   <%= formatBottleStatus(bottle.status) %>
                 </span>
-              </td>
-              <td data-label="verified">
-                <% const isBottleVerified = Number(bottle.verified) === 1 || bottle.verified === true; %>
-                <span class="status-pill verified-pill" data-verified="<%= isBottleVerified ? 'true' : 'false' %>">
-                  <%= isBottleVerified ? 'Verified' : 'Pending' %>
-                </span>
-              </td>
-              <td data-label="delivery details" class="numeric-cell">
-                <button type="button" class="button ghost small" data-open-delivery-details>
-                  Delivery details
-                </button>
               </td>
             </tr>
           <% }) %>
@@ -265,8 +245,10 @@
                     data-turtle-mission="<%= turtle.mission_id || '' %>"
                     data-turtle-hub="<%= turtle.hub_id || '' %>"
                     data-turtle-boat="<%= turtle.boat_id || '' %>"
+                    data-turtle-photo-url="<%= turtle.profile_photo_url || '' %>"
+                    data-turtle-photo-id="<%= turtle.profile_photo_id || '' %>"
                   >
-                    Edit
+                    Manage
                   </button>
                 </td>
               </tr>
@@ -279,552 +261,7 @@
     <% } %>
   </section>
 
-  <% if (isAdmin) { %>
-    <% const turtlesForManagement = Array.isArray(turtleDetails) ? turtleDetails : []; %>
-    <% const turtleStatuses = turtleStatusOptions; %>
-    <% const defaultBoatStatus = 'Docked'; %>
-    <% const boatStatuses = [
-      'Docked',
-      'Deployed',
-      'Deploying',
-      'Sailing',
-      'Loading',
-      'Distress',
-      'Captured',
-      'Sunk'
-    ]; %>
-    <% const boatManagerOptions = Array.isArray(users) ? users : []; %>
-    <section class="panel turtle-management-panel" id="dashboard-turtles">
-      <header class="panel-header">
-        <div>
-          <h2>Turtle management</h2>
-          <p class="panel-subtitle">Assignments and telemetry coverage for every turtle.</p>
-        </div>
-        <button type="button" class="button" data-open-turtle-form>+ Add Turtle</button>
-      </header>
-      <div class="table-wrapper">
-        <table class="turtles-table">
-          <thead>
-            <tr>
-              <th scope="col">Profile</th>
-              <th scope="col">Mission</th>
-              <th scope="col">Hub</th>
-              <th scope="col">Manager</th>
-              <th scope="col">Last update</th>
-              <th scope="col">Logs</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% turtlesForManagement.forEach(function (turtle) { %>
-              <tr>
-                <td data-label="Profile">
-                  <div class="turtle-profile">
-                    <div class="turtle-profile__photo">
-                      <div class="turtle-profile__badge">
-                        <span class="turtle-profile__badge-id">#<%= turtle.turtle_id %></span>
-                        <% if (turtle.name) { %>
-                          <span class="turtle-profile__badge-name"><%= turtle.name %></span>
-                        <% } %>
-                      </div>
-                      <% if (turtle.profile_photo_url) { %>
-                        <img
-                          src="<%= turtle.profile_photo_url %>"
-                          alt="Profile photo for <%= turtle.name || '#' + turtle.turtle_id %>"
-                          loading="lazy"
-                        />
-                      <% } else { %>
-                        <span class="turtle-profile__placeholder-text">#<%= turtle.turtle_id %></span>
-                      <% } %>
-                    </div>
-                  </div>
-                </td>
-                <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
-                <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
-                <td data-label="Manager"><%= turtle.manager_name || '—' %></td>
-                <td data-label="Last update"><%= formatDateTime(turtle.last_update) %></td>
-                <td data-label="Logs" class="numeric-cell"><%= turtle.log_count ?? 0 %></td>
-                <td data-label="Status">
-                  <div
-                    class="inline-select"
-                    role="button"
-                    tabindex="0"
-                    data-editable-select
-                    data-endpoint="/api/turtles/<%= turtle.turtle_id %>"
-                    data-field="status"
-                    data-value="<%= turtle.status || '' %>"
-                    data-options="idle|en_route|arrived|lost"
-                    data-label="Update status for turtle <%= turtle.name || '#' + turtle.turtle_id %>"
-                    data-placeholder="Set status"
-                    data-display-transform="turtle-status"
-                    title="Click to change status"
-                  >
-                    <span
-                      class="status-pill turtle-status-pill"
-                      data-status="<%= formatStatusKey(turtle.status) %>"
-                    >
-                      <%= formatTurtleStatus(turtle.status) %>
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-    <% if (turtlesForManagement.length === 0) { %>
-      <p class="panel-empty">No turtles registered yet.</p>
-    <% } %>
-  </section>
-
-    <dialog id="createTurtleDialog" class="mission-dialog" aria-labelledby="createTurtleTitle">
-      <form
-        class="form-card admin-form turtle-form"
-        data-endpoint="/api/turtles"
-        data-method="POST"
-        enctype="multipart/form-data"
-      >
-        <header class="mission-dialog__header">
-          <div>
-            <h2 id="createTurtleTitle">Add turtle</h2>
-            <p class="panel-subtitle">Register a new Hope Turtle and link its mission context.</p>
-          </div>
-          <button type="button" class="dialog-close" data-close-turtle-form aria-label="Close">&times;</button>
-        </header>
-        <div class="mission-form-grid">
-          <label class="full-width">
-            Turtle name
-            <input name="name" required />
-          </label>
-          <label>
-            Status
-            <select name="status">
-              <% turtleStatuses.forEach(function (status) { %>
-                <option value="<%= status %>"><%= status %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label>
-            Mission
-            <select name="mission_id">
-              <option value="">No mission assigned</option>
-              <% missions.forEach(function (mission) { %>
-                <option value="<%= mission.mission_id %>"><%= mission.name %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label>
-            Hub
-            <select name="hub_id">
-              <option value="">No hub assigned</option>
-              <% hubs.forEach(function (hub) { %>
-                <option value="<%= hub.hub_id %>"><%= hub.name %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label>
-            Boat
-            <select name="boat_id">
-              <option value="">No boat assigned</option>
-              <% boats.forEach(function (boat) { %>
-                <option value="<%= boat.boat_id %>"><%= boat.name %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label class="full-width">
-            Turtle manager
-            <select name="turtle_manager">
-              <option value="">No manager assigned</option>
-              <% boatManagerOptions.forEach(function (user) { %>
-                <option value="<%= user.buwana_id %>"><%= user.full_name || user.email || user.buwana_id %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label class="full-width">
-            Profile photo
-            <input type="file" name="profile_photo" accept="image/*" />
-          </label>
-        </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button ghost" data-close-turtle-form>Cancel</button>
-          <button type="submit" class="button">Add turtle</button>
-        </div>
-        <p class="form-feedback" role="status"></p>
-      </form>
-    </dialog>
-
-    <section class="panel mission-management-panel" id="dashboard-missions">
-      <header class="panel-header">
-        <div>
-          <h2>Mission management</h2>
-          <p class="panel-subtitle">Overview of every mission and its assets.</p>
-        </div>
-        <button type="button" class="button" data-open-mission-form>Create mission</button>
-      </header>
-      <div class="table-wrapper">
-        <table class="missions-table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Status</th>
-              <th scope="col">Bottles</th>
-              <th scope="col">Turtles</th>
-              <th scope="col">Boats</th>
-              <th scope="col">Hubs</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% missions.forEach(function (mission) { %>
-              <tr>
-                <td data-label="Name">
-                  <strong><%= mission.name %></strong>
-                  <% if (mission.description) { %>
-                    <div class="muted"><%= mission.description %></div>
-                  <% } %>
-                </td>
-                <td data-label="Status">
-                  <% const missionEditPayload = encodeURIComponent(
-                       JSON.stringify({
-                         id: mission.mission_id,
-                         name: mission.name || '',
-                         description: mission.description || '',
-                         status: mission.status || '',
-                         startDate: formatDateTimeForInput(mission.start_date),
-                         endDate: formatDateTimeForInput(mission.end_date),
-                         targetLat: mission.target_lat != null ? mission.target_lat : '',
-                         targetLng: mission.target_lng != null ? mission.target_lng : ''
-                       })
-                     ); %>
-                  <div
-                    class="inline-select"
-                    role="button"
-                    tabindex="0"
-                    data-editable-select
-                    data-endpoint="/api/missions/<%= mission.mission_id %>"
-                    data-field="status"
-                    data-value="<%= mission.status %>"
-                    data-options="planned|active|paused|completed"
-                    data-extra-option="✏️Edit Mission"
-                    data-edit-action="mission"
-                    data-mission="<%= missionEditPayload %>"
-                    data-label="Update status for mission <%= mission.name %>"
-                    title="Click to change status"
-                  >
-                    <span class="status-pill mission-status" data-status="<%= mission.status %>"><%= mission.status %></span>
-                  </div>
-                </td>
-                <td data-label="Bottles" class="numeric-cell"><%= mission.bottle_count ?? 0 %></td>
-                <td data-label="Turtles" class="numeric-cell"><%= mission.turtle_count ?? 0 %></td>
-                <td data-label="Boats" class="numeric-cell"><%= mission.boat_count ?? 0 %></td>
-                <td data-label="Hubs" class="numeric-cell"><%= mission.hub_count ?? 0 %></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-      <% if (missions.length === 0) { %>
-        <p class="panel-empty">No missions have been created yet.</p>
-      <% } %>
-    </section>
-
-    <section class="panel hub-management-panel" id="dashboard-hubs">
-      <header class="panel-header">
-        <div>
-          <h2>Hub management</h2>
-          <p class="panel-subtitle">Connected hubs with their linked missions and assets.</p>
-        </div>
-        <button type="button" class="button" data-open-hub-form>+ Add Hub</button>
-      </header>
-      <div class="table-wrapper">
-        <table class="hubs-table">
-          <thead>
-            <tr>
-              <th scope="col">Hub name</th>
-              <th scope="col">Mission</th>
-              <th scope="col">Country</th>
-              <th scope="col">Boats</th>
-              <th scope="col">Bottles</th>
-              <th scope="col">Turtles</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% hubs.forEach(function (hub) { %>
-              <tr>
-                <td data-label="Hub name">
-                  <strong><%= hub.name %></strong>
-                  <% if (hub.region) { %>
-                    <div class="muted"><%= hub.region %></div>
-                  <% } %>
-                </td>
-                <td data-label="Mission"><%= hub.mission_name || '—' %></td>
-                <td data-label="Country"><%= hub.country || '—' %></td>
-                <td data-label="Boats" class="numeric-cell"><%= hub.boat_count ?? 0 %></td>
-                <td data-label="Bottles" class="numeric-cell"><%= hub.bottle_count ?? 0 %></td>
-                <td data-label="Turtles" class="numeric-cell"><%= hub.turtle_count ?? 0 %></td>
-                <td data-label="Status">
-                  <div
-                    class="inline-select"
-                    role="button"
-                    tabindex="0"
-                    data-editable-select
-                    data-endpoint="/api/hubs/<%= hub.hub_id %>"
-                    data-field="status"
-                    data-value="<%= hub.status || '' %>"
-                    data-options="Loading and Receiving|Loading but not Receiving|Paused|Aborted|Mission complete"
-                    data-label="Update status for hub <%= hub.name %>"
-                    data-placeholder="Set status"
-                    title="Click to change status"
-                  >
-                    <span class="status-pill hub-status" data-status="<%= formatStatusKey(hub.status) %>">
-                      <%= hub.status || 'Set status' %>
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-      <% if (hubs.length === 0) { %>
-        <p class="panel-empty">No hubs have been created yet.</p>
-      <% } %>
-    </section>
-
-    <section class="panel boat-management-panel" id="dashboard-boats">
-      <header class="panel-header">
-        <div>
-          <h2>Boat management</h2>
-          <p class="panel-subtitle">Boats supporting active hubs and missions.</p>
-        </div>
-        <button type="button" class="button" data-open-boat-form>+ Add boat</button>
-      </header>
-      <div class="table-wrapper">
-        <table class="boats-table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Mission</th>
-              <th scope="col">Hub</th>
-              <th scope="col">Turtles</th>
-              <th scope="col">Bottles</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% boats.forEach(function (boat) { %>
-              <tr>
-                <td data-label="Name">
-                  <strong><%= boat.name %></strong>
-                  <% if (boat.registration) { %>
-                    <div class="muted"><%= boat.registration %></div>
-                  <% } %>
-                </td>
-                <td data-label="Mission"><%= boat.mission_name || '—' %></td>
-                <td data-label="Hub"><%= boat.hub_name || '—' %></td>
-                <td data-label="Turtles" class="numeric-cell"><%= boat.turtle_count ?? 0 %></td>
-                <td data-label="Bottles" class="numeric-cell"><%= boat.bottle_count ?? 0 %></td>
-                <td data-label="Status"><%= boat.status || '—' %></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-      <% if (boats.length === 0) { %>
-        <p class="panel-empty">No boats are registered yet.</p>
-      <% } %>
-    </section>
-
-    <dialog id="createBoatDialog" class="boat-dialog" aria-labelledby="createBoatTitle">
-      <form class="form-card admin-form boat-form" data-endpoint="/api/boats" data-method="POST">
-        <header class="mission-dialog__header">
-          <div>
-            <h2 id="createBoatTitle">Add boat</h2>
-            <p class="panel-subtitle">Register a vessel and connect it with missions and hubs.</p>
-          </div>
-          <button type="button" class="dialog-close" data-close-boat-form aria-label="Close">&times;</button>
-        </header>
-        <div class="mission-form-grid">
-          <label class="full-width">
-            Boat name
-            <input name="name" required />
-          </label>
-          <label class="full-width">
-            Mission
-            <select name="mission_id">
-              <option value="">No mission assigned</option>
-              <% missions.forEach(function (mission) { %>
-                <option value="<%= mission.mission_id %>"><%= mission.name %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label class="full-width">
-            Hub
-            <select name="hub_id">
-              <option value="">No hub assigned</option>
-              <% hubs.forEach(function (hub) { %>
-                <option value="<%= hub.hub_id %>"><%= hub.name %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label class="full-width">
-            Boat manager
-            <select name="boat_manager">
-              <option value="">No manager assigned</option>
-              <% boatManagerOptions.forEach(function (user) { %>
-                <option value="<%= user.buwana_id %>"><%= user.full_name || user.email || user.buwana_id %></option>
-              <% }) %>
-            </select>
-          </label>
-          <label class="full-width">
-            Boat owner
-            <input name="owner" />
-          </label>
-          <label class="full-width">
-            Registration
-            <input name="registration" />
-          </label>
-          <label>
-            Hope Turtle capacity
-            <input type="number" step="0.01" min="0" name="capacity_hts" />
-          </label>
-          <label>
-            People capacity
-            <input type="number" step="0.01" min="0" name="capacity_persons" />
-          </label>
-          <label>
-            Bottle capacity
-            <input type="number" step="0.01" min="0" name="capacity_bottles" />
-          </label>
-          <label class="full-width">
-            Contact information
-            <input name="contact" />
-          </label>
-          <label class="full-width">
-            Status
-            <select name="status">
-              <% boatStatuses.forEach(function (status) { %>
-                <option value="<%= status %>" <%= status === defaultBoatStatus ? 'selected' : '' %>><%= status %></option>
-              <% }) %>
-            </select>
-          </label>
-        </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button ghost" data-close-boat-form>Cancel</button>
-          <button type="submit" class="button">Add boat</button>
-        </div>
-        <p class="form-feedback" role="status"></p>
-      </form>
-    </dialog>
-
-    <dialog id="createMissionDialog" class="mission-dialog" aria-labelledby="createMissionTitle">
-      <form class="form-card admin-form mission-form" data-endpoint="/api/missions" data-method="POST">
-        <header class="mission-dialog__header">
-          <div>
-            <h2 id="createMissionTitle">Create mission</h2>
-            <p class="panel-subtitle">Define a new HopeTurtles deployment.</p>
-          </div>
-          <button type="button" class="dialog-close" data-close-mission-form aria-label="Close">&times;</button>
-        </header>
-        <div class="mission-form-grid">
-          <label class="full-width">
-            Name
-            <input name="name" required />
-          </label>
-          <label class="full-width">
-            Description
-            <textarea name="description" rows="3"></textarea>
-          </label>
-          <label>
-            Status
-            <select name="status">
-              <option value="planned">planned</option>
-              <option value="active">active</option>
-              <option value="paused">paused</option>
-              <option value="completed">completed</option>
-            </select>
-          </label>
-          <label>
-            Start date
-            <input type="datetime-local" name="start_date" />
-          </label>
-          <label>
-            End date
-            <input type="datetime-local" name="end_date" />
-          </label>
-          <label>
-            Target latitude
-            <input type="number" step="0.000001" name="target_lat" />
-          </label>
-          <label>
-            Target longitude
-            <input type="number" step="0.000001" name="target_lng" />
-          </label>
-        </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button ghost" data-close-mission-form>Cancel</button>
-          <button type="submit" class="button">Create mission</button>
-        </div>
-        <p class="form-feedback" role="status"></p>
-      </form>
-    </dialog>
-
-    <dialog id="editMissionDialog" class="mission-dialog" aria-labelledby="editMissionTitle">
-      <form class="form-card admin-form mission-form" data-edit-mission-form data-method="PUT">
-        <header class="mission-dialog__header">
-          <div>
-            <h2 id="editMissionTitle">Edit mission</h2>
-            <p class="panel-subtitle">
-              Update the mission plan for <span data-mission-name>this mission</span>.
-            </p>
-          </div>
-          <button type="button" class="dialog-close" data-close-edit-mission-form aria-label="Close">&times;</button>
-        </header>
-        <div class="mission-form-grid">
-          <label class="full-width">
-            Name
-            <input name="name" required />
-          </label>
-          <label class="full-width">
-            Description
-            <textarea name="description" rows="3"></textarea>
-          </label>
-          <label>
-            Status
-            <select name="status">
-              <option value="planned">planned</option>
-              <option value="active">active</option>
-              <option value="paused">paused</option>
-              <option value="completed">completed</option>
-            </select>
-          </label>
-          <label>
-            Start date
-            <input type="datetime-local" name="start_date" />
-          </label>
-          <label>
-            End date
-            <input type="datetime-local" name="end_date" />
-          </label>
-          <label>
-            Target latitude
-            <input type="number" step="0.000001" name="target_lat" />
-          </label>
-          <label>
-            Target longitude
-            <input type="number" step="0.000001" name="target_lng" />
-          </label>
-        </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button ghost" data-close-edit-mission-form>Cancel</button>
-          <button type="submit" class="button">Save changes</button>
-        </div>
-        <p class="form-feedback" role="status"></p>
-      </form>
-    </dialog>
-  <% } %>
-
-  <dialog id="manageTurtleDialog" class="mission-dialog" aria-labelledby="manageTurtleTitle">
+    <dialog id="manageTurtleDialog" class="mission-dialog" aria-labelledby="manageTurtleTitle">
     <form
       class="form-card admin-form turtle-form"
       data-manage-turtle-form
@@ -881,10 +318,14 @@
             <% }) %>
           </select>
         </label>
-        <label class="full-width">
-          Profile photo
+        <label class="full-width feature-photo-field">
+          Feature photo
           <input type="file" name="profile_photo" accept="image/*" />
           <span class="muted">Optional. JPG or PNG works best.</span>
+          <figure class="feature-photo-preview" data-feature-photo-preview hidden>
+            <img src="" alt="Current feature photo" loading="lazy" data-feature-photo-image />
+            <figcaption>Current photo</figcaption>
+          </figure>
         </label>
       </div>
       <section class="turtle-secret-panel" aria-live="polite">
@@ -898,12 +339,10 @@
       </section>
       <div class="mission-dialog__actions">
         <button type="button" class="button ghost" data-close-manage-turtle>Cancel</button>
+        <button type="button" class="button button-outline-danger" data-delete-turtle>Delete turtle</button>
         <button type="submit" class="button">Save changes</button>
       </div>
       <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
-      <div class="mission-dialog__actions mission-dialog__actions--danger">
-        <button type="button" class="button danger" data-delete-turtle>Delete turtle</button>
-      </div>
     </form>
   </dialog>
 
@@ -970,6 +409,17 @@
       </div>
       <p class="form-feedback" role="status" data-launch-turtle-feedback></p>
     </form>
+    <div class="form-card launch-success-state" data-launch-success hidden>
+      <div class="launch-success-state__content">
+        <h1>🐢</h1>
+        <h3>Turtle launched!</h3>
+        <p>
+          Next: Open the Manage panel to access this turtle secret key and hard code it into your hope
+          turtle's board.
+        </p>
+        <button type="button" class="button" data-launch-success-close>Got it</button>
+      </div>
+    </div>
   </dialog>
 
   <dialog id="registerBottleDialog" class="mission-dialog" aria-labelledby="registerBottleTitle">
@@ -982,23 +432,25 @@
         <button type="button" class="dialog-close" data-close-register-bottle aria-label="Close">&times;</button>
       </header>
       <div class="mission-form-grid">
-        <label>
-          Mission
-          <select name="mission_id">
-            <option value="">No mission assigned</option>
-            <% missions.forEach(function (mission) { %>
-              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label>
-          Brand
-          <input name="brand" />
-        </label>
-        <label>
-          Volume (ml)
-          <input type="number" name="volume_ml" min="0" step="1" />
-        </label>
+        <div class="mission-form-grid__column-group">
+          <label>
+            Mission
+            <select name="mission_id">
+              <option value="">No mission assigned</option>
+              <% missions.forEach(function (mission) { %>
+                <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+              <% }) %>
+            </select>
+          </label>
+          <label>
+            Volume (ml)
+            <input type="number" name="volume_ml" min="0" step="1" />
+          </label>
+          <label>
+            Brand
+            <input name="brand" />
+          </label>
+        </div>
         <label class="full-width">
           Select the nearest hub to deliver your bottle too:
           <select name="hub_id">
@@ -1030,6 +482,9 @@
         <button type="button" class="button ghost" data-close-register-bottle>Cancel</button>
         <button type="submit" class="button">Register bottle</button>
       </div>
+      <p class="mission-dialog__note">
+        Next you will be given your bottle's unique serial and asked to snap a photo of it.
+      </p>
       <p class="form-feedback" role="status" data-register-bottle-feedback></p>
     </form>
   </dialog>
@@ -1155,5 +610,4 @@
   '/js/dashboard.js',
   '/js/managed-turtles.js'
 ]; %>
-<% if (isAdmin) { pageScripts.push('/js/admin.js'); } %>
 <%- include('partials/footer', { pageScripts }) %>

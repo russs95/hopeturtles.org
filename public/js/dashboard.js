@@ -391,10 +391,15 @@ const createBottleRow = (bottle) => {
         </div>
       </div>
     </td>
-    <td data-label="mission">${missionLabel}</td>
-    <td data-label="contents"><div class="bottle-contents">${formatBottleContents(bottle.contents)}</div></td>
-    <td data-label="weight">${escapeHtml(weightLabel)}</td>
-    <td data-label="status">
+    <td data-label="Mission">${missionLabel}</td>
+    <td data-label="Contents"><div class="bottle-contents">${formatBottleContents(bottle.contents)}</div></td>
+    <td data-label="Weight">${escapeHtml(weightLabel)}</td>
+    <td data-label="Verified">
+      <span class="status-pill verified-pill" data-verified="${verifiedValue}">
+        ${escapeHtml(verifiedLabel)}
+      </span>
+    </td>
+    <td data-label="Status">
       <span
         class="status-pill bottle-status-pill"
         data-status="${escapeAttribute(statusSlug)}"
@@ -402,16 +407,6 @@ const createBottleRow = (bottle) => {
       >
         ${escapeHtml(statusLabel)}
       </span>
-    </td>
-    <td data-label="verified">
-      <span class="status-pill verified-pill" data-verified="${verifiedValue}">
-        ${escapeHtml(verifiedLabel)}
-      </span>
-    </td>
-    <td data-label="delivery details" class="numeric-cell">
-      <button type="button" class="button ghost small" data-open-delivery-details>
-        Delivery details
-      </button>
     </td>
   `;
 

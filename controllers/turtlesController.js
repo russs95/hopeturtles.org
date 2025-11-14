@@ -165,6 +165,19 @@ export const regenerateTurtleSecret = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Turtle not found' });
     }
 
+    const currentUser = req.session?.user || null;
+    const isAdmin = currentUser?.role === 'admin';
+    const managerIdRaw = currentUser?.buwanaId ?? currentUser?.id ?? null;
+    const hasManagerId = managerIdRaw !== undefined && managerIdRaw !== null && managerIdRaw !== '';
+    const turtleHasManager =
+      turtle.turtle_manager !== undefined && turtle.turtle_manager !== null && turtle.turtle_manager !== '';
+    const managesTurtle =
+      hasManagerId && turtleHasManager && String(turtle.turtle_manager) === String(managerIdRaw);
+
+    if (!isAdmin && !managesTurtle) {
+      return res.status(403).json({ success: false, message: 'Additional privileges required' });
+    }
+
     const { secret, secretHash } = createTurtleSecret();
     const updated = await turtlesModel.update(turtleId, { secret_hash: secretHash });
 

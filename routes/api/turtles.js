@@ -48,6 +48,6 @@ router.get('/:id', getTurtleById);
 router.post('/', ensureAuth, ensureAdmin, upload.single('profile_photo'), createTurtle);
 router.put('/:id', ensureAuth, ensureAdmin, optionalProfileUpload, updateTurtle);
 router.delete('/:id', ensureAuth, ensureAdmin, deleteTurtle);
-router.post('/:id/secret', ensureAuth, ensureAdmin, regenerateTurtleSecret);
+router.post('/:id/secret', ensureAuth, regenerateTurtleSecret);
 
 export default router;
