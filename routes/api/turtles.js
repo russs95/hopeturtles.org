@@ -35,11 +35,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const optionalProfileUpload = (req, res, next) => {
+  if (req.is('multipart/form-data')) {
+    return upload.single('profile_photo')(req, res, next);
+  }
+  return next();
+};
+
 router.get('/', getTurtles);
-router.post('/launch', ensureAuth, launchManagedTurtle);
+router.post('/launch', ensureAuth, optionalProfileUpload, launchManagedTurtle);
 router.get('/:id', getTurtleById);
 router.post('/', ensureAuth, ensureAdmin, upload.single('profile_photo'), createTurtle);
-router.put('/:id', ensureAuth, ensureAdmin, updateTurtle);
+router.put('/:id', ensureAuth, ensureAdmin, optionalProfileUpload, updateTurtle);
 router.delete('/:id', ensureAuth, ensureAdmin, deleteTurtle);
 router.post('/:id/secret', ensureAuth, ensureAdmin, regenerateTurtleSecret);
 

@@ -249,6 +249,16 @@ a:hover {
   box-shadow: var(--shadow-elevated);
 }
 
+.button.danger {
+  background: #b91c1c;
+}
+
+.button.danger:hover {
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+  background: #991b1b;
+}
+
 .button.ghost {
   background: transparent;
   color: var(--color-primary);
@@ -1430,15 +1440,19 @@ a:hover {
 }
 
 .mission-dialog[data-open='true'] .form-card {
-  width: min(520px, 90vw);
+  width: min(560px, calc(100vw - 3rem));
+  max-width: calc(100vw - 3rem);
   max-height: calc(100vh - 3rem);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .mission-dialog .form-card {
-  width: min(520px, 90vw);
+  width: min(560px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .mission-dialog__header {
@@ -1542,6 +1556,10 @@ a:hover {
   margin-top: 1.5rem;
 }
 
+.mission-dialog__actions--danger {
+  justify-content: flex-start;
+}
+
 .turtle-secret-panel {
   margin-top: 1.5rem;
   display: flex;
@@ -1552,6 +1570,17 @@ a:hover {
 .turtle-secret-panel h3 {
   margin: 0;
   font-size: 1.1rem;
+}
+
+.turtle-form input[type='file'] {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.turtle-form label .muted {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
 }
 
 .turtle-secret-panel .secret-key-card {

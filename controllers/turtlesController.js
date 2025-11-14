@@ -32,6 +32,32 @@ const toNullableInteger = (value) => {
   return Math.trunc(numericValue);
 };
 
+const attachProfilePhoto = async (req, turtle) => {
+  if (!req?.file || !turtle) {
+    return turtle;
+  }
+
+  try {
+    const uploadedByRaw = req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
+    const uploadedByNumber =
+      uploadedByRaw !== null && uploadedByRaw !== undefined ? Number(uploadedByRaw) : null;
+    const photo = await photosModel.create({
+      related_type: 'turtle',
+      related_id: turtle.turtle_id,
+      uploaded_by: Number.isFinite(uploadedByNumber) ? uploadedByNumber : null,
+      url: path.posix.join('/uploads', req.file.filename)
+    });
+    const turtleWithPhoto = await turtlesModel.update(turtle.turtle_id, {
+      profile_photo_id: photo.photo_id
+    });
+    turtleWithPhoto.profile_photo_url = photo.url;
+    return turtleWithPhoto;
+  } catch (photoError) {
+    console.error('Failed to attach profile photo to turtle', photoError);
+    return turtle;
+  }
+};
+
 export const getTurtles = async (req, res, next) => {
   try {
     const turtles = await turtlesModel.getAllDetailed();
@@ -57,29 +83,7 @@ export const createTurtle = async (req, res, next) => {
   try {
     const { secret, secretHash } = createTurtleSecret();
     const turtle = await turtlesModel.create({ ...req.body, secret_hash: secretHash });
-    let turtleWithPhoto = turtle;
-
-    if (req.file) {
-      try {
-        const uploadedByRaw = req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
-        const uploadedByNumber =
-          uploadedByRaw !== null && uploadedByRaw !== undefined
-            ? Number(uploadedByRaw)
-            : null;
-        const photo = await photosModel.create({
-          related_type: 'turtle',
-          related_id: turtle.turtle_id,
-          uploaded_by: Number.isFinite(uploadedByNumber) ? uploadedByNumber : null,
-          url: path.posix.join('/uploads', req.file.filename)
-        });
-        turtleWithPhoto = await turtlesModel.update(turtle.turtle_id, {
-          profile_photo_id: photo.photo_id
-        });
-        turtleWithPhoto.profile_photo_url = photo.url;
-      } catch (photoError) {
-        console.error('Failed to attach profile photo to turtle', photoError);
-      }
-    }
+    const turtleWithPhoto = await attachProfilePhoto(req, turtle);
 
     return res.status(201).json({ success: true, data: turtleWithPhoto, secret });
   } catch (error) {
@@ -122,8 +126,9 @@ export const launchManagedTurtle = async (req, res, next) => {
     };
 
     const turtle = await turtlesModel.create(payload);
+    const turtleWithPhoto = await attachProfilePhoto(req, turtle);
 
-    return res.status(201).json({ success: true, data: turtle, secret });
+    return res.status(201).json({ success: true, data: turtleWithPhoto, secret });
   } catch (error) {
     return next(error);
   }
@@ -131,8 +136,22 @@ export const launchManagedTurtle = async (req, res, next) => {
 
 export const updateTurtle = async (req, res, next) => {
   try {
-    const turtle = await turtlesModel.update(req.params.id, req.body);
-    return res.json({ success: true, data: turtle });
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : null;
+    const statusRaw = typeof req.body?.status === 'string' ? req.body.status.trim() : '';
+    const missionId = toNullableInteger(req.body?.mission_id);
+    const hubId = toNullableInteger(req.body?.hub_id);
+    const boatId = toNullableInteger(req.body?.boat_id);
+    const payload = {
+      name: name || null,
+      status: statusRaw ? normalizeStatus(statusRaw) : null,
+      mission_id: missionId,
+      hub_id: hubId,
+      boat_id: boatId
+    };
+
+    const turtle = await turtlesModel.update(req.params.id, payload);
+    const turtleWithPhoto = await attachProfilePhoto(req, turtle);
+    return res.json({ success: true, data: turtleWithPhoto });
   } catch (error) {
     return next(error);
   }
