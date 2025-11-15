@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 import {
   listMyBottles,
   registerMyBottle,
-  submitBottleDeliveryDetails
+  submitBottleDeliveryDetails,
+  deleteMyBottle
 } from '../../controllers/bottlesController.js';
 import { ensureAuth } from '../../middleware/auth.js';
 
@@ -35,6 +36,7 @@ router.use(ensureAuth);
 
 router.get('/', listMyBottles);
 router.post('/', registerMyBottle);
+router.delete('/:id', deleteMyBottle);
 router.post(
   '/:id/delivery',
   upload.fields([
