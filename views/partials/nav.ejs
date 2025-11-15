@@ -1,3 +1,6 @@
+<% const resolvedPath = typeof currentPath === 'string' ? currentPath : ''; %>
+<% const normalizedPath = (resolvedPath || '').replace(/\/+$/u, '') || '/'; %>
+<% const onDashboardPage = normalizedPath === '/dashboard'; %>
 <header class="site-header">
   <div class="brand">
     <a href="/" class="brand-link" aria-label="hopeTurtles.org home" title="HopeTurtles | a human2human project">
@@ -78,7 +81,6 @@
     <a href="/missions#map"><%= t.nav_tracking || 'Tracking' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
       <a href="/admin">Admin</a>
-      <a href="/admin/users">Users</a>
     <% } %>
   </nav>
   <div class="nav-controls">
@@ -122,7 +124,11 @@
       <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
     </button>
     <% if (currentUser) { %>
-      <a class="button" href="/dashboard">🎮 Dash</a>
+      <% if (onDashboardPage) { %>
+        <span class="nav-controls__dashboard-indicator" aria-current="page" title="Dashboard">🎮</span>
+      <% } else { %>
+        <a class="button" href="/dashboard">🎮 Dash</a>
+      <% } %>
     <% } else { %>
       <a class="button" href="<%= loginUrl %>">Login</a>
       <a

@@ -113,6 +113,7 @@ app.use((req, res, next) => {
       dark: '#1f3b22'
     }
   };
+  res.locals.currentPath = req.path;
   next();
 });
 
