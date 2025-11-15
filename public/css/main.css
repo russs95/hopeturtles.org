@@ -1270,7 +1270,6 @@ a:hover {
 }
 
 .dashboard-alert-banner {
-  background: var(--color-surface);
   border-radius: 0 0 1rem 1rem;
   box-shadow: var(--shadow-elevated);
   padding: 1.25rem 1.5rem;
@@ -1430,6 +1429,8 @@ a:hover {
 
 .dashboard-table {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-table h2 {
@@ -1439,10 +1440,12 @@ a:hover {
 .dashboard-table__wrapper {
   overflow-x: auto;
   margin-top: 1rem;
+  max-width: 100%;
 }
 
 .dashboard-table table {
-  min-width: 520px;
+  min-width: min(520px, 100%);
+  width: 100%;
 }
 
 .dashboard table,

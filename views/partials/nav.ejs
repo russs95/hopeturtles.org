@@ -76,7 +76,6 @@
   <nav class="primary-nav" aria-label="Primary">
     <a href="/missions"><%= t.nav_mission || 'Mission' %></a>
     <a href="/missions#map"><%= t.nav_tracking || 'Tracking' %></a>
-    <a href="#contact"><%= t.nav_contact || 'Contact' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
       <a href="/admin">Admin</a>
       <a href="/admin/users">Users</a>
@@ -123,7 +122,7 @@
       <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
     </button>
     <% if (currentUser) { %>
-      <a class="button" href="/dashboard">Dashboard</a>
+      <a class="button" href="/dashboard">🎮 Dash</a>
     <% } else { %>
       <a class="button" href="<%= loginUrl %>">Login</a>
       <a

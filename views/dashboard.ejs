@@ -26,6 +26,38 @@
 }; %>
 <main id="main" class="layout dashboard">
   <% const activeAlerts = Array.isArray(alerts) ? alerts : []; %>
+  <% const hasActiveAlerts = activeAlerts.length > 0; %>
+  <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
+    <% if (hasActiveAlerts) { %>
+      <ul class="dashboard-alert-banner__list" role="list">
+        <% activeAlerts.forEach(function (alert) { %>
+          <li class="dashboard-alert" data-dashboard-alert>
+            <div class="dashboard-alert__body">
+              <span class="dashboard-alert__emoji" aria-hidden="true"><%= alert.emoji || '⚠️' %></span>
+              <div>
+                <strong class="dashboard-alert__title"><%= alert.title %></strong>
+                <div class="dashboard-alert__message"><%= alert.message_body %></div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="dashboard-alert__dismiss"
+              aria-label="Dismiss alert"
+              data-dashboard-alert-dismiss
+            >&times;</button>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+    <p
+      class="dashboard-alert-banner__empty"
+      data-dashboard-alerts-empty
+      <%= hasActiveAlerts ? 'hidden' : '' %>
+    >
+      No active alerts.
+    </p>
+  </section>
+
   <section class="page-header dashboard-header">
     <% const dashboardIntroCopy =
       t.dashboard_intro || 'Your mission control for launching and managing aid bottle and hope turtles on human to human missions.'; %>
@@ -67,38 +99,6 @@
         </ul>
       </aside>
     <% } %>
-  </section>
-
-  <% const hasActiveAlerts = activeAlerts.length > 0; %>
-  <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
-    <% if (hasActiveAlerts) { %>
-      <ul class="dashboard-alert-banner__list" role="list">
-        <% activeAlerts.forEach(function (alert) { %>
-          <li class="dashboard-alert" data-dashboard-alert>
-            <div class="dashboard-alert__body">
-              <span class="dashboard-alert__emoji" aria-hidden="true"><%= alert.emoji || '⚠️' %></span>
-              <div>
-                <strong class="dashboard-alert__title"><%= alert.title %></strong>
-                <div class="dashboard-alert__message"><%= alert.message_body %></div>
-              </div>
-            </div>
-            <button
-              type="button"
-              class="dashboard-alert__dismiss"
-              aria-label="Dismiss alert"
-              data-dashboard-alert-dismiss
-            >&times;</button>
-          </li>
-        <% }) %>
-      </ul>
-    <% } %>
-    <p
-      class="dashboard-alert-banner__empty"
-      data-dashboard-alerts-empty
-      <%= hasActiveAlerts ? 'hidden' : '' %>
-    >
-      No active alerts.
-    </p>
   </section>
 
   <% if (canViewUserStats && userStats) { %>
@@ -518,7 +518,7 @@
   </section>
 
   <section class="panel dashboard-table">
-    <h2>Live telemetry snapshot</h2>
+    <h2>Live telemetry</h2>
     <div class="table-wrapper dashboard-table__wrapper">
       <table>
         <thead>
@@ -527,7 +527,6 @@
             <th>Latitude</th>
             <th>Longitude</th>
             <th>Battery</th>
-            <th>Connection</th>
           </tr>
         </thead>
         <tbody>
@@ -537,7 +536,6 @@
               <td><%= item.latitude %></td>
               <td><%= item.longitude %></td>
               <td><%= item.battery_voltage %></td>
-              <td><%= item.connection %></td>
             </tr>
           <% }) %>
         </tbody>
