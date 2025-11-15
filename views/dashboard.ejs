@@ -26,9 +26,11 @@
 }; %>
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
+    <% const dashboardIntroCopy =
+      t.dashboard_intro || 'Your mission control for launching and managing aid bottle and hope turtles on human to human missions.'; %>
     <div class="dashboard-header__intro">
       <h1>Dashboard</h1>
-      <p>Mission control centre for Hope Turtles.</p>
+      <p><%= dashboardIntroCopy %></p>
     </div>
     <% if (dashboardUser) {
          const userFirstName =
