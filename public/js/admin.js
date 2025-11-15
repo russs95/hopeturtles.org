@@ -3,10 +3,16 @@ const deleteButtons = document.querySelectorAll('.admin-table .delete');
 const missionDialog = document.getElementById('createMissionDialog');
 const editMissionDialog = document.getElementById('editMissionDialog');
 const hubDialog = document.getElementById('createHubDialog');
+const editHubDialog = document.getElementById('editHubDialog');
 const boatDialog = document.getElementById('createBoatDialog');
+const editBoatDialog = document.getElementById('editBoatDialog');
 const turtleDialog = document.getElementById('createTurtleDialog');
 const missionEditForm = editMissionDialog ? editMissionDialog.querySelector('[data-edit-mission-form]') : null;
 const missionEditNameTarget = editMissionDialog ? editMissionDialog.querySelector('[data-mission-name]') : null;
+const hubEditForm = editHubDialog ? editHubDialog.querySelector('[data-edit-hub-form]') : null;
+const hubEditNameTarget = editHubDialog ? editHubDialog.querySelector('[data-hub-name]') : null;
+const boatEditForm = editBoatDialog ? editBoatDialog.querySelector('[data-edit-boat-form]') : null;
+const boatEditNameTarget = editBoatDialog ? editBoatDialog.querySelector('[data-boat-name]') : null;
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
@@ -87,6 +93,8 @@ setupDialog(hubDialog, '[data-open-hub-form]', '[data-close-hub-form]');
 setupDialog(boatDialog, '[data-open-boat-form]', '[data-close-boat-form]');
 setupDialog(turtleDialog, '[data-open-turtle-form]', '[data-close-turtle-form]');
 setupDialog(editMissionDialog, null, '[data-close-edit-mission-form]');
+setupDialog(editHubDialog, null, '[data-close-edit-hub-form]');
+setupDialog(editBoatDialog, null, '[data-close-edit-boat-form]');
 
 adminForms.forEach((form) => {
   form.addEventListener('submit', async (event) => {
@@ -187,7 +195,7 @@ const updateInlineSelectDisplay = (element, newValue) => {
 };
 
 const decodeMissionData = (element) => {
-  if (!element.dataset.mission) {
+  if (!element?.dataset?.mission) {
     return null;
   }
   try {
@@ -199,13 +207,59 @@ const decodeMissionData = (element) => {
 };
 
 const storeMissionData = (element, mission) => {
-  if (!mission) {
+  if (!element || !mission) {
     return;
   }
   try {
     element.dataset.mission = encodeURIComponent(JSON.stringify(mission));
   } catch (error) {
     console.error('Failed to store mission data', error);
+  }
+};
+
+const decodeHubData = (element) => {
+  if (!element?.dataset.hub) {
+    return null;
+  }
+  try {
+    return JSON.parse(decodeURIComponent(element.dataset.hub));
+  } catch (error) {
+    console.error('Failed to parse hub data', error);
+    return null;
+  }
+};
+
+const storeHubData = (element, hub) => {
+  if (!element || !hub) {
+    return;
+  }
+  try {
+    element.dataset.hub = encodeURIComponent(JSON.stringify(hub));
+  } catch (error) {
+    console.error('Failed to store hub data', error);
+  }
+};
+
+const decodeBoatData = (element) => {
+  if (!element?.dataset.boat) {
+    return null;
+  }
+  try {
+    return JSON.parse(decodeURIComponent(element.dataset.boat));
+  } catch (error) {
+    console.error('Failed to parse boat data', error);
+    return null;
+  }
+};
+
+const storeBoatData = (element, boat) => {
+  if (!element || !boat) {
+    return;
+  }
+  try {
+    element.dataset.boat = encodeURIComponent(JSON.stringify(boat));
+  } catch (error) {
+    console.error('Failed to store boat data', error);
   }
 };
 
@@ -253,6 +307,96 @@ const openMissionEditDialog = (element) => {
   }
   prepareMissionEditForm(missionData);
   showDialog(editMissionDialog);
+};
+
+const prepareHubEditForm = (hub) => {
+  if (!hubEditForm || !hub) {
+    return;
+  }
+  if (typeof hubEditForm.reset === 'function') {
+    hubEditForm.reset();
+  }
+  hubEditForm.dataset.endpoint = `/api/hubs/${hub.id}`;
+  hubEditForm.dataset.method = 'PUT';
+  const setFieldValue = (selector, value) => {
+    const field = hubEditForm.querySelector(selector);
+    if (field) {
+      field.value = value ?? '';
+    }
+  };
+  setFieldValue('[name="name"]', hub.name || '');
+  setFieldValue('[name="mission_id"]', hub.missionId || '');
+  setFieldValue('[name="country"]', hub.country || '');
+  setFieldValue('[name="region"]', hub.region || '');
+  setFieldValue('[name="status"]', hub.status || '');
+  const descriptionField = hubEditForm.querySelector('[name="description"]');
+  if (descriptionField) {
+    descriptionField.value = hub.description || '';
+  }
+  const mailingField = hubEditForm.querySelector('[name="mailing_address"]');
+  if (mailingField) {
+    mailingField.value = hub.mailingAddress || '';
+  }
+  setFieldValue('[name="coordinator_id"]', hub.coordinatorId || '');
+  const feedback = hubEditForm.querySelector('.form-feedback');
+  if (feedback) {
+    feedback.textContent = '';
+  }
+  if (hubEditNameTarget) {
+    hubEditNameTarget.textContent = hub.name || 'this hub';
+  }
+};
+
+const openHubEditDialog = (element) => {
+  const hubData = decodeHubData(element);
+  if (!hubData) {
+    return;
+  }
+  prepareHubEditForm(hubData);
+  showDialog(editHubDialog);
+};
+
+const prepareBoatEditForm = (boat) => {
+  if (!boatEditForm || !boat) {
+    return;
+  }
+  if (typeof boatEditForm.reset === 'function') {
+    boatEditForm.reset();
+  }
+  boatEditForm.dataset.endpoint = `/api/boats/${boat.id}`;
+  boatEditForm.dataset.method = 'PUT';
+  const setFieldValue = (selector, value) => {
+    const field = boatEditForm.querySelector(selector);
+    if (field) {
+      field.value = value ?? '';
+    }
+  };
+  setFieldValue('[name="name"]', boat.name || '');
+  setFieldValue('[name="mission_id"]', boat.missionId || '');
+  setFieldValue('[name="hub_id"]', boat.hubId || '');
+  setFieldValue('[name="owner"]', boat.owner || '');
+  setFieldValue('[name="registration"]', boat.registration || '');
+  setFieldValue('[name="capacity_hts"]', boat.capacityHts ?? '');
+  setFieldValue('[name="capacity_persons"]', boat.capacityPersons ?? '');
+  setFieldValue('[name="capacity_bottles"]', boat.capacityBottles ?? '');
+  setFieldValue('[name="contact"]', boat.contact || '');
+  setFieldValue('[name="status"]', boat.status || '');
+  const feedback = boatEditForm.querySelector('.form-feedback');
+  if (feedback) {
+    feedback.textContent = '';
+  }
+  if (boatEditNameTarget) {
+    boatEditNameTarget.textContent = boat.name || 'this boat';
+  }
+};
+
+const openBoatEditDialog = (element) => {
+  const boatData = decodeBoatData(element);
+  if (!boatData) {
+    return;
+  }
+  prepareBoatEditForm(boatData);
+  showDialog(editBoatDialog);
 };
 
 const setupEditableSelect = (element) => {
@@ -337,10 +481,25 @@ const setupEditableSelect = (element) => {
         element.dataset.value = newValue;
         updateInlineSelectDisplay(element, newValue);
         if (element.dataset.editAction === 'mission') {
-          const missionData = decodeMissionData(element);
-          if (missionData) {
+          const missionRow = element.closest('[data-mission-row]');
+          const missionData = decodeMissionData(missionRow);
+          if (missionRow && missionData) {
             missionData.status = newValue;
-            storeMissionData(element, missionData);
+            storeMissionData(missionRow, missionData);
+          }
+        } else if (element.dataset.editAction === 'hub') {
+          const hubRow = element.closest('[data-hub-row]');
+          const hubData = decodeHubData(hubRow);
+          if (hubRow && hubData) {
+            hubData.status = newValue;
+            storeHubData(hubRow, hubData);
+          }
+        } else if (element.dataset.editAction === 'boat') {
+          const boatRow = element.closest('[data-boat-row]');
+          const boatData = decodeBoatData(boatRow);
+          if (boatRow && boatData) {
+            boatData.status = newValue;
+            storeBoatData(boatRow, boatData);
           }
         }
       } catch (error) {
@@ -394,6 +553,46 @@ inlineSelects.forEach((element) => {
   updateInlineSelectDisplay(element, element.dataset.value || '');
   setupEditableSelect(element);
 });
+
+const interactiveRowSelector = 'button, a, input, select, textarea, label, [data-editable-select]';
+
+const shouldIgnoreRowActivation = (target) => {
+  if (!target) {
+    return false;
+  }
+  return Boolean(target.closest(interactiveRowSelector));
+};
+
+const bindInteractiveRow = (row, handler) => {
+  if (!row || typeof handler !== 'function') {
+    return;
+  }
+  row.addEventListener('click', (event) => {
+    if (shouldIgnoreRowActivation(event.target)) {
+      return;
+    }
+    handler(row);
+  });
+  row.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    if (shouldIgnoreRowActivation(event.target)) {
+      return;
+    }
+    event.preventDefault();
+    handler(row);
+  });
+};
+
+const missionRows = document.querySelectorAll('[data-mission-row]');
+missionRows.forEach((row) => bindInteractiveRow(row, openMissionEditDialog));
+
+const hubRows = document.querySelectorAll('[data-hub-row]');
+hubRows.forEach((row) => bindInteractiveRow(row, openHubEditDialog));
+
+const boatRows = document.querySelectorAll('[data-boat-row]');
+boatRows.forEach((row) => bindInteractiveRow(row, openBoatEditDialog));
 
 deleteButtons.forEach((button) => {
   button.addEventListener('click', async (event) => {

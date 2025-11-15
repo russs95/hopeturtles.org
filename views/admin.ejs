@@ -11,6 +11,16 @@
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }; %>
+<% const formatDateTimeLocalValue = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localTime.toISOString().slice(0, 16);
+}; %>
+<% const encodeRecord = (value) => encodeURIComponent(JSON.stringify(value)); %>
 <% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
 <% const defaultBoatStatus = 'Docked'; %>
 <% const boatStatuses = [
@@ -25,6 +35,7 @@
 ]; %>
 <% const boatManagerOptions = Array.isArray(users) ? users : []; %>
 <% const turtlesForManagement = Array.isArray(turtleDetails) ? turtleDetails : []; %>
+<% const adminAlerts = Array.isArray(alerts) ? alerts : []; %>
 <main id="main" class="layout admin">
   <section class="page-header">
     <h1>Admin Tools</h1>
@@ -44,28 +55,49 @@
         <thead>
           <tr>
             <th scope="col">Name</th>
-            <th scope="col">Status</th>
             <th scope="col">Bottles</th>
             <th scope="col">Turtles</th>
             <th scope="col">Boats</th>
             <th scope="col">Hubs</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
           <% missions.forEach(function (mission) { %>
-            <tr>
+            <% const missionEditData = {
+                 id: mission.mission_id,
+                 name: mission.name,
+                 description: mission.description || '',
+                 status: mission.status || 'planned',
+                 startDate: formatDateTimeLocalValue(mission.start_date),
+                 endDate: formatDateTimeLocalValue(mission.end_date),
+                 targetLat: mission.target_lat ?? '',
+                 targetLng: mission.target_lng ?? ''
+               }; %>
+            <tr
+              role="button"
+              tabindex="0"
+              aria-label="Edit mission <%= mission.name || '#' + mission.mission_id %>"
+              data-mission-row
+              data-mission="<%= encodeRecord(missionEditData) %>"
+            >
               <td data-label="Name">
                 <strong><%= mission.name %></strong>
                 <% if (mission.description) { %>
                   <div class="muted"><%= mission.description %></div>
                 <% } %>
               </td>
+              <td data-label="Bottles" class="numeric-cell"><%= mission.bottle_count ?? 0 %></td>
+              <td data-label="Turtles" class="numeric-cell"><%= mission.turtle_count ?? 0 %></td>
+              <td data-label="Boats" class="numeric-cell"><%= mission.boat_count ?? 0 %></td>
+              <td data-label="Hubs" class="numeric-cell"><%= mission.hub_count ?? 0 %></td>
               <td data-label="Status">
                 <div
                   class="inline-select"
                   role="button"
                   tabindex="0"
                   data-editable-select
+                  data-edit-action="mission"
                   data-endpoint="/api/missions/<%= mission.mission_id %>"
                   data-field="status"
                   data-value="<%= mission.status %>"
@@ -76,10 +108,6 @@
                   <span class="status-pill mission-status" data-status="<%= mission.status %>"><%= mission.status %></span>
                 </div>
               </td>
-              <td data-label="Bottles" class="numeric-cell"><%= mission.bottle_count ?? 0 %></td>
-              <td data-label="Turtles" class="numeric-cell"><%= mission.turtle_count ?? 0 %></td>
-              <td data-label="Boats" class="numeric-cell"><%= mission.boat_count ?? 0 %></td>
-              <td data-label="Hubs" class="numeric-cell"><%= mission.hub_count ?? 0 %></td>
             </tr>
           <% }) %>
         </tbody>
@@ -311,6 +339,58 @@
     </form>
   </dialog>
 
+  <dialog id="editMissionDialog" class="mission-dialog" aria-labelledby="editMissionTitle">
+    <form class="form-card admin-form mission-form" data-edit-mission-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="editMissionTitle">Edit mission</h2>
+          <p class="panel-subtitle">Update details for <span data-mission-name>this mission</span>.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-edit-mission-form aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Name
+          <input name="name" required />
+        </label>
+        <label class="full-width">
+          Description
+          <textarea name="description" rows="3"></textarea>
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <option value="planned">planned</option>
+            <option value="active">active</option>
+            <option value="paused">paused</option>
+            <option value="completed">completed</option>
+          </select>
+        </label>
+        <label>
+          Start date
+          <input type="datetime-local" name="start_date" />
+        </label>
+        <label>
+          End date
+          <input type="datetime-local" name="end_date" />
+        </label>
+        <label>
+          Target latitude
+          <input type="number" step="0.000001" name="target_lat" />
+        </label>
+        <label>
+          Target longitude
+          <input type="number" step="0.000001" name="target_lng" />
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-edit-mission-form>Cancel</button>
+        <button type="submit" class="button">Save mission</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
+  </dialog>
+
   <dialog id="createHubDialog" class="hub-dialog" aria-labelledby="createHubTitle">
     <form class="form-card admin-form hub-form" data-endpoint="/api/hubs" data-method="POST">
       <header class="mission-dialog__header">
@@ -377,6 +457,73 @@
     </form>
   </dialog>
 
+  <dialog id="editHubDialog" class="hub-dialog" aria-labelledby="editHubTitle">
+    <form class="form-card admin-form hub-form" data-edit-hub-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="editHubTitle">Edit hub</h2>
+          <p class="panel-subtitle">Update details for <span data-hub-name>this hub</span>.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-edit-hub-form aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Name
+          <input name="name" required />
+        </label>
+        <label class="full-width">
+          Mission
+          <select name="mission_id">
+            <option value="">No mission connected</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="full-width">
+          Country
+          <input name="country" />
+        </label>
+        <label class="full-width">
+          Region
+          <input name="region" />
+        </label>
+        <label class="full-width">
+          Status
+          <select name="status">
+            <option value="Loading and Receiving">Loading and Receiving</option>
+            <option value="Loading but not Receiving">Loading but not Receiving</option>
+            <option value="Paused">Paused</option>
+            <option value="Aborted">Aborted</option>
+            <option value="Mission complete">Mission complete</option>
+          </select>
+        </label>
+        <label class="full-width">
+          Special instructions
+          <textarea name="description" rows="3"></textarea>
+        </label>
+        <label class="full-width">
+          Mailing address
+          <textarea name="mailing_address" rows="3"></textarea>
+        </label>
+        <label class="full-width">
+          Coordinator
+          <select name="coordinator_id">
+            <option value="">No coordinator assigned</option>
+            <% users.forEach(function (user) { %>
+              <option value="<%= user.buwana_id %>"><%= user.full_name || user.email || user.buwana_id %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-edit-hub-form>Cancel</button>
+        <button type="submit" class="button">Save hub</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
+  </dialog>
+
   <section class="panel hub-management-panel" id="admin-hubs">
     <header class="panel-header">
       <div>
@@ -400,7 +547,24 @@
         </thead>
         <tbody>
           <% hubs.forEach(function (hub) { %>
-            <tr>
+            <% const hubEditData = {
+                 id: hub.hub_id,
+                 name: hub.name,
+                 missionId: hub.mission_id ?? '',
+                 country: hub.country || '',
+                 region: hub.region || '',
+                 status: hub.status || '',
+                 description: hub.description || '',
+                 mailingAddress: hub.mailing_address || '',
+                 coordinatorId: hub.coordinator_id ?? ''
+               }; %>
+            <tr
+              role="button"
+              tabindex="0"
+              aria-label="Edit hub <%= hub.name || '#' + hub.hub_id %>"
+              data-hub-row
+              data-hub="<%= encodeRecord(hubEditData) %>"
+            >
               <td data-label="Hub name">
                 <strong><%= hub.name %></strong>
                 <% if (hub.region) { %>
@@ -418,6 +582,7 @@
                   role="button"
                   tabindex="0"
                   data-editable-select
+                  data-edit-action="hub"
                   data-endpoint="/api/hubs/<%= hub.hub_id %>"
                   data-field="status"
                   data-value="<%= hub.status || '' %>"
@@ -526,6 +691,79 @@
     </form>
   </dialog>
 
+  <dialog id="editBoatDialog" class="boat-dialog" aria-labelledby="editBoatTitle">
+    <form class="form-card admin-form boat-form" data-edit-boat-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="editBoatTitle">Edit boat</h2>
+          <p class="panel-subtitle">Update details for <span data-boat-name>this boat</span>.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-edit-boat-form aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-form-grid">
+        <label class="full-width">
+          Boat name
+          <input name="name" required />
+        </label>
+        <label class="full-width">
+          Mission
+          <select name="mission_id">
+            <option value="">No mission assigned</option>
+            <% missions.forEach(function (mission) { %>
+              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="full-width">
+          Hub
+          <select name="hub_id">
+            <option value="">No hub assigned</option>
+            <% hubs.forEach(function (hub) { %>
+              <option value="<%= hub.hub_id %>"><%= hub.name %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="full-width">
+          Boat owner
+          <input name="owner" />
+        </label>
+        <label class="full-width">
+          Registration
+          <input name="registration" />
+        </label>
+        <label>
+          Hope Turtle capacity
+          <input type="number" step="0.01" min="0" name="capacity_hts" />
+        </label>
+        <label>
+          People capacity
+          <input type="number" step="0.01" min="0" name="capacity_persons" />
+        </label>
+        <label>
+          Bottle capacity
+          <input type="number" step="0.01" min="0" name="capacity_bottles" />
+        </label>
+        <label class="full-width">
+          Contact information
+          <input name="contact" />
+        </label>
+        <label class="full-width">
+          Status
+          <select name="status">
+            <% boatStatuses.forEach(function (status) { %>
+              <option value="<%= status %>"><%= status %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-edit-boat-form>Cancel</button>
+        <button type="submit" class="button">Save boat</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
+  </dialog>
+
   <section class="panel boat-management-panel" id="admin-boats">
     <header class="panel-header">
       <div>
@@ -535,28 +773,72 @@
       <button type="button" class="button" data-open-boat-form>+ Add boat</button>
     </header>
     <div class="admin-table table-wrapper">
-      <table>
+      <table class="boats-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Owner</th>
-            <th></th>
+            <th>HT capacity</th>
+            <th>People capacity</th>
+            <th>Bottle capacity</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           <% boats.forEach(function (boat) { %>
-            <tr>
+            <% const boatEditData = {
+                 id: boat.boat_id,
+                 name: boat.name,
+                 missionId: boat.mission_id ?? '',
+                 hubId: boat.hub_id ?? '',
+                 owner: boat.owner || '',
+                 registration: boat.registration || '',
+                 capacityHts: boat.capacity_hts ?? '',
+                 capacityPersons: boat.capacity_persons ?? '',
+                 capacityBottles: boat.capacity_bottles ?? '',
+                 contact: boat.contact || '',
+                 status: boat.status || defaultBoatStatus
+               }; %>
+            <tr
+              role="button"
+              tabindex="0"
+              aria-label="Edit boat <%= boat.name || '#' + boat.boat_id %>"
+              data-boat-row
+              data-boat="<%= encodeRecord(boatEditData) %>"
+            >
               <td><%= boat.boat_id %></td>
-              <td><%= boat.name %></td>
-              <td><%= boat.owner %></td>
               <td>
-                <button
-                  class="button ghost delete"
+                <strong><%= boat.name %></strong>
+                <% if (boat.mission_name) { %>
+                  <div class="muted">Mission: <%= boat.mission_name %></div>
+                <% } %>
+                <% if (boat.hub_name) { %>
+                  <div class="muted">Hub: <%= boat.hub_name %></div>
+                <% } %>
+              </td>
+              <td><%= boat.owner || '—' %></td>
+              <td class="numeric-cell"><%= boat.capacity_hts ?? '—' %></td>
+              <td class="numeric-cell"><%= boat.capacity_persons ?? '—' %></td>
+              <td class="numeric-cell"><%= boat.capacity_bottles ?? '—' %></td>
+              <td>
+                <div
+                  class="inline-select"
+                  role="button"
+                  tabindex="0"
+                  data-editable-select
+                  data-edit-action="boat"
                   data-endpoint="/api/boats/<%= boat.boat_id %>"
+                  data-field="status"
+                  data-value="<%= boat.status || defaultBoatStatus %>"
+                  data-options="<%= boatStatuses.join('|') %>"
+                  data-label="Update status for boat <%= boat.name || '#' + boat.boat_id %>"
+                  title="Click to change status"
                 >
-                  Delete
-                </button>
+                  <span class="status-pill" data-status="<%= formatStatusKey(boat.status) %>">
+                    <%= boat.status || defaultBoatStatus %>
+                  </span>
+                </div>
               </td>
             </tr>
           <% }) %>
@@ -568,32 +850,35 @@
     <% } %>
   </section>
 
-  <section class="admin-section" id="admin-alerts">
-    <h2>Alerts</h2>
-    <form class="form-card admin-form" data-endpoint="/api/alerts" data-method="POST">
-      <label>Title <input name="title" required /></label>
-      <label>Message <textarea name="message_body" required></textarea></label>
-      <label>Emoji <input name="emoji" /></label>
-      <button type="submit" class="button">Create alert</button>
-      <p class="form-feedback" role="status"></p>
-    </form>
-    <div class="admin-table">
-      <table>
+  <section class="panel alert-management-panel" id="admin-alerts">
+    <header class="panel-header">
+      <div>
+        <h2>Alert management</h2>
+        <p class="panel-subtitle">Broadcast mission-critical notices to every dashboard.</p>
+      </div>
+    </header>
+    <div class="admin-table table-wrapper">
+      <table class="alerts-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th></th>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <% alerts.forEach(function (alert) { %>
+          <% adminAlerts.forEach(function (alert) { %>
             <tr>
-              <td><%= alert.alert_id %></td>
-              <td><%= alert.title %></td>
-              <td><%= alert.status %></td>
-              <td>
+              <td data-label="ID">#<%= alert.alert_id %></td>
+              <td data-label="Title">
+                <strong><%= alert.title %></strong>
+                <% if (alert.message_body) { %>
+                  <div class="muted"><%= alert.message_body %></div>
+                <% } %>
+              </td>
+              <td data-label="Status"><%= alert.status %></td>
+              <td data-label="Actions">
                 <button
                   class="button ghost delete"
                   data-endpoint="/api/alerts/<%= alert.alert_id %>"
@@ -606,6 +891,27 @@
         </tbody>
       </table>
     </div>
+    <% if (adminAlerts.length === 0) { %>
+      <p class="panel-empty">No alerts have been created yet.</p>
+    <% } %>
+    <form class="form-card admin-form" data-endpoint="/api/alerts" data-method="POST">
+      <label>
+        Title
+        <input name="title" required />
+      </label>
+      <label>
+        Emoji
+        <input name="emoji" />
+      </label>
+      <label class="full-width">
+        Message
+        <textarea name="message_body" rows="3" required></textarea>
+      </label>
+      <div class="mission-dialog__actions">
+        <button type="submit" class="button">Create alert</button>
+      </div>
+      <p class="form-feedback" role="status"></p>
+    </form>
   </section>
 </main>
 <% const pageScripts = ['/js/admin.js', '/js/managed-turtles.js']; %>

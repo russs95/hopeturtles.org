@@ -92,6 +92,39 @@ if (statusChartEl && telemetryChartEl) {
   setInterval(refreshStats, 30000);
 }
 
+const dashboardAlertContainer = document.querySelector('[data-dashboard-alerts]');
+const dashboardAlertEmptyState = dashboardAlertContainer
+  ? dashboardAlertContainer.querySelector('[data-dashboard-alerts-empty]')
+  : null;
+
+const updateDashboardAlertState = () => {
+  if (!dashboardAlertContainer) {
+    return;
+  }
+  const alerts = dashboardAlertContainer.querySelectorAll('[data-dashboard-alert]');
+  const hasAlerts = alerts.length > 0;
+  if (dashboardAlertEmptyState) {
+    dashboardAlertEmptyState.hidden = hasAlerts;
+  }
+  dashboardAlertContainer.classList.toggle('is-empty', !hasAlerts);
+};
+
+if (dashboardAlertContainer) {
+  dashboardAlertContainer.addEventListener('click', (event) => {
+    const dismissButton = event.target.closest('[data-dashboard-alert-dismiss]');
+    if (!dismissButton) {
+      return;
+    }
+    event.preventDefault();
+    const alertRow = dismissButton.closest('[data-dashboard-alert]');
+    if (alertRow) {
+      alertRow.remove();
+      updateDashboardAlertState();
+    }
+  });
+  updateDashboardAlertState();
+}
+
 const registerBottleDialog = document.getElementById('registerBottleDialog');
 const registerBottleForm = registerBottleDialog?.querySelector('[data-register-bottle-form]') ?? null;
 const registerBottleFeedback = registerBottleDialog?.querySelector('[data-register-bottle-feedback]') ?? null;
