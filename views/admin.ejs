@@ -113,7 +113,19 @@
         </thead>
         <tbody>
           <% turtlesForManagement.forEach(function (turtle) { %>
-            <tr>
+            <tr
+              role="button"
+              tabindex="0"
+              aria-label="Manage turtle <%= turtle.name || '#' + turtle.turtle_id %>"
+              data-manageable-turtle
+              data-turtle-id="<%= turtle.turtle_id %>"
+              data-turtle-name="<%= turtle.name || '' %>"
+              data-turtle-status="<%= turtle.status || '' %>"
+              data-turtle-mission="<%= turtle.mission_id || '' %>"
+              data-turtle-hub="<%= turtle.hub_id || '' %>"
+              data-turtle-boat="<%= turtle.boat_id || '' %>"
+              data-turtle-photo-url="<%= turtle.profile_photo_url || '' %>"
+            >
               <td data-label="Profile">
                 <div class="turtle-profile">
                   <div class="turtle-profile__photo">
@@ -169,6 +181,8 @@
       <p class="panel-empty">No turtles registered yet.</p>
     <% } %>
   </section>
+
+  <%- include('partials/manage-turtle-dialog', { turtleStatusOptions, missions, hubs, boats }) %>
 
   <dialog id="createTurtleDialog" class="mission-dialog" aria-labelledby="createTurtleTitle">
     <form
@@ -594,5 +608,5 @@
     </div>
   </section>
 </main>
-<% const pageScripts = ['/js/admin.js']; %>
+<% const pageScripts = ['/js/admin.js', '/js/managed-turtles.js']; %>
 <%- include('partials/footer', { pageScripts }) %>
