@@ -27,8 +27,8 @@
 <main id="main" class="layout dashboard">
   <% const activeAlerts = Array.isArray(alerts) ? alerts : []; %>
   <% const hasActiveAlerts = activeAlerts.length > 0; %>
-  <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
-    <% if (hasActiveAlerts) { %>
+  <% if (hasActiveAlerts) { %>
+    <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
       <ul class="dashboard-alert-banner__list" role="list">
         <% activeAlerts.forEach(function (alert) { %>
           <li class="dashboard-alert" data-dashboard-alert>
@@ -48,15 +48,8 @@
           </li>
         <% }) %>
       </ul>
-    <% } %>
-    <p
-      class="dashboard-alert-banner__empty"
-      data-dashboard-alerts-empty
-      <%= hasActiveAlerts ? 'hidden' : '' %>
-    >
-      No active alerts.
-    </p>
-  </section>
+    </section>
+  <% } %>
 
   <section class="page-header dashboard-header">
     <% const dashboardIntroCopy =
@@ -392,7 +385,12 @@
         </label>
         <label class="full-width">
           Contents
-          <textarea name="contents" rows="3" placeholder="List items packed inside the bottle"></textarea>
+          <input
+            type="text"
+            name="contents"
+            placeholder="List items packed inside the bottle"
+            maxlength="255"
+          />
         </label>
       </div>
       <div class="mission-dialog__actions">

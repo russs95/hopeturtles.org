@@ -93,9 +93,6 @@ if (statusChartEl && telemetryChartEl) {
 }
 
 const dashboardAlertContainer = document.querySelector('[data-dashboard-alerts]');
-const dashboardAlertEmptyState = dashboardAlertContainer
-  ? dashboardAlertContainer.querySelector('[data-dashboard-alerts-empty]')
-  : null;
 
 const updateDashboardAlertState = () => {
   if (!dashboardAlertContainer) {
@@ -103,10 +100,7 @@ const updateDashboardAlertState = () => {
   }
   const alerts = dashboardAlertContainer.querySelectorAll('[data-dashboard-alert]');
   const hasAlerts = alerts.length > 0;
-  if (dashboardAlertEmptyState) {
-    dashboardAlertEmptyState.hidden = hasAlerts;
-  }
-  dashboardAlertContainer.classList.toggle('is-empty', !hasAlerts);
+  dashboardAlertContainer.hidden = !hasAlerts;
 };
 
 if (dashboardAlertContainer) {
