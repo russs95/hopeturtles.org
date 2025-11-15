@@ -30,6 +30,16 @@ const featurePhotoImage = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-feature-photo-image]')
   : null;
 
+const interactiveSelector =
+  'button, a, input, select, textarea, label, [data-editable-select], [data-secret-action]';
+
+const shouldIgnoreManageableClick = (target) => {
+  if (!target) {
+    return false;
+  }
+  return Boolean(target.closest(interactiveSelector));
+};
+
 const launchTurtleDialog = document.getElementById('launchTurtleDialog');
 const launchTurtleForm = launchTurtleDialog
   ? launchTurtleDialog.querySelector('[data-launch-turtle-form]')
@@ -167,23 +177,23 @@ const populateManageForm = (turtle) => {
   updateFeaturePhotoPreview(photoUrl || '');
 };
 
-const openManageTurtleDialog = (button) => {
+const openManageTurtleDialog = (triggerElement) => {
   if (!manageTurtleDialog || !manageTurtleForm) {
     return;
   }
 
-  currentTurtleId = button.dataset.turtleId || null;
+  currentTurtleId = triggerElement.dataset.turtleId || null;
   if (!currentTurtleId) {
     return;
   }
 
   const turtleData = {
-    name: button.dataset.turtleName || '',
-    status: button.dataset.turtleStatus || '',
-    missionId: button.dataset.turtleMission || '',
-    hubId: button.dataset.turtleHub || '',
-    boatId: button.dataset.turtleBoat || '',
-    photoUrl: button.dataset.turtlePhotoUrl || ''
+    name: triggerElement.dataset.turtleName || '',
+    status: triggerElement.dataset.turtleStatus || '',
+    missionId: triggerElement.dataset.turtleMission || '',
+    hubId: triggerElement.dataset.turtleHub || '',
+    boatId: triggerElement.dataset.turtleBoat || '',
+    photoUrl: triggerElement.dataset.turtlePhotoUrl || ''
   };
 
   manageTurtleForm.dataset.endpoint = `/api/turtles/${encodeURIComponent(currentTurtleId)}`;
@@ -203,6 +213,24 @@ const closeManageTurtleDialog = () => {
   updateFeaturePhotoPreview('');
   currentTurtleId = null;
 };
+
+const manageableTurtles = document.querySelectorAll('[data-manageable-turtle]');
+manageableTurtles.forEach((row) => {
+  const activate = () => openManageTurtleDialog(row);
+  row.addEventListener('click', (event) => {
+    if (shouldIgnoreManageableClick(event.target)) {
+      return;
+    }
+    event.preventDefault();
+    activate();
+  });
+  row.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      activate();
+    }
+  });
+});
 
 const openLaunchTurtleDialog = () => {
   if (!launchTurtleDialog) {
@@ -337,14 +365,6 @@ if (launchTurtleForm) {
     }
   });
 }
-
-const editButtons = document.querySelectorAll('[data-my-turtle-edit]');
-editButtons.forEach((button) => {
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    openManageTurtleDialog(button);
-  });
-});
 
 const copySecretToClipboard = async (secret) => {
   if (!secret) {

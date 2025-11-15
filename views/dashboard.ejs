@@ -25,6 +25,7 @@
   return `${numeric.toLocaleString()} g`;
 }; %>
 <main id="main" class="layout dashboard">
+  <% const activeAlerts = Array.isArray(alerts) ? alerts : []; %>
   <section class="page-header dashboard-header">
     <% const dashboardIntroCopy =
       t.dashboard_intro || 'Your mission control for launching and managing aid bottle and hope turtles on human to human missions.'; %>
@@ -32,6 +33,26 @@
       <h1>Dashboard</h1>
       <p><%= dashboardIntroCopy %></p>
     </div>
+    <aside class="dashboard-user-card dashboard-alert-card" aria-label="Active alerts">
+      <p class="dashboard-user-card__greeting">
+        Active alerts
+      </p>
+      <ul class="dashboard-alert-card__list" role="list">
+        <% if (activeAlerts.length === 0) { %>
+          <li class="dashboard-alert-card__item">No active alerts.</li>
+        <% } else { %>
+          <% activeAlerts.forEach(function (alert) { %>
+            <li class="dashboard-alert-card__item">
+              <span class="dashboard-alert-card__emoji" aria-hidden="true"><%= alert.emoji || '⚠️' %></span>
+              <div>
+                <strong class="dashboard-alert-card__title"><%= alert.title %></strong>
+                <div class="dashboard-alert-card__message"><%= alert.message_body %></div>
+              </div>
+            </li>
+          <% }) %>
+        <% } %>
+      </ul>
+    </aside>
     <% if (dashboardUser) {
          const userFirstName =
            dashboardUser.first_name ||
@@ -204,12 +225,23 @@
               <th scope="col">Hub</th>
               <th scope="col">Boat</th>
               <th scope="col">Status</th>
-              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
             <% myTurtles.forEach(function (turtle) { %>
-              <tr>
+              <tr
+                role="button"
+                tabindex="0"
+                aria-label="Manage turtle <%= turtle.name || '#' + turtle.turtle_id %>"
+                data-manageable-turtle
+                data-turtle-id="<%= turtle.turtle_id %>"
+                data-turtle-name="<%= turtle.name || '' %>"
+                data-turtle-status="<%= turtle.status || '' %>"
+                data-turtle-mission="<%= turtle.mission_id || '' %>"
+                data-turtle-hub="<%= turtle.hub_id || '' %>"
+                data-turtle-boat="<%= turtle.boat_id || '' %>"
+                data-turtle-photo-url="<%= turtle.profile_photo_url || '' %>"
+              >
                 <td data-label="Profile">
                   <div class="turtle-profile">
                     <div class="turtle-profile__photo">
@@ -236,23 +268,6 @@
                 <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
                 <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
                 <td data-label="Status"><%= formatTurtleStatus(turtle.status) %></td>
-                <td data-label="Actions">
-                  <button
-                    type="button"
-                    class="button ghost my-turtles__edit"
-                    data-my-turtle-edit
-                    data-turtle-id="<%= turtle.turtle_id %>"
-                    data-turtle-name="<%= turtle.name || '' %>"
-                    data-turtle-status="<%= turtle.status || '' %>"
-                    data-turtle-mission="<%= turtle.mission_id || '' %>"
-                    data-turtle-hub="<%= turtle.hub_id || '' %>"
-                    data-turtle-boat="<%= turtle.boat_id || '' %>"
-                    data-turtle-photo-url="<%= turtle.profile_photo_url || '' %>"
-                    data-turtle-photo-id="<%= turtle.profile_photo_id || '' %>"
-                  >
-                    Manage
-                  </button>
-                </td>
               </tr>
             <% }) %>
           </tbody>
@@ -263,90 +278,7 @@
     <% } %>
   </section>
 
-    <dialog id="manageTurtleDialog" class="mission-dialog" aria-labelledby="manageTurtleTitle">
-    <form
-      class="form-card admin-form turtle-form"
-      data-manage-turtle-form
-      data-method="PUT"
-      enctype="multipart/form-data"
-    >
-      <header class="mission-dialog__header">
-        <div>
-          <h2 id="manageTurtleTitle">Manage turtle</h2>
-          <p class="panel-subtitle">
-            Update turtle details or retrieve its secret key.
-          </p>
-        </div>
-        <button type="button" class="dialog-close" data-close-manage-turtle aria-label="Close">&times;</button>
-      </header>
-      <div class="mission-form-grid">
-        <label class="full-width">
-          Turtle name
-          <input name="name" />
-        </label>
-        <label>
-          Status
-          <select name="status">
-            <option value="">No status</option>
-            <% turtleStatusOptions.forEach(function (status) { %>
-              <option value="<%= status %>"><%= status %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label>
-          Mission
-          <select name="mission_id">
-            <option value="">No mission assigned</option>
-            <% missions.forEach(function (mission) { %>
-              <option value="<%= mission.mission_id %>"><%= mission.name %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label>
-          Hub
-          <select name="hub_id">
-            <option value="">No hub assigned</option>
-            <% hubs.forEach(function (hub) { %>
-              <option value="<%= hub.hub_id %>"><%= hub.name %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label>
-          Boat
-          <select name="boat_id">
-            <option value="">No boat assigned</option>
-            <% boats.forEach(function (boat) { %>
-              <option value="<%= boat.boat_id %>"><%= boat.name %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label class="full-width feature-photo-field">
-          Feature photo
-          <input type="file" name="profile_photo" accept="image/*" />
-          <span class="muted">Optional. JPG or PNG works best.</span>
-          <figure class="feature-photo-preview" data-feature-photo-preview hidden>
-            <img src="" alt="Current feature photo" loading="lazy" data-feature-photo-image />
-            <figcaption>Current photo</figcaption>
-          </figure>
-        </label>
-      </div>
-      <section class="turtle-secret-panel" aria-live="polite">
-        <h3>Secret key</h3>
-        <p class="muted">Share this secret only with the turtle it belongs to.</p>
-        <div class="secret-key-card" data-secret-card hidden>
-          <pre class="secret-key-value" data-managed-turtle-secret></pre>
-        </div>
-        <button type="button" class="button ghost" data-secret-action>View secret</button>
-        <p class="copy-feedback muted" data-managed-secret-feedback role="status"></p>
-      </section>
-      <div class="mission-dialog__actions">
-        <button type="button" class="button ghost" data-close-manage-turtle>Cancel</button>
-        <button type="button" class="button button-outline-danger" data-delete-turtle>Delete turtle</button>
-        <button type="submit" class="button">Save changes</button>
-      </div>
-      <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
-    </form>
-  </dialog>
+  <%- include('partials/manage-turtle-dialog', { turtleStatusOptions, missions, hubs, boats }) %>
 
   <dialog id="launchTurtleDialog" class="mission-dialog" aria-labelledby="launchTurtleTitle">
     <form class="form-card turtle-form" data-launch-turtle-form enctype="multipart/form-data">
@@ -593,19 +525,6 @@
     </table>
   </section>
 
-  <section class="alerts">
-    <h2>Active alerts</h2>
-    <ul>
-      <% alerts.forEach(function (alert) { %>
-        <li>
-          <strong><%= alert.title %></strong> — <%= alert.message_body %>
-        </li>
-      <% }) %>
-      <% if (alerts.length === 0) { %>
-        <li>No active alerts.</li>
-      <% } %>
-    </ul>
-  </section>
 </main>
 <% const pageScripts = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js',
