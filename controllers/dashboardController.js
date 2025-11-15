@@ -37,8 +37,7 @@ export const renderDashboard = async (req, res, next) => {
       res.locals.currentUser = currentUser;
     }
 
-    const canViewUserStats = Boolean(currentUser && currentUser.role === 'admin');
-    const isAdmin = canViewUserStats;
+    const isAdmin = Boolean(currentUser && currentUser.role === 'admin');
 
     const hubsPromise = isAdmin ? hubsModel.getAllWithStats() : hubsModel.getAll();
     const boatsPromise = isAdmin ? boatsModel.getAllWithStats() : boatsModel.getAll();
@@ -57,7 +56,6 @@ export const renderDashboard = async (req, res, next) => {
       telemetry,
       successEntries,
       alerts,
-      userStats,
       hubs,
       boats,
       users,
@@ -70,7 +68,6 @@ export const renderDashboard = async (req, res, next) => {
       telemetryModel.getLatest(),
       successModel.getRecent(10),
       alertsModel.getActive(),
-      canViewUserStats ? usersModel.getDashboardStats() : Promise.resolve(null),
       hubsPromise,
       boatsPromise,
       usersPromise,
@@ -85,8 +82,6 @@ export const renderDashboard = async (req, res, next) => {
       telemetry,
       successEntries,
       alerts,
-      userStats,
-      canViewUserStats,
       dashboardUser,
       hubs: Array.isArray(hubs) ? hubs : [],
       boats: Array.isArray(boats) ? boats : [],
@@ -108,14 +103,16 @@ export const renderAdmin = async (req, res, next) => {
       hubsResult,
       boatsResult,
       alertsResult,
-      usersResult
+      usersResult,
+      userStatsResult
     ] = await Promise.all([
       missionsModel.getAllWithStats(),
       turtlesModel.getAllWithRelations(),
       hubsModel.getAllWithStats(),
       boatsModel.getAllWithStats(),
       alertsModel.getAll(),
-      usersModel.getAll()
+      usersModel.getAll(),
+      usersModel.getDashboardStats()
     ]);
     return res.render('admin', {
       pageTitle: 'Admin Tools',
@@ -124,7 +121,8 @@ export const renderAdmin = async (req, res, next) => {
       hubs: Array.isArray(hubsResult) ? hubsResult : [],
       boats: Array.isArray(boatsResult) ? boatsResult : [],
       alerts: Array.isArray(alertsResult) ? alertsResult : [],
-      users: Array.isArray(usersResult) ? usersResult : []
+      users: Array.isArray(usersResult) ? usersResult : [],
+      userStats: userStatsResult || null
     });
   } catch (error) {
     return next(error);
