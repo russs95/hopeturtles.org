@@ -124,9 +124,7 @@
       <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
     </button>
     <% if (currentUser) { %>
-      <% if (onDashboardPage) { %>
-        <span class="nav-controls__dashboard-indicator" aria-current="page" title="Dashboard">🎮</span>
-      <% } else { %>
+      <% if (!onDashboardPage) { %>
         <a class="button" href="/dashboard">🎮 Dash</a>
       <% } %>
     <% } else { %>
