@@ -30,6 +30,7 @@
   --color-background: #f2f9f3;
   --color-surface: #ffffff;
   --color-text: #1f2521;
+  --color-text-muted: #6b7280;
   --color-muted: #6b7280;
   --color-accent: #23b053;
   --shadow-elevated: 0 20px 40px rgba(1, 121, 25, 0.15);
@@ -42,6 +43,7 @@
   --color-background: #121417;
   --color-surface: #1b1f24;
   --color-text: #e7ecf0;
+  --color-text-muted: #94a3b8;
   --color-muted: #a1a1aa;
   --shadow-elevated: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
@@ -648,7 +650,9 @@ a:hover {
 .missions-table,
 .hubs-table,
 .turtles-table,
-.bottles-table {
+.bottles-table,
+.boats-table,
+.alerts-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 640px;
@@ -671,7 +675,11 @@ a:hover {
 .turtles-table th,
 .turtles-table td,
 .bottles-table th,
-.bottles-table td {
+.bottles-table td,
+.boats-table th,
+.boats-table td,
+.alerts-table th,
+.alerts-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(1, 121, 25, 0.1);
   vertical-align: top;
@@ -681,7 +689,9 @@ a:hover {
 .missions-table thead th,
 .hubs-table thead th,
 .turtles-table thead th,
-.bottles-table thead th {
+.bottles-table thead th,
+.boats-table thead th,
+.alerts-table thead th {
   text-align: left;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -693,7 +703,9 @@ a:hover {
 .missions-table tbody tr:last-child td,
 .hubs-table tbody tr:last-child td,
 .turtles-table tbody tr:last-child td,
-.bottles-table tbody tr:last-child td {
+.bottles-table tbody tr:last-child td,
+.boats-table tbody tr:last-child td,
+.alerts-table tbody tr:last-child td {
   border-bottom: none;
 }
 
@@ -714,7 +726,10 @@ a:hover {
 }
 
 [data-manageable-turtle],
-[data-bottle-row] {
+[data-bottle-row],
+[data-mission-row],
+[data-hub-row],
+[data-boat-row] {
   cursor: pointer;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -722,12 +737,21 @@ a:hover {
 [data-manageable-turtle]:hover,
 [data-manageable-turtle]:focus-visible,
 [data-bottle-row]:hover,
-[data-bottle-row]:focus-visible {
+[data-bottle-row]:focus-visible,
+[data-mission-row]:hover,
+[data-mission-row]:focus-visible,
+[data-hub-row]:hover,
+[data-hub-row]:focus-visible,
+[data-boat-row]:hover,
+[data-boat-row]:focus-visible {
   background: rgba(1, 121, 25, 0.05);
 }
 
 [data-manageable-turtle]:focus-visible,
-[data-bottle-row]:focus-visible {
+[data-bottle-row]:focus-visible,
+[data-mission-row]:focus-visible,
+[data-hub-row]:focus-visible,
+[data-boat-row]:focus-visible {
   box-shadow: inset 0 0 0 2px rgba(1, 121, 25, 0.4);
 }
 
@@ -1245,13 +1269,16 @@ a:hover {
   min-width: 240px;
 }
 
-.dashboard-alert-card {
-  background: rgba(249, 115, 22, 0.08);
-  border-left: 4px solid #f97316;
-  min-width: 260px;
+.dashboard-alert-banner {
+  background: var(--color-surface);
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: var(--shadow-elevated);
+  padding: 1.25rem 1.5rem;
+  margin: -0.5rem 0 2rem;
+  position: relative;
 }
 
-.dashboard-alert-card__list {
+.dashboard-alert-banner__list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1260,27 +1287,62 @@ a:hover {
   gap: 0.75rem;
 }
 
-.dashboard-alert-card__item {
+.dashboard-alert-banner__empty {
+  margin: 0;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.dashboard-alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: rgba(249, 115, 22, 0.08);
+  position: relative;
+}
+
+.dashboard-alert__body {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  font-size: 0.95rem;
 }
 
-.dashboard-alert-card__emoji {
-  font-size: 1.5rem;
+.dashboard-alert__emoji {
+  font-size: 1.75rem;
   line-height: 1;
 }
 
-.dashboard-alert-card__title {
+.dashboard-alert__title {
   display: block;
   font-weight: 600;
   margin-bottom: 0.1rem;
 }
 
-.dashboard-alert-card__message {
+.dashboard-alert__message {
   color: var(--color-text);
-  opacity: 0.85;
+  opacity: 0.9;
+}
+
+.dashboard-alert__dismiss {
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.dashboard-alert__dismiss:hover,
+.dashboard-alert__dismiss:focus-visible {
+  color: var(--color-text);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .dashboard-user-card__greeting {

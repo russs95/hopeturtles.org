@@ -33,26 +33,6 @@
       <h1>Dashboard</h1>
       <p><%= dashboardIntroCopy %></p>
     </div>
-    <aside class="dashboard-user-card dashboard-alert-card" aria-label="Active alerts">
-      <p class="dashboard-user-card__greeting">
-        Active alerts
-      </p>
-      <ul class="dashboard-alert-card__list" role="list">
-        <% if (activeAlerts.length === 0) { %>
-          <li class="dashboard-alert-card__item">No active alerts.</li>
-        <% } else { %>
-          <% activeAlerts.forEach(function (alert) { %>
-            <li class="dashboard-alert-card__item">
-              <span class="dashboard-alert-card__emoji" aria-hidden="true"><%= alert.emoji || '⚠️' %></span>
-              <div>
-                <strong class="dashboard-alert-card__title"><%= alert.title %></strong>
-                <div class="dashboard-alert-card__message"><%= alert.message_body %></div>
-              </div>
-            </li>
-          <% }) %>
-        <% } %>
-      </ul>
-    </aside>
     <% if (dashboardUser) {
          const userFirstName =
            dashboardUser.first_name ||
@@ -87,6 +67,38 @@
         </ul>
       </aside>
     <% } %>
+  </section>
+
+  <% const hasActiveAlerts = activeAlerts.length > 0; %>
+  <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
+    <% if (hasActiveAlerts) { %>
+      <ul class="dashboard-alert-banner__list" role="list">
+        <% activeAlerts.forEach(function (alert) { %>
+          <li class="dashboard-alert" data-dashboard-alert>
+            <div class="dashboard-alert__body">
+              <span class="dashboard-alert__emoji" aria-hidden="true"><%= alert.emoji || '⚠️' %></span>
+              <div>
+                <strong class="dashboard-alert__title"><%= alert.title %></strong>
+                <div class="dashboard-alert__message"><%= alert.message_body %></div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="dashboard-alert__dismiss"
+              aria-label="Dismiss alert"
+              data-dashboard-alert-dismiss
+            >&times;</button>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+    <p
+      class="dashboard-alert-banner__empty"
+      data-dashboard-alerts-empty
+      <%= hasActiveAlerts ? 'hidden' : '' %>
+    >
+      No active alerts.
+    </p>
   </section>
 
   <% if (canViewUserStats && userStats) { %>
