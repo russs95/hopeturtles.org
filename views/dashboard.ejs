@@ -153,6 +153,11 @@
           <% myBottles.forEach(function (bottle) { %>
             <tr
               data-bottle-row
+              role="button"
+              tabindex="0"
+              aria-label="<%= bottle.serial_number
+                ? 'Open delivery details for aid bottle #' + bottle.serial_number
+                : 'Open delivery details for this aid bottle' %>"
               data-bottle-id="<%= bottle.bottle_id %>"
               data-serial-number="<%= bottle.serial_number || '' %>"
               data-hub-name="<%= bottle.hub_name || '' %>"
@@ -467,6 +472,7 @@
         <div class="mission-dialog__actions">
           <button type="button" class="button ghost" data-close-bottle-delivery>Cancel</button>
           <button type="submit" class="button" data-bottle-delivery-submit>Submit delivery details</button>
+          <button type="button" class="button danger" data-delete-bottle>Delete bottle</button>
         </div>
         <p class="form-feedback" role="status" data-bottle-delivery-feedback hidden></p>
       </form>
@@ -499,30 +505,32 @@
     </div>
   </section>
 
-  <section class="dashboard-table">
+  <section class="panel dashboard-table">
     <h2>Live telemetry snapshot</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Turtle</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
-          <th>Battery</th>
-          <th>Connection</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% telemetry.forEach(function (item) { %>
+    <div class="table-wrapper dashboard-table__wrapper">
+      <table>
+        <thead>
           <tr>
-            <td><%= item.turtle_id %></td>
-            <td><%= item.latitude %></td>
-            <td><%= item.longitude %></td>
-            <td><%= item.battery_voltage %></td>
-            <td><%= item.connection %></td>
+            <th>Turtle</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Battery</th>
+            <th>Connection</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% telemetry.forEach(function (item) { %>
+            <tr>
+              <td><%= item.turtle_id %></td>
+              <td><%= item.latitude %></td>
+              <td><%= item.longitude %></td>
+              <td><%= item.battery_voltage %></td>
+              <td><%= item.connection %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
   </section>
 
 </main>

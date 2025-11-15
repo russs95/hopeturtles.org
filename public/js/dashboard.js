@@ -121,6 +121,8 @@ const bottleDeliveryFeedback =
   bottleDeliveryDialog?.querySelector('[data-bottle-delivery-feedback]') ?? null;
 const bottleDeliverySubmitButton =
   bottleDeliveryDialog?.querySelector('[data-bottle-delivery-submit]') ?? null;
+const deleteBottleButton =
+  bottleDeliveryDialog?.querySelector('[data-delete-bottle]') ?? null;
 
 const escapeHtml = (value) => {
   if (value === undefined || value === null) {
@@ -194,6 +196,45 @@ const toggleBottlesTableState = () => {
   bottlesEmptyState.hidden = hasRows;
 };
 
+const getBottleDataFromRow = (row) => {
+  if (!row) {
+    return null;
+  }
+
+  const bottleIdRaw = row.dataset.bottleId;
+  const parsedId = bottleIdRaw ? Number(bottleIdRaw) : null;
+  const bottleId = Number.isFinite(parsedId) ? parsedId : null;
+
+  return {
+    bottle_id: bottleId,
+    serial_number: row.dataset.serialNumber || '',
+    hub_name: row.dataset.hubName || '',
+    hub_mailing_address: row.dataset.hubAddress || ''
+  };
+};
+
+const removeBottleRowById = (bottleId) => {
+  if (!bottlesTableBody || !bottleId) {
+    return null;
+  }
+
+  const rows = Array.from(bottlesTableBody.querySelectorAll('tr[data-bottle-row]'));
+  const targetRow = rows.find((node) => node.dataset.bottleId === String(bottleId));
+  if (targetRow) {
+    targetRow.remove();
+  }
+  return targetRow || null;
+};
+
+const openBottleDialogFromRow = (row) => {
+  const bottle = getBottleDataFromRow(row);
+  if (!bottle || !bottle.bottle_id) {
+    return;
+  }
+
+  showBottleDeliveryModal(bottle);
+};
+
 const resetBottleDeliveryForm = () => {
   if (!bottleDeliveryForm) {
     return;
@@ -204,6 +245,9 @@ const resetBottleDeliveryForm = () => {
     bottleDeliveryFeedback.textContent = '';
     bottleDeliveryFeedback.hidden = true;
     bottleDeliveryFeedback.classList.remove('is-error', 'is-success');
+  }
+  if (deleteBottleButton) {
+    deleteBottleButton.disabled = true;
   }
 };
 
@@ -233,6 +277,10 @@ const showBottleDeliveryModal = (bottle) => {
 
   if (bottleDeliveryForm) {
     bottleDeliveryForm.dataset.bottleId = bottle.bottle_id ? String(bottle.bottle_id) : '';
+  }
+
+  if (deleteBottleButton) {
+    deleteBottleButton.disabled = !bottle?.bottle_id;
   }
 
   const serialNumber = bottle.serial_number ? String(bottle.serial_number) : '';
@@ -331,6 +379,66 @@ const handleBottleDeliverySubmit = async (event) => {
   }
 };
 
+const handleDeleteBottle = async () => {
+  if (!bottleDeliveryForm) {
+    return;
+  }
+
+  const bottleId = bottleDeliveryForm.dataset.bottleId;
+  if (!bottleId) {
+    return;
+  }
+
+  const confirmDelete = window.confirm(
+    'Are you sure you want to delete this aid bottle? This action cannot be undone.'
+  );
+  if (!confirmDelete) {
+    return;
+  }
+
+  if (bottleDeliveryFeedback) {
+    bottleDeliveryFeedback.textContent = '';
+    bottleDeliveryFeedback.hidden = true;
+    bottleDeliveryFeedback.classList.remove('is-error', 'is-success');
+  }
+
+  if (deleteBottleButton) {
+    deleteBottleButton.disabled = true;
+  }
+
+  try {
+    const response = await fetch(`/api/my-bottles/${encodeURIComponent(bottleId)}`, {
+      method: 'DELETE'
+    });
+    const json = await response.json();
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || 'Unable to delete bottle.');
+    }
+
+    removeBottleRowById(bottleId);
+    toggleBottlesTableState();
+    if (bottleDeliveryDialog) {
+      bottleDeliveryDialog.close();
+    }
+    showBottlesFeedback('Bottle deleted.', false);
+  } catch (error) {
+    const message = error?.message || 'Unable to delete bottle.';
+    if (bottleDeliveryFeedback) {
+      bottleDeliveryFeedback.textContent = message;
+      bottleDeliveryFeedback.hidden = false;
+      bottleDeliveryFeedback.classList.add('is-error');
+      bottleDeliveryFeedback.classList.remove('is-success');
+    } else {
+      showBottlesFeedback(message, true);
+    }
+  } finally {
+    if (deleteBottleButton) {
+      deleteBottleButton.disabled = false;
+    }
+  }
+};
+
 const showBottlesFeedback = (message, isError = false) => {
   if (!bottlesFeedback) {
     return;
@@ -362,8 +470,15 @@ const resetRegisterBottleForm = () => {
 
 const createBottleRow = (bottle) => {
   const row = document.createElement('tr');
-  row.dataset.bottleId = bottle.bottle_id;
+  const bottleId = bottle.bottle_id ? String(bottle.bottle_id) : '';
+  row.dataset.bottleId = bottleId;
   row.setAttribute('data-bottle-row', '');
+  row.tabIndex = 0;
+  row.setAttribute('role', 'button');
+  const accessibleLabel = bottle.serial_number
+    ? `Open delivery details for aid bottle #${bottle.serial_number}`
+    : 'Open delivery details for this aid bottle';
+  row.setAttribute('aria-label', accessibleLabel);
 
   const basicPhotoUrl = bottle.basic_photo_url;
   const serialLabel = bottle.serial_number ? `#${escapeHtml(bottle.serial_number)}` : '—';
@@ -597,23 +712,29 @@ if (bottleDeliveryForm) {
   bottleDeliveryForm.addEventListener('submit', handleBottleDeliverySubmit);
 }
 
+if (deleteBottleButton) {
+  deleteBottleButton.addEventListener('click', handleDeleteBottle);
+}
+
 if (bottlesTableBody) {
   bottlesTableBody.addEventListener('click', (event) => {
-    const trigger = event.target.closest('[data-open-delivery-details]');
-    if (!trigger) {
-      return;
-    }
-    const row = trigger.closest('tr[data-bottle-row]');
+    const row = event.target.closest('tr[data-bottle-row]');
     if (!row) {
       return;
     }
-    const bottle = {
-      bottle_id: row.dataset.bottleId ? Number(row.dataset.bottleId) : null,
-      serial_number: row.dataset.serialNumber || '',
-      hub_name: row.dataset.hubName || '',
-      hub_mailing_address: row.dataset.hubAddress || ''
-    };
-    showBottleDeliveryModal(bottle);
+    openBottleDialogFromRow(row);
+  });
+
+  bottlesTableBody.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    const row = event.target.closest('tr[data-bottle-row]');
+    if (!row) {
+      return;
+    }
+    event.preventDefault();
+    openBottleDialogFromRow(row);
   });
 }
 

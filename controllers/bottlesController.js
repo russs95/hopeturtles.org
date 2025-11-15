@@ -189,6 +189,31 @@ export const registerMyBottle = async (req, res, next) => {
   }
 };
 
+export const deleteMyBottle = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const bottleIdRaw = req.params.id;
+    const bottleId = Number(bottleIdRaw);
+    if (!Number.isFinite(bottleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid bottle identifier.' });
+    }
+
+    const bottle = await bottlesModel.getByIdForPacker(bottleId, userId);
+    if (!bottle) {
+      return res.status(404).json({ success: false, message: 'Bottle not found.' });
+    }
+
+    await bottlesModel.remove(bottleId);
+    return res.json({ success: true, data: null, message: 'Bottle deleted.' });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const submitBottleDeliveryDetails = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -265,5 +290,6 @@ export default {
   deleteBottle,
   listMyBottles,
   registerMyBottle,
+  deleteMyBottle,
   submitBottleDeliveryDetails
 };
