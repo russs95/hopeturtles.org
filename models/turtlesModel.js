@@ -36,7 +36,8 @@ turtlesModel.getAllWithRelations = async () => {
         ''
       ) AS manager_name,
       COALESCE(log_counts.log_count, 0) AS log_count,
-      profile_photo.url AS profile_photo_url
+      profile_photo.url AS profile_photo_url,
+      profile_photo.thumbnail_url AS profile_photo_thumbnail_url
     FROM turtles_tb t
     LEFT JOIN missions_tb m ON t.mission_id = m.mission_id
     LEFT JOIN hubs_tb h ON t.hub_id = h.hub_id
@@ -71,7 +72,8 @@ turtlesModel.getManagedWithRelations = async (managerId) => {
       m.name AS mission_name,
       h.name AS hub_name,
       b.name AS boat_name,
-      profile_photo.url AS profile_photo_url
+      profile_photo.url AS profile_photo_url,
+      profile_photo.thumbnail_url AS profile_photo_thumbnail_url
     FROM turtles_tb t
     LEFT JOIN missions_tb m ON t.mission_id = m.mission_id
     LEFT JOIN hubs_tb h ON t.hub_id = h.hub_id

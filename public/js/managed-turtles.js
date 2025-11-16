@@ -124,6 +124,121 @@ const toggleLaunchSuccessState = (isVisible) => {
   }
 };
 
+const isUsableFile = (file) => {
+  if (typeof File === 'undefined') {
+    return false;
+  }
+  return file instanceof File && file.size > 0;
+};
+
+const readFileAsDataURL = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('Unable to read file.'));
+    reader.readAsDataURL(file);
+  });
+
+const getThumbnailMimeType = (file) => {
+  if (file?.type && file.type.includes('png')) {
+    return 'image/png';
+  }
+  if (file?.type && file.type.includes('webp')) {
+    return 'image/webp';
+  }
+  return 'image/jpeg';
+};
+
+const getFileExtension = (file) => {
+  if (!file) {
+    return '';
+  }
+  if (file.name && file.name.includes('.')) {
+    return file.name.slice(file.name.lastIndexOf('.'));
+  }
+  const mime = file.type || '';
+  if (mime.includes('png')) return '.png';
+  if (mime.includes('webp')) return '.webp';
+  return '.jpg';
+};
+
+const getFileBaseName = (file) => {
+  if (!file || typeof file.name !== 'string' || !file.name.trim()) {
+    return 'photo';
+  }
+  const trimmed = file.name.trim();
+  const lastDot = trimmed.lastIndexOf('.');
+  if (lastDot === -1) {
+    return trimmed;
+  }
+  return trimmed.slice(0, lastDot) || 'photo';
+};
+
+const buildThumbnailFileName = (file) => `${getFileBaseName(file)}-thumb${getFileExtension(file)}`;
+
+const createImageThumbnailBlob = async (file, maxSize = 320) => {
+  if (!isUsableFile(file)) {
+    return null;
+  }
+  const dataUrl = await readFileAsDataURL(file);
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const maxDimension = Math.max(image.width, image.height) || 1;
+      const scale = Math.min(1, maxSize / maxDimension);
+      const width = Math.max(1, Math.round(image.width * scale));
+      const height = Math.max(1, Math.round(image.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext('2d');
+      if (!context) {
+        resolve(null);
+        return;
+      }
+      context.drawImage(image, 0, 0, width, height);
+      const mimeType = getThumbnailMimeType(file);
+      const quality = mimeType === 'image/jpeg' ? 0.85 : undefined;
+      canvas.toBlob(
+        (blob) => {
+          resolve(blob || null);
+        },
+        mimeType,
+        quality
+      );
+    };
+    image.onerror = () => reject(new Error('Unable to process photo.'));
+    image.src = dataUrl;
+  });
+};
+
+const preparePhotoThumbnail = async (
+  formData,
+  { sourceFieldName = 'profile_photo', thumbnailFieldName = 'profile_photo_thumbnail', maxSize = 320 } = {}
+) => {
+  if (!formData) {
+    return;
+  }
+  const file = formData.get(sourceFieldName);
+  if (!isUsableFile(file)) {
+    formData.delete(thumbnailFieldName);
+    return;
+  }
+  try {
+    const blob = await createImageThumbnailBlob(file, maxSize);
+    if (!blob) {
+      formData.delete(thumbnailFieldName);
+      return;
+    }
+    const fileName = buildThumbnailFileName(file);
+    const type = blob.type || getThumbnailMimeType(file);
+    const thumbnailFile = new File([blob], fileName, { type });
+    formData.set(thumbnailFieldName, thumbnailFile);
+  } catch (error) {
+    formData.delete(thumbnailFieldName);
+  }
+};
+
 const resetLaunchDialog = () => {
   if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
     launchTurtleForm.reset();
@@ -142,6 +257,8 @@ const resetLaunchDialog = () => {
   toggleLaunchSuccessState(false);
   launchWasSuccessful = false;
 };
+
+toggleLaunchSuccessState(false);
 
 const populateManageForm = (turtle) => {
   if (!manageTurtleForm) {
@@ -318,6 +435,7 @@ if (launchTurtleForm) {
         formData.set(field, value.trim());
       }
     });
+    await preparePhotoThumbnail(formData);
 
     if (launchFeedback) {
       launchFeedback.textContent = 'Launching…';
@@ -477,6 +595,7 @@ if (manageTurtleForm) {
     if (typeof formData.get('name') === 'string' && !formData.get('name')) {
       formData.set('name', '');
     }
+    await preparePhotoThumbnail(formData);
 
     if (formFeedback) {
       formFeedback.textContent = 'Saving…';
