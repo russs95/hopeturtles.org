@@ -33,6 +33,7 @@
   --color-text-muted: #6b7280;
   --color-muted: #6b7280;
   --color-accent: #23b053;
+  --label-color: #3d5745;
   --shadow-elevated: 0 20px 40px rgba(1, 121, 25, 0.15);
   --hw: 1rem;
   --font-primary: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
@@ -45,6 +46,7 @@
   --color-text: #e7ecf0;
   --color-text-muted: #94a3b8;
   --color-muted: #a1a1aa;
+  --label-color: #b4c6b8;
   --shadow-elevated: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
@@ -1420,6 +1422,7 @@ a:hover {
   gap: 0.35rem;
   width: 100%;
   min-width: 0;
+  color: var(--label-color);
 }
 
 .form-card textarea {
@@ -1644,66 +1647,20 @@ a:hover {
   margin: 0 auto;
 }
 
-.mission-dialog__header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  position: relative;
-  padding-right: 3.5rem;
+@supports (height: 100dvh) {
+  .mission-dialog[data-open='true'],
+  .mission-dialog[open] {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  .mission-dialog[data-open='true'] .form-card,
+  .mission-dialog[open] .form-card {
+    min-height: 100dvh;
+  }
 }
 
-.dialog-close {
-  border: none;
-  background: rgba(1, 121, 25, 0.08);
-  color: var(--color-text);
-  font-size: 1.75rem;
-  line-height: 1;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  box-shadow: none;
-}
-
-.mission-dialog__header .dialog-close {
-  position: absolute;
-  top: -0.35rem;
-  right: -0.35rem;
-}
-
-.dialog-close:hover {
-  background: rgba(1, 121, 25, 0.15);
-  color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.dialog-close:focus-visible {
-  box-shadow: none;
-  outline: 2px solid rgba(1, 121, 25, 0.45);
-  outline-offset: 2px;
-}
-
-.mission-dialog[data-open='true'] .dialog-close,
-.mission-dialog[open] .dialog-close {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-text);
-  box-shadow: none;
-}
-
-[data-theme='dark'] .mission-dialog[data-open='true'] .dialog-close,
-[data-theme='dark'] .mission-dialog[open] .dialog-close {
-  background: rgba(13, 18, 22, 0.95);
-  box-shadow: none;
-}
-
-@media (max-width: 639px) {
+@media (min-width: 640px) {
   .mission-dialog[data-open='true'],
   .mission-dialog[open] {
     padding: 0;
@@ -1719,7 +1676,9 @@ a:hover {
     max-height: none;
     border-radius: 0;
   }
+}
 
+@media (max-width: 639px) {
   .mission-dialog__header {
     padding-right: 0;
   }
