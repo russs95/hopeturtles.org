@@ -426,9 +426,9 @@
       </header>
       <form class="mission-dialog__form" data-bottle-delivery-form enctype="multipart/form-data">
         <div class="mission-form-grid">
-          <p data-bottle-delivery-serial>
+          <p class="bottle-delivery-serial" data-bottle-delivery-serial>
             Please write your bottle's serial number using a permanent marker or nail polish:
-            <strong data-bottle-delivery-serial-value></strong>
+            <strong class="bottle-delivery-serial__value" data-bottle-delivery-serial-value></strong>
           </p>
           <p data-bottle-delivery-hub hidden>
             Please ship your bottle to hub
@@ -447,8 +447,8 @@
         </div>
         <div class="mission-dialog__actions">
           <button type="button" class="button ghost" data-close-bottle-delivery>Cancel</button>
-          <button type="submit" class="button" data-bottle-delivery-submit>Submit delivery details</button>
-          <button type="button" class="button danger" data-delete-bottle>Delete bottle</button>
+          <button type="submit" class="button" data-bottle-delivery-submit>Submit</button>
+          <button type="button" class="button danger" data-delete-bottle>Delete</button>
         </div>
         <p class="form-feedback" role="status" data-bottle-delivery-feedback hidden></p>
       </form>
