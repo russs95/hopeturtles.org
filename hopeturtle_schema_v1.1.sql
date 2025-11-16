@@ -190,6 +190,7 @@ CREATE TABLE `photos_tb` (
   `related_id` BIGINT UNSIGNED NOT NULL,
   `uploaded_by` INT,
   `url` VARCHAR(255) NOT NULL,
+  `thumbnail_url` VARCHAR(255),
   `caption` TEXT,
   `uploaded_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`photo_id`),

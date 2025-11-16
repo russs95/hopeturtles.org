@@ -186,7 +186,8 @@
               data-turtle-mission="<%= turtle.mission_id || '' %>"
               data-turtle-hub="<%= turtle.hub_id || '' %>"
               data-turtle-boat="<%= turtle.boat_id || '' %>"
-              data-turtle-photo-url="<%= turtle.profile_photo_url || '' %>"
+              data-turtle-photo-url="<%= turtle.profile_photo_url || turtle.profile_photo_thumbnail_url || '' %>"
+              data-turtle-photo-thumb-url="<%= turtle.profile_photo_thumbnail_url || '' %>"
             >
               <td data-label="Profile">
                 <div class="turtle-profile">
@@ -197,9 +198,10 @@
                         <span class="turtle-profile__badge-name"><%= turtle.name %></span>
                       <% } %>
                     </div>
-                    <% if (turtle.profile_photo_url) { %>
+                    <% const turtleDisplayPhoto = turtle.profile_photo_thumbnail_url || turtle.profile_photo_url; %>
+                    <% if (turtleDisplayPhoto) { %>
                       <img
-                        src="<%= turtle.profile_photo_url %>"
+                        src="<%= turtleDisplayPhoto %>"
                         alt="Profile photo for <%= turtle.name || '#' + turtle.turtle_id %>"
                         loading="lazy"
                       />

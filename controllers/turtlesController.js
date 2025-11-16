@@ -32,8 +32,24 @@ const toNullableInteger = (value) => {
   return Math.trunc(numericValue);
 };
 
+const toUploadUrl = (filename) => (filename ? path.posix.join('/uploads', filename) : null);
+
+const getUploadedPhotoFiles = (req) => {
+  if (!req) {
+    return { primary: null, thumbnail: null };
+  }
+  const primary = req.profilePhotoFile || req.file || (req.files?.profile_photo?.[0] ?? null);
+  const thumbnail = req.profilePhotoThumbnailFile || (req.files?.profile_photo_thumbnail?.[0] ?? null);
+  return { primary, thumbnail };
+};
+
 const attachProfilePhoto = async (req, turtle) => {
-  if (!req?.file || !turtle) {
+  if (!turtle) {
+    return turtle;
+  }
+
+  const { primary, thumbnail } = getUploadedPhotoFiles(req);
+  if (!primary) {
     return turtle;
   }
 
@@ -41,16 +57,20 @@ const attachProfilePhoto = async (req, turtle) => {
     const uploadedByRaw = req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
     const uploadedByNumber =
       uploadedByRaw !== null && uploadedByRaw !== undefined ? Number(uploadedByRaw) : null;
+    const primaryUrl = toUploadUrl(primary.filename);
+    const thumbnailUrl = toUploadUrl(thumbnail?.filename) || primaryUrl;
     const photo = await photosModel.create({
       related_type: 'turtle',
       related_id: turtle.turtle_id,
       uploaded_by: Number.isFinite(uploadedByNumber) ? uploadedByNumber : null,
-      url: path.posix.join('/uploads', req.file.filename)
+      url: primaryUrl,
+      thumbnail_url: thumbnailUrl
     });
     const turtleWithPhoto = await turtlesModel.update(turtle.turtle_id, {
       profile_photo_id: photo.photo_id
     });
     turtleWithPhoto.profile_photo_url = photo.url;
+    turtleWithPhoto.profile_photo_thumbnail_url = photo.thumbnail_url;
     return turtleWithPhoto;
   } catch (photoError) {
     console.error('Failed to attach profile photo to turtle', photoError);

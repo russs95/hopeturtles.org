@@ -34,18 +34,40 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+const profilePhotoFields = [
+  { name: 'profile_photo', maxCount: 1 },
+  { name: 'profile_photo_thumbnail', maxCount: 1 }
+];
+
+const assignUploadShortcuts = (req) => {
+  req.profilePhotoFile = req?.files?.profile_photo?.[0] ?? null;
+  req.profilePhotoThumbnailFile = req?.files?.profile_photo_thumbnail?.[0] ?? null;
+  if (!req.file && req.profilePhotoFile) {
+    req.file = req.profilePhotoFile;
+  }
+};
+
+const handleProfileUpload = (req, res, next) => {
+  return upload.fields(profilePhotoFields)(req, res, (error) => {
+    if (error) {
+      return next(error);
+    }
+    assignUploadShortcuts(req);
+    return next();
+  });
+};
 
 const optionalProfileUpload = (req, res, next) => {
-  if (req.is('multipart/form-data')) {
-    return upload.single('profile_photo')(req, res, next);
+  if (!req.is('multipart/form-data')) {
+    return next();
   }
-  return next();
+  return handleProfileUpload(req, res, next);
 };
 
 router.get('/', getTurtles);
 router.post('/launch', ensureAuth, optionalProfileUpload, launchManagedTurtle);
 router.get('/:id', getTurtleById);
-router.post('/', ensureAuth, ensureAdmin, upload.single('profile_photo'), createTurtle);
+router.post('/', ensureAuth, ensureAdmin, handleProfileUpload, createTurtle);
 router.put('/:id', ensureAuth, ensureAdmin, optionalProfileUpload, updateTurtle);
 router.delete('/:id', ensureAuth, ensureAdmin, deleteTurtle);
 router.post('/:id/secret', ensureAuth, regenerateTurtleSecret);

@@ -74,10 +74,12 @@
       <button type="button" class="button ghost" data-secret-action>View secret</button>
       <p class="copy-feedback muted" data-managed-secret-feedback role="status"></p>
     </section>
-    <div class="mission-dialog__actions">
-      <button type="button" class="button ghost" data-close-manage-turtle>Cancel</button>
-      <button type="submit" class="button">Save changes</button>
+    <div class="mission-dialog__actions mission-dialog__actions--split">
       <button type="button" class="button button-outline-danger" data-delete-turtle>Delete turtle</button>
+      <div class="mission-dialog__actions-group">
+        <button type="button" class="button ghost" data-close-manage-turtle>Cancel</button>
+        <button type="submit" class="button">Save changes</button>
+      </div>
     </div>
     <p class="form-feedback" role="status" data-managed-turtle-feedback></p>
   </form>
