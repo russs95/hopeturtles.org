@@ -77,6 +77,10 @@ html.page-ready {
   opacity: 1;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 h1,
 h2,
 h3,
@@ -1942,8 +1946,22 @@ a:hover {
 .mission-dialog__actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+.mission-dialog__actions-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.mission-dialog__actions--split {
+  justify-content: space-between;
+}
+
+.mission-dialog__actions--split .mission-dialog__actions-group {
+  margin-left: auto;
 }
 
 .mission-dialog__actions--danger {
