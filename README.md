@@ -80,6 +80,21 @@ hopeturtles.org/
 
 ---
 
+## 🗄️ Database migrations
+
+If you're upgrading an existing database, be sure to run the SQL snippets in `sql/migrations/`.
+For example, the turtle profile-photo thumbnails feature expects a `thumbnail_url` column on `photos_tb`.
+Add it with:
+
+```sql
+ALTER TABLE `photos_tb`
+  ADD COLUMN `thumbnail_url` VARCHAR(255) NULL AFTER `url`;
+```
+
+You can copy/paste the statement directly from [`sql/migrations/20240517_add_thumbnail_column.sql`](sql/migrations/20240517_add_thumbnail_column.sql).
+
+---
+
 ## 🧭 Roadmap
 
 - [x] Database schema setup  
