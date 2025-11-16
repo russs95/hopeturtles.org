@@ -1695,7 +1695,8 @@ a:hover {
   inset: 0;
   margin: 0;
   padding: 0;
-  width: 100vw;
+  width: 100%;
+  max-width: none;
   height: 100vh;
   min-height: 100vh;
   background: var(--color-background);
@@ -1806,6 +1807,15 @@ a:hover {
 .bottle-delivery-card input[type='file'] {
   margin-top: 0.5rem;
   width: 100%;
+}
+
+.bottle-delivery-serial__value {
+  display: block;
+  margin-top: 0.35rem;
+  text-align: center;
+  color: var(--color-primary);
+  font-size: 1.4em;
+  font-family: 'Fira Code', 'Courier New', monospace;
 }
 
 .secret-key-card {
