@@ -1618,32 +1618,29 @@ a:hover {
   inset: 0;
   background: rgba(7, 30, 14, 0.45);
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  padding: 0;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
   z-index: 100;
   margin: 0;
   width: 100vw;
-  min-height: 100vh;
   height: 100vh;
   overflow: hidden;
-  box-sizing: border-box;
 }
 
 .mission-dialog[data-open='true'] .form-card,
 .mission-dialog[open] .form-card {
-  width: 100%;
-  max-width: 100%;
-  min-height: 100%;
+  width: min(720px, calc(100vw - 3rem));
+  max-width: min(720px, calc(100vw - 3rem));
+  max-height: calc(100vh - 3rem);
   overflow-y: auto;
   overflow-x: hidden;
   margin: 0 auto;
-  border-radius: 0;
 }
 
 .mission-dialog .form-card {
-  width: min(720px, 100%);
-  max-width: 100%;
+  width: min(720px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
   max-height: 90vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1666,17 +1663,18 @@ a:hover {
 @media (min-width: 640px) {
   .mission-dialog[data-open='true'],
   .mission-dialog[open] {
-    padding: clamp(1rem, 4vw, 2.5rem);
-    align-items: center;
-    justify-content: center;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .mission-dialog[data-open='true'] .form-card,
   .mission-dialog[open] .form-card {
-    width: min(720px, calc(100vw - 3rem));
-    max-width: min(720px, calc(100vw - 3rem));
-    max-height: calc(100vh - 3rem);
-    border-radius: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    max-height: none;
+    border-radius: 0;
   }
 }
 
