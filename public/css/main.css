@@ -1414,6 +1414,7 @@ a:hover {
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: var(--color-surface);
   color: var(--color-text);
+  box-sizing: border-box;
 }
 
 .form-card label {
@@ -1780,6 +1781,49 @@ a:hover {
   gap: 1rem;
 }
 
+.mission-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mission-dialog__header > div {
+  flex: 1 1 auto;
+}
+
+.mission-dialog .dialog-close {
+  background: rgba(1, 121, 25, 0.08);
+  border: 1px solid rgba(1, 121, 25, 0.2);
+  border-radius: 999px;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-text);
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mission-dialog .dialog-close:hover {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(1, 121, 25, 0.25);
+}
+
+[data-theme='dark'] .mission-dialog .dialog-close {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] .mission-dialog .dialog-close:hover {
+  background: rgba(1, 121, 25, 0.8);
+}
+
 @media (min-width: 640px) {
   .mission-form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1814,11 +1858,15 @@ a:hover {
 
 .bottle-delivery-serial__value {
   display: block;
-  margin-top: 0.35rem;
+  margin-top: 25px;
+  margin-bottom: -20px;
   text-align: center;
   color: var(--color-primary);
   font-size: 1.4em;
   font-family: 'Fira Code', 'Courier New', monospace;
+  background: rgba(1, 121, 25, 0.06);
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
 }
 
 .secret-key-card {
