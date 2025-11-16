@@ -1601,50 +1601,135 @@ a:hover {
   white-space: nowrap;
 }
 
+/*
+  Previous rounded rectangle & blurred modal styling preserved for future use.
+  .mission-dialog {
+    border: none;
+    padding: 0;
+    background: none;
+  }
+
+  .mission-dialog::backdrop {
+    background: rgba(7, 30, 14, 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  .mission-dialog[data-open='true'],
+  .mission-dialog[open] {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 30, 14, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2.5rem);
+    z-index: 100;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .mission-dialog[data-open='true'] .form-card,
+  .mission-dialog[open] .form-card {
+    width: min(720px, calc(100vw - 3rem));
+    max-width: min(720px, calc(100vw - 3rem));
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 auto;
+  }
+
+  .mission-dialog .form-card {
+    width: min(720px, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 auto;
+  }
+
+  @supports (height: 100dvh) {
+    .mission-dialog[data-open='true'],
+    .mission-dialog[open] {
+      min-height: 100dvh;
+      height: 100dvh;
+    }
+
+    .mission-dialog[data-open='true'] .form-card,
+    .mission-dialog[open] .form-card {
+      min-height: 100dvh;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .mission-dialog[data-open='true'],
+    .mission-dialog[open] {
+      padding: 0;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .mission-dialog[data-open='true'] .form-card,
+    .mission-dialog[open] .form-card {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      max-height: none;
+      border-radius: 0;
+    }
+  }
+*/
+
 .mission-dialog {
   border: none;
   padding: 0;
-  background: none;
-}
-
-.mission-dialog::backdrop {
-  background: rgba(7, 30, 14, 0.45);
-  backdrop-filter: blur(2px);
+  background: var(--color-background);
+  width: 100%;
+  height: 100%;
 }
 
 .mission-dialog[data-open='true'],
 .mission-dialog[open] {
   position: fixed;
   inset: 0;
-  background: rgba(7, 30, 14, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(1rem, 4vw, 2.5rem);
-  z-index: 100;
   margin: 0;
+  padding: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
 }
 
 .mission-dialog[data-open='true'] .form-card,
 .mission-dialog[open] .form-card {
-  width: min(720px, calc(100vw - 3rem));
-  max-width: min(720px, calc(100vw - 3rem));
-  max-height: calc(100vh - 3rem);
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: none;
+  min-height: 100vh;
+  margin: 0;
+  border-radius: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .mission-dialog .form-card {
-  width: min(720px, calc(100vw - 2rem));
-  max-width: calc(100vw - 2rem);
-  max-height: 90vh;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 @supports (height: 100dvh) {
@@ -1657,24 +1742,6 @@ a:hover {
   .mission-dialog[data-open='true'] .form-card,
   .mission-dialog[open] .form-card {
     min-height: 100dvh;
-  }
-}
-
-@media (min-width: 640px) {
-  .mission-dialog[data-open='true'],
-  .mission-dialog[open] {
-    padding: 0;
-    align-items: stretch;
-    justify-content: stretch;
-  }
-
-  .mission-dialog[data-open='true'] .form-card,
-  .mission-dialog[open] .form-card {
-    width: 100%;
-    max-width: 100%;
-    min-height: 100vh;
-    max-height: none;
-    border-radius: 0;
   }
 }
 
