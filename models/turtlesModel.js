@@ -86,6 +86,35 @@ turtlesModel.getManagedWithRelations = async (managerId) => {
   return query(sql, [managerId]);
 };
 
+turtlesModel.getManagedById = async (turtleId, managerId) => {
+  if (!turtleId || !managerId) {
+    return null;
+  }
+
+  const sql = `
+    SELECT
+      t.turtle_id,
+      t.name,
+      t.status,
+      t.mission_id,
+      t.hub_id,
+      t.boat_id,
+      t.turtle_manager,
+      m.name AS mission_name,
+      h.name AS hub_name,
+      b.name AS boat_name
+    FROM turtles_tb t
+    LEFT JOIN missions_tb m ON t.mission_id = m.mission_id
+    LEFT JOIN hubs_tb h ON t.hub_id = h.hub_id
+    LEFT JOIN boats_tb b ON t.boat_id = b.boat_id
+    WHERE t.turtle_id = ? AND t.turtle_manager = ?
+    LIMIT 1
+  `;
+
+  const rows = await query(sql, [turtleId, managerId]);
+  return rows[0] ?? null;
+};
+
 turtlesModel.getTelemetrySummary = async () => {
   const latestTimestamps = await query(
     `SELECT turtle_id, MAX(timestamp) AS last_contact FROM telemetry_tb GROUP BY turtle_id`

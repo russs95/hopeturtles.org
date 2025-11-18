@@ -74,8 +74,19 @@
                timeStyle: 'short'
              })
            : 'Never';
+         const userEmoji = dashboardUser.earthling_emoji || '👤';
     %>
       <aside class="dashboard-user-card" aria-label="Current user summary">
+        <a
+          href="/profile"
+          class="dashboard-user-card__emoji-pill"
+          data-profile-emoji-pill
+          data-default-emoji="<%= userEmoji %>"
+          aria-label="Update your profile"
+        >
+          <span aria-hidden="true" data-profile-emoji-value><%= userEmoji %></span>
+          <span class="sr-only">Open profile settings</span>
+        </a>
         <p class="dashboard-user-card__greeting">
           Logged in as
           <strong <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>><%= userFirstName %></strong>
@@ -113,6 +124,7 @@
         <thead>
           <tr>
             <th scope="col">Aid Bottle</th>
+            <th scope="col">Turtle</th>
             <th scope="col">Mission</th>
             <th scope="col">Contents</th>
             <th scope="col">Weight</th>
@@ -133,6 +145,9 @@
               data-serial-number="<%= bottle.serial_number || '' %>"
               data-hub-name="<%= bottle.hub_name || '' %>"
               data-hub-address="<%= bottle.hub_mailing_address || '' %>"
+              data-turtle-id="<%= bottle.turtle_id || '' %>"
+              data-turtle-name="<%= bottle.turtle_name || '' %>"
+              data-hub-id="<%= bottle.hub_id || '' %>"
             >
               <td data-label="Aid Bottle">
                 <div class="bottle-cell">
@@ -151,6 +166,17 @@
                     </span>
                   </div>
                 </div>
+              </td>
+              <td data-label="Turtle">
+                <% const turtleLabel = bottle.turtle_name || 'Assign turtle'; %>
+                <button
+                  type="button"
+                  class="pill-button bottle-turtle-pill"
+                  data-open-reassign-bottle
+                  aria-label="Change turtle connection"
+                >
+                  <%= turtleLabel %>
+                </button>
               </td>
               <td data-label="Mission"><%= bottle.mission_name || '—' %></td>
               <td data-label="Contents">
@@ -201,6 +227,7 @@
               <th scope="col">Hub</th>
               <th scope="col">Boat</th>
               <th scope="col">Status</th>
+              <th scope="col" class="turtles-actions-column">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -214,8 +241,9 @@
                 data-turtle-name="<%= turtle.name || '' %>"
                 data-turtle-status="<%= turtle.status || '' %>"
                 data-turtle-mission="<%= turtle.mission_id || '' %>"
-                data-turtle-hub="<%= turtle.hub_id || '' %>"
-                data-turtle-boat="<%= turtle.boat_id || '' %>"
+              data-turtle-hub="<%= turtle.hub_id || '' %>"
+              data-turtle-hub-name="<%= turtle.hub_name || '' %>"
+              data-turtle-boat="<%= turtle.boat_id || '' %>"
               data-turtle-photo-url="<%= turtle.profile_photo_url || turtle.profile_photo_thumbnail_url || '' %>"
               data-turtle-photo-thumb-url="<%= turtle.profile_photo_thumbnail_url || '' %>"
               >
@@ -246,6 +274,14 @@
                 <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
                 <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
                 <td data-label="Status"><%= formatTurtleStatus(turtle.status) %></td>
+                <td data-label="Actions" class="turtle-actions">
+                  <button type="button" class="button button-small" data-trigger-manage-turtle>
+                    Manage Turtle
+                  </button>
+                  <button type="button" class="button button-small ghost" data-trigger-manage-bottles>
+                    Manage Bottles
+                  </button>
+                </td>
               </tr>
             <% }) %>
           </tbody>
@@ -257,6 +293,23 @@
   </section>
 
   <%- include('partials/manage-turtle-dialog', { turtleStatusOptions, missions, hubs, boats }) %>
+
+  <dialog id="turtleBottlesDialog" class="mission-dialog" aria-labelledby="turtleBottlesTitle">
+    <article class="form-card turtle-bottles-card">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="turtleBottlesTitle">Connected bottles</h2>
+          <p class="panel-subtitle" data-turtle-bottles-summary></p>
+        </div>
+        <button type="button" class="dialog-close" data-close-turtle-bottles aria-label="Close">&times;</button>
+      </header>
+      <p class="form-feedback" role="status" data-turtle-bottles-feedback hidden></p>
+      <ul class="turtle-bottles-list" data-turtle-bottles-list></ul>
+      <p class="panel-empty" data-turtle-bottles-empty hidden>
+        No bottles are currently connected to this turtle.
+      </p>
+    </article>
+  </dialog>
 
   <dialog id="launchTurtleDialog" class="mission-dialog" aria-labelledby="launchTurtleTitle">
     <form class="form-card turtle-form" data-launch-turtle-form enctype="multipart/form-data">
@@ -455,6 +508,31 @@
         <p class="form-feedback" role="status" data-bottle-delivery-feedback hidden></p>
       </form>
     </article>
+  </dialog>
+
+  <dialog id="reassignBottleDialog" class="mission-dialog" aria-labelledby="reassignBottleTitle">
+    <form class="form-card" data-reassign-bottle-form>
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="reassignBottleTitle">Change turtle connection</h2>
+          <p class="panel-subtitle" data-reassign-bottle-summary></p>
+        </div>
+        <button type="button" class="dialog-close" data-close-reassign-bottle aria-label="Close">&times;</button>
+      </header>
+      <p class="muted" data-reassign-bottle-hub></p>
+      <label>
+        Available turtles at this hub
+        <select name="turtle_id" data-reassign-bottle-select required></select>
+      </label>
+      <p class="muted" data-reassign-bottle-empty hidden>
+        You don't have any turtles assigned to this hub yet.
+      </p>
+      <div class="mission-dialog__actions">
+        <button type="button" class="button ghost" data-close-reassign-bottle>Cancel</button>
+        <button type="submit" class="button">Save</button>
+      </div>
+      <p class="form-feedback" role="status" data-reassign-bottle-feedback hidden></p>
+    </form>
   </dialog>
 
   <section class="metric-grid">

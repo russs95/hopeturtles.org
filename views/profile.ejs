@@ -1,0 +1,125 @@
+<%- include('partials/header', { pageTitle, theme }) %>
+<%- include('partials/nav') %>
+<main class="layout profile-page">
+  <section class="page-header profile-page__header">
+    <div>
+      <h1>Your profile</h1>
+      <p>Review your Earthling identity and keep your public details current.</p>
+    </div>
+  </section>
+
+  <section class="profile-grid">
+    <article class="form-card profile-card">
+      <div class="profile-card__header">
+        <% const hasProfilePhoto = profileUser.profile_pic && profileUser.profile_pic !== 'null'; %>
+        <div class="profile-avatar <%= hasProfilePhoto ? '' : 'profile-avatar--placeholder' %>">
+          <% if (hasProfilePhoto) { %>
+            <img
+              src="<%= profileUser.profile_pic %>"
+              alt="Profile photo for <%= profileUser.full_name || profileUser.first_name || 'your profile' %>"
+              loading="lazy"
+            />
+          <% } else { %>
+            <span aria-hidden="true"><%= profileUser.earthling_emoji || '👤' %></span>
+          <% } %>
+        </div>
+        <div>
+          <h2><%= profileUser.full_name || profileUser.first_name || 'Crew member' %></h2>
+          <p class="profile-card__meta">
+            Joined
+            <%= profileUser.created_at
+              ? new Date(profileUser.created_at).toLocaleDateString('en-US', { dateStyle: 'medium' })
+              : '—' %>
+          </p>
+        </div>
+      </div>
+      <dl class="profile-readonly-grid">
+        <div class="readonly-field">
+          <dt>First name</dt>
+          <dd><%= profileUser.first_name || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Last name</dt>
+          <dd><%= profileUser.last_name || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Username</dt>
+          <dd><%= profileUser.username || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Email</dt>
+          <dd><%= profileUser.email || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Role</dt>
+          <dd><%= profileUser.role || 'user' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Account status</dt>
+          <dd><%= profileUser.account_status || 'active' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Last login</dt>
+          <dd>
+            <%= profileUser.last_login
+              ? new Date(profileUser.last_login).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+              : 'Never' %>
+          </dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Login count</dt>
+          <dd><%= Number(profileUser.login_count || 0).toLocaleString() %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Country / region</dt>
+          <dd><%= profileUser.location_full || profileUser.country_id || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Watershed</dt>
+          <dd><%= profileUser.location_watershed || '—' %></dd>
+        </div>
+        <div class="readonly-field">
+          <dt>Continent</dt>
+          <dd><%= profileUser.continent_code || '—' %></dd>
+        </div>
+      </dl>
+    </article>
+
+    <form class="form-card profile-form" method="POST" action="/profile" enctype="multipart/form-data">
+      <h2>Edit your public details</h2>
+      <p class="profile-form__intro">
+        Update the information other Buwana crew members see. Core identity fields such as your name and email are
+        managed by the main registry.
+      </p>
+      <label>
+        Profile title
+        <input name="team_title" value="<%= profileUser.team_title || '' %>" placeholder="e.g. Turtle master" />
+      </label>
+      <label>
+        Profile bio
+        <textarea
+          name="profile_txt"
+          rows="5"
+          placeholder="Share a short update about you, your mission, or your watershed community"
+        ><%= profileUser.profile_txt || '' %></textarea>
+      </label>
+      <label>
+        Profile photo
+        <input type="file" name="profile_pic" accept="image/*" />
+        <span class="muted">Supported formats: JPG, PNG, or WebP.</span>
+      </label>
+      <% if (profileFeedback && profileFeedback.message) { %>
+        <p
+          class="form-feedback <%= profileFeedback.type === 'error' ? 'is-error' : 'is-success' %>"
+          role="status"
+        >
+          <%= profileFeedback.message %>
+        </p>
+      <% } %>
+      <div class="mission-dialog__actions">
+        <button type="submit" class="button">Save profile</button>
+      </div>
+    </form>
+  </section>
+</main>
+<%- include('partials/footer') %>

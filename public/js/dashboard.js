@@ -3,6 +3,40 @@ const telemetryChartEl = document.getElementById('telemetryChart');
 let statusChart;
 let telemetryChart;
 
+const parseJsonResponse = async (response) => {
+  const text = await response.text();
+  if (!text) {
+    return {};
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error('Unexpected response from server.');
+  }
+};
+
+const profileEmojiPill = document.querySelector('[data-profile-emoji-pill]');
+if (profileEmojiPill) {
+  const valueElement = profileEmojiPill.querySelector('[data-profile-emoji-value]');
+  const defaultEmoji =
+    profileEmojiPill.dataset.defaultEmoji?.trim() || valueElement?.textContent?.trim() || '👤';
+  const showDefaultEmoji = () => {
+    if (valueElement) {
+      valueElement.textContent = defaultEmoji;
+    }
+  };
+  const showEditEmoji = () => {
+    if (valueElement) {
+      valueElement.textContent = '✏️';
+    }
+  };
+  profileEmojiPill.addEventListener('mouseenter', showEditEmoji);
+  profileEmojiPill.addEventListener('focus', showEditEmoji);
+  profileEmojiPill.addEventListener('mouseleave', showDefaultEmoji);
+  profileEmojiPill.addEventListener('blur', showDefaultEmoji);
+  profileEmojiPill.addEventListener('click', showDefaultEmoji);
+}
+
 const buildStatusChart = (ctx, stats) => {
   const labels = stats.missionsByStatus.map((row) => row.status);
   const missionData = stats.missionsByStatus.map((row) => row.total);
@@ -67,7 +101,7 @@ const buildTelemetryChart = (ctx, stats) => {
 
 const refreshStats = async () => {
   const response = await fetch('/api/stats');
-  const json = await response.json();
+  const json = await parseJsonResponse(response);
   if (!json.success) return;
   if (!statusChart) {
     buildStatusChart(statusChartEl, json.data);
@@ -150,6 +184,22 @@ const bottleDeliverySubmitButton =
   bottleDeliveryDialog?.querySelector('[data-bottle-delivery-submit]') ?? null;
 const deleteBottleButton =
   bottleDeliveryDialog?.querySelector('[data-delete-bottle]') ?? null;
+const reassignBottleDialog = document.getElementById('reassignBottleDialog');
+const reassignBottleForm = reassignBottleDialog?.querySelector('[data-reassign-bottle-form]') ?? null;
+const reassignBottleSelect = reassignBottleForm?.querySelector('[data-reassign-bottle-select]') ?? null;
+const reassignBottleFeedback =
+  reassignBottleForm?.querySelector('[data-reassign-bottle-feedback]') ?? null;
+const reassignBottleHubLabel =
+  reassignBottleForm?.querySelector('[data-reassign-bottle-hub]') ?? null;
+const reassignBottleSummaryLabel =
+  reassignBottleForm?.querySelector('[data-reassign-bottle-summary]') ?? null;
+const reassignBottleEmptyState =
+  reassignBottleForm?.querySelector('[data-reassign-bottle-empty]') ?? null;
+const reassignBottleSubmitButton =
+  reassignBottleForm?.querySelector('button[type="submit"]') ?? null;
+const closeReassignButtons = reassignBottleDialog
+  ? reassignBottleDialog.querySelectorAll('[data-close-reassign-bottle]')
+  : [];
 
 const escapeHtml = (value) => {
   if (value === undefined || value === null) {
@@ -376,7 +426,7 @@ const handleBottleDeliverySubmit = async (event) => {
       method: 'POST',
       body: formData
     });
-    const json = await response.json();
+  const json = await parseJsonResponse(response);
 
     if (!response.ok || !json.success) {
       throw new Error(json.message || 'Unable to save delivery details.');
@@ -437,7 +487,7 @@ const handleDeleteBottle = async () => {
     const response = await fetch(`/api/my-bottles/${encodeURIComponent(bottleId)}`, {
       method: 'DELETE'
     });
-    const json = await response.json();
+  const json = await parseJsonResponse(response);
 
     if (!response.ok || !json.success) {
       throw new Error(json.message || 'Unable to delete bottle.');
@@ -519,6 +569,8 @@ const createBottleRow = (bottle) => {
   const verifiedLabel = isVerified ? 'Verified' : 'Pending';
   const hubName = bottle.hub_name ? String(bottle.hub_name) : '';
   const hubAddress = bottle.hub_mailing_address ? String(bottle.hub_mailing_address) : '';
+  const turtleName = bottle.turtle_name ? String(bottle.turtle_name) : '';
+  const turtleLabel = turtleName || 'Assign turtle';
 
   const photoMarkup = basicPhotoUrl
     ? `<img src="${escapeAttribute(basicPhotoUrl)}" alt="${escapeAttribute(photoAlt)}" loading="lazy" />`
@@ -532,6 +584,16 @@ const createBottleRow = (bottle) => {
           <span class="bottle-photo__serial">${serialLabel}</span>
         </div>
       </div>
+    </td>
+    <td data-label="Turtle">
+      <button
+        type="button"
+        class="pill-button bottle-turtle-pill"
+        data-open-reassign-bottle
+        aria-label="Change turtle connection"
+      >
+        ${escapeHtml(turtleLabel)}
+      </button>
     </td>
     <td data-label="Mission">${missionLabel}</td>
     <td data-label="Contents"><div class="bottle-contents">${formatBottleContents(bottle.contents)}</div></td>
@@ -555,8 +617,197 @@ const createBottleRow = (bottle) => {
   row.dataset.serialNumber = bottle.serial_number ? String(bottle.serial_number) : '';
   row.dataset.hubName = hubName;
   row.dataset.hubAddress = hubAddress;
+  row.dataset.turtleId = bottle.turtle_id ? String(bottle.turtle_id) : '';
+  row.dataset.turtleName = turtleName;
+  row.dataset.hubId = bottle.hub_id ? String(bottle.hub_id) : '';
 
   return row;
+};
+
+const managedTurtlesData = Array.from(document.querySelectorAll('[data-manageable-turtle]'))
+  .map((row) => {
+    const idRaw = row.dataset.turtleId;
+    const hubIdRaw = row.dataset.turtleHub;
+    const parsedId = idRaw ? Number(idRaw) : null;
+    if (!Number.isFinite(parsedId)) {
+      return null;
+    }
+    return {
+      id: parsedId,
+      name: row.dataset.turtleName?.trim() || `Turtle #${idRaw}`,
+      hubId: hubIdRaw ? String(hubIdRaw) : '',
+      hubName: row.dataset.turtleHubName?.trim() || ''
+    };
+  })
+  .filter(Boolean);
+
+const getManagedTurtlesForHub = (hubId) => {
+  if (!hubId) {
+    return [];
+  }
+  return managedTurtlesData.filter((turtle) => turtle.hubId && String(turtle.hubId) === String(hubId));
+};
+
+const setReassignFeedback = (message, isError = false) => {
+  if (!reassignBottleFeedback) {
+    return;
+  }
+  reassignBottleFeedback.textContent = message || '';
+  reassignBottleFeedback.hidden = !message;
+  reassignBottleFeedback.classList.toggle('is-error', Boolean(isError));
+  reassignBottleFeedback.classList.toggle('is-success', Boolean(message && !isError));
+};
+
+const resetReassignDialog = () => {
+  if (reassignBottleForm) {
+    reassignBottleForm.reset();
+    reassignBottleForm.dataset.bottleId = '';
+  }
+  if (reassignBottleSelect) {
+    reassignBottleSelect.innerHTML = '';
+    reassignBottleSelect.disabled = false;
+  }
+  if (reassignBottleEmptyState) {
+    reassignBottleEmptyState.hidden = true;
+  }
+  setReassignFeedback('');
+};
+
+const populateReassignOptions = (hubId, currentTurtleId) => {
+  if (!reassignBottleSelect) {
+    return false;
+  }
+  reassignBottleSelect.innerHTML = '';
+  const turtles = getManagedTurtlesForHub(hubId);
+  turtles.forEach((turtle) => {
+    const option = document.createElement('option');
+    option.value = String(turtle.id);
+    option.textContent = turtle.name;
+    if (currentTurtleId && String(turtle.id) === String(currentTurtleId)) {
+      option.selected = true;
+    }
+    reassignBottleSelect.appendChild(option);
+  });
+  return turtles.length > 0;
+};
+
+const showReassignDialog = () => {
+  if (!reassignBottleDialog) {
+    return;
+  }
+  if (typeof reassignBottleDialog.showModal === 'function') {
+    reassignBottleDialog.showModal();
+  } else {
+    reassignBottleDialog.removeAttribute('hidden');
+    reassignBottleDialog.setAttribute('data-open', 'true');
+  }
+};
+
+const hideReassignDialog = () => {
+  if (!reassignBottleDialog) {
+    return;
+  }
+  if (typeof reassignBottleDialog.close === 'function') {
+    reassignBottleDialog.close();
+  } else {
+    reassignBottleDialog.setAttribute('data-open', 'false');
+    reassignBottleDialog.setAttribute('hidden', '');
+  }
+};
+
+const openReassignDialogFromRow = (row) => {
+  if (!row || !reassignBottleDialog) {
+    return;
+  }
+  const bottleId = row.dataset.bottleId ? Number(row.dataset.bottleId) : null;
+  if (!Number.isFinite(bottleId) || !reassignBottleForm) {
+    return;
+  }
+  const serialNumber = row.dataset.serialNumber?.trim();
+  const hubName = row.dataset.hubName?.trim();
+  const hubId = row.dataset.hubId ? String(row.dataset.hubId) : '';
+  const currentTurtleId = row.dataset.turtleId ? Number(row.dataset.turtleId) : null;
+  reassignBottleForm.dataset.bottleId = String(bottleId);
+  if (reassignBottleSummaryLabel) {
+    reassignBottleSummaryLabel.textContent = serialNumber
+      ? `Bottle #${serialNumber}`
+      : 'Bottle without serial number';
+  }
+  if (reassignBottleHubLabel) {
+    reassignBottleHubLabel.textContent = hubName ? `Hub: ${hubName}` : 'Hub not assigned yet';
+  }
+  const hasOptions = populateReassignOptions(hubId, currentTurtleId);
+  if (reassignBottleEmptyState) {
+    if (!hubId) {
+      reassignBottleEmptyState.textContent =
+        'Assign this bottle to a hub before connecting it to a turtle.';
+    } else {
+      reassignBottleEmptyState.textContent =
+        'You do not have any turtles connected to this hub yet.';
+    }
+    reassignBottleEmptyState.hidden = hasOptions;
+  }
+  if (reassignBottleSelect) {
+    reassignBottleSelect.disabled = !hasOptions;
+  }
+  if (reassignBottleSubmitButton) {
+    reassignBottleSubmitButton.disabled = !hasOptions;
+  }
+  setReassignFeedback('');
+  showReassignDialog();
+};
+
+const closeReassignDialog = () => {
+  resetReassignDialog();
+  hideReassignDialog();
+};
+
+const handleReassignSubmit = async (event) => {
+  event.preventDefault();
+  if (!reassignBottleForm || !reassignBottleSelect) {
+    return;
+  }
+  const bottleId = reassignBottleForm.dataset.bottleId;
+  if (!bottleId) {
+    setReassignFeedback('Missing bottle information.', true);
+    return;
+  }
+  const selectedTurtle = reassignBottleSelect.value;
+  if (!selectedTurtle) {
+    setReassignFeedback('Please choose a turtle.', true);
+    return;
+  }
+  const payload = { turtle_id: Number(selectedTurtle) };
+  if (!Number.isFinite(payload.turtle_id)) {
+    setReassignFeedback('Please choose a valid turtle.', true);
+    return;
+  }
+  setReassignFeedback('Saving…', false);
+  if (reassignBottleSubmitButton) {
+    reassignBottleSubmitButton.disabled = true;
+  }
+  try {
+    const response = await fetch(`/api/my-bottles/${encodeURIComponent(bottleId)}/turtle`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const json = await parseJsonResponse(response);
+    if (!response.ok || !json.success) {
+      throw new Error(json?.message || 'Unable to update bottle.');
+    }
+    updateBottleRow(json.data);
+    showBottlesFeedback('Bottle connection updated.', false);
+    closeReassignDialog();
+  } catch (error) {
+    setReassignFeedback(error.message || 'Unable to update bottle.', true);
+  } finally {
+    if (reassignBottleSubmitButton) {
+      reassignBottleSubmitButton.disabled = false;
+    }
+  }
 };
 
 const addBottleRow = (bottle) => {
@@ -646,7 +897,7 @@ const handleRegisterBottleSubmit = async (event) => {
       body: JSON.stringify(payload)
     });
 
-    const json = await response.json();
+    const json = await parseJsonResponse(response);
     if (!response.ok || !json.success) {
       throw new Error(json.message || 'Unable to register bottle.');
     }
@@ -745,6 +996,16 @@ if (deleteBottleButton) {
 
 if (bottlesTableBody) {
   bottlesTableBody.addEventListener('click', (event) => {
+    const reassignButton = event.target.closest('[data-open-reassign-bottle]');
+    if (reassignButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const row = reassignButton.closest('tr[data-bottle-row]');
+      if (row) {
+        openReassignDialogFromRow(row);
+      }
+      return;
+    }
     const row = event.target.closest('tr[data-bottle-row]');
     if (!row) {
       return;
@@ -753,6 +1014,19 @@ if (bottlesTableBody) {
   });
 
   bottlesTableBody.addEventListener('keydown', (event) => {
+    const isActivationKey = event.key === 'Enter' || event.key === ' ';
+    if (!isActivationKey) {
+      return;
+    }
+    const reassignButton = event.target.closest('[data-open-reassign-bottle]');
+    if (reassignButton) {
+      event.preventDefault();
+      const row = reassignButton.closest('tr[data-bottle-row]');
+      if (row) {
+        openReassignDialogFromRow(row);
+      }
+      return;
+    }
     if (event.key !== 'Enter' && event.key !== ' ') {
       return;
     }
@@ -763,6 +1037,25 @@ if (bottlesTableBody) {
     event.preventDefault();
     openBottleDialogFromRow(row);
   });
+}
+
+if (reassignBottleDialog) {
+  if (typeof reassignBottleDialog.addEventListener === 'function') {
+    reassignBottleDialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeReassignDialog();
+    });
+  }
+  closeReassignButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeReassignDialog();
+    });
+  });
+}
+
+if (reassignBottleForm) {
+  reassignBottleForm.addEventListener('submit', handleReassignSubmit);
 }
 
 toggleBottlesTableState();
