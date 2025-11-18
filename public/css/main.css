@@ -282,6 +282,12 @@ a:hover {
   box-shadow: var(--shadow-elevated);
 }
 
+.button.button-small {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  line-height: 1.2;
+}
+
 .button.danger {
   background: #b91c1c;
 }
@@ -300,6 +306,35 @@ a:hover {
 
 .button.ghost:hover {
   background: rgba(1, 121, 25, 0.12);
+}
+
+.pill-button {
+  border-radius: 999px;
+  border: 1px solid rgba(1, 121, 25, 0.2);
+  background: rgba(1, 121, 25, 0.05);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.pill-button:hover,
+.pill-button:focus-visible {
+  background: rgba(1, 121, 25, 0.15);
+  border-color: rgba(1, 121, 25, 0.4);
+}
+
+.bottle-turtle-pill {
+  background: rgba(35, 176, 83, 0.1);
+  border-color: rgba(35, 176, 83, 0.4);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.bottle-turtle-pill:hover,
+.bottle-turtle-pill:focus-visible {
+  background: rgba(35, 176, 83, 0.2);
 }
 
 .button-outline-danger {
@@ -736,6 +771,17 @@ a:hover {
 .boats-table tbody tr:last-child td,
 .alerts-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.turtles-actions-column {
+  min-width: 200px;
+}
+
+.turtle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
 }
 
 .emoji-cell {
@@ -1370,6 +1416,31 @@ a:hover {
   padding: 1rem 1.25rem;
   box-shadow: var(--shadow-elevated);
   min-width: 240px;
+  position: relative;
+  padding-right: 4rem;
+}
+
+.dashboard-user-card__emoji-pill {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(35, 176, 83, 0.15);
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  text-decoration: none;
+  border: 1px solid rgba(35, 176, 83, 0.35);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-user-card__emoji-pill:hover,
+.dashboard-user-card__emoji-pill:focus-visible {
+  background: rgba(35, 176, 83, 0.25);
+  transform: translateY(-1px);
 }
 
 .dashboard-alert-banner {
@@ -2048,6 +2119,92 @@ a:hover {
   color: var(--color-muted);
 }
 
+.turtle-bottles-card {
+  width: min(520px, 90vw);
+}
+
+.turtle-bottles-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.turtle-bottle-card {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid rgba(1, 121, 25, 0.15);
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: rgba(1, 121, 25, 0.03);
+}
+
+.turtle-bottle-card__photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.turtle-bottle-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.turtle-bottle-card__photo--placeholder {
+  border: 1px dashed rgba(1, 121, 25, 0.3);
+}
+
+.turtle-bottle-card__placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.turtle-bottle-card__body {
+  flex: 1;
+}
+
+.turtle-bottle-card__body h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.turtle-bottle-card__contents {
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.turtle-bottle-card dl {
+  margin: 0;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.turtle-bottle-card dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.turtle-bottle-card dd {
+  margin: 0;
+  font-weight: 600;
+}
+
 .launch-success-state {
   display: none;
   min-height: 320px;
@@ -2066,6 +2223,94 @@ a:hover {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+}
+
+.profile-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.profile-page__header {
+  margin-bottom: 1.5rem;
+}
+
+.profile-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 960px) {
+  .profile-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.profile-card__header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.profile-avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  background: rgba(35, 176, 83, 0.1);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border: 2px solid rgba(35, 176, 83, 0.3);
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-avatar--placeholder {
+  background: rgba(35, 176, 83, 0.18);
+}
+
+.profile-card__meta {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.profile-readonly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.readonly-field dt {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.readonly-field dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.profile-form__intro {
+  margin-top: 0;
+  color: var(--color-text-muted);
+}
+
+.profile-form textarea {
+  min-height: 140px;
+  resize: vertical;
 }
 
 .launch-success-state__content h1 {

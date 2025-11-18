@@ -27,12 +27,15 @@ bottlesModel.getForPackerWithDetails = async (packerId) => {
       photo.url AS basic_photo_url,
       selfie.url AS selfie_photo_url,
       h.name AS hub_name,
-      h.mailing_address AS hub_mailing_address
+      h.mailing_address AS hub_mailing_address,
+      t.name AS turtle_name,
+      t.hub_id AS turtle_hub_id
     FROM bottles_tb b
     LEFT JOIN missions_tb m ON b.mission_id = m.mission_id
     LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
     LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
     LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
+    LEFT JOIN turtles_tb t ON t.turtle_id = b.turtle_id
     WHERE b.packed_by = ?
     ORDER BY b.updated_at DESC, b.created_at DESC
   `;
@@ -64,18 +67,57 @@ bottlesModel.getByIdForPacker = async (bottleId, packerId) => {
       photo.url AS basic_photo_url,
       selfie.url AS selfie_photo_url,
       h.name AS hub_name,
-      h.mailing_address AS hub_mailing_address
+      h.mailing_address AS hub_mailing_address,
+      t.name AS turtle_name,
+      t.hub_id AS turtle_hub_id
     FROM bottles_tb b
     LEFT JOIN missions_tb m ON b.mission_id = m.mission_id
     LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
     LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
     LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
+    LEFT JOIN turtles_tb t ON t.turtle_id = b.turtle_id
     WHERE b.bottle_id = ? AND b.packed_by = ?
     LIMIT 1
   `;
 
   const rows = await query(sql, [bottleId, packerId]);
   return rows[0] ?? null;
+};
+
+bottlesModel.getForManagedTurtle = async (turtleId, managerId) => {
+  if (!turtleId || !managerId) {
+    return [];
+  }
+
+  const sql = `
+    SELECT
+      b.bottle_id,
+      b.serial_number,
+      b.brand,
+      b.volume_ml,
+      b.turtle_id,
+      b.hub_id,
+      b.contents,
+      b.weight_grams,
+      b.status,
+      b.verified,
+      b.mission_id,
+      b.bottle_basic_pic,
+      b.bottle_selfie_pic,
+      photo.url AS basic_photo_url,
+      selfie.url AS selfie_photo_url,
+      h.name AS hub_name,
+      h.mailing_address AS hub_mailing_address
+    FROM bottles_tb b
+    INNER JOIN turtles_tb t ON t.turtle_id = b.turtle_id
+    LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
+    LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
+    LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
+    WHERE b.turtle_id = ? AND t.turtle_manager = ?
+    ORDER BY b.updated_at DESC, b.created_at DESC
+  `;
+
+  return query(sql, [turtleId, managerId]);
 };
 
 export default bottlesModel;

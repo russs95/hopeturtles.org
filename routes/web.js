@@ -1,9 +1,14 @@
 import { Router } from 'express';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import missionsController from '../controllers/missionsController.js';
 import turtlesController from '../controllers/turtlesController.js';
 import successController from '../controllers/successController.js';
 import dashboardController from '../controllers/dashboardController.js';
 import teamController from '../controllers/teamController.js';
+import profileController from '../controllers/profileController.js';
 import { ensureAdmin, ensureAdminOrFounder, ensureAuth } from '../middleware/auth.js';
 import { getPlatformSummary } from '../models/summaryModel.js';
 import missionsModel from '../models/missionsModel.js';
@@ -11,6 +16,24 @@ import successModel from '../models/successModel.js';
 import { renderManagementPage } from '../controllers/usersController.js';
 
 const router = Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.resolve(__dirname, '../public/uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: uploadDir,
+  filename: (req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `${unique}${ext}`);
+  }
+});
+
+const profileUpload = multer({ storage });
 
 router.get('/', async (req, res, next) => {
   try {
@@ -42,6 +65,8 @@ router.get('/login', (req, res) => {
 router.get('/dashboard', ensureAuth, dashboardController.renderDashboard);
 router.get('/admin', ensureAuth, ensureAdmin, dashboardController.renderAdmin);
 router.get('/admin/users', ensureAuth, ensureAdminOrFounder, renderManagementPage);
+router.get('/profile', ensureAuth, profileController.renderProfilePage);
+router.post('/profile', ensureAuth, profileUpload.single('profile_pic'), profileController.updateProfile);
 
 router.post('/theme', (req, res) => {
   const { theme } = req.body;

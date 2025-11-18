@@ -7,7 +7,9 @@ import {
   listMyBottles,
   registerMyBottle,
   submitBottleDeliveryDetails,
-  deleteMyBottle
+  deleteMyBottle,
+  listBottlesForManagedTurtle,
+  reassignBottleToTurtle
 } from '../../controllers/bottlesController.js';
 import { ensureAuth } from '../../middleware/auth.js';
 
@@ -37,6 +39,7 @@ router.use(ensureAuth);
 router.get('/', listMyBottles);
 router.post('/', registerMyBottle);
 router.delete('/:id', deleteMyBottle);
+router.get('/turtles/:id', listBottlesForManagedTurtle);
 router.post(
   '/:id/delivery',
   upload.fields([
@@ -45,5 +48,6 @@ router.post(
   ]),
   submitBottleDeliveryDetails
 );
+router.patch('/:id/turtle', reassignBottleToTurtle);
 
 export default router;

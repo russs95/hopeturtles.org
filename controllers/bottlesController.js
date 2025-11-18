@@ -1,6 +1,7 @@
 import path from 'path';
 import bottlesModel from '../models/bottlesModel.js';
 import photosModel from '../models/photosModel.js';
+import turtlesModel from '../models/turtlesModel.js';
 
 const getCurrentUserId = (req) => req.session?.user?.buwanaId ?? req.session?.user?.id ?? null;
 
@@ -174,7 +175,9 @@ export const registerMyBottle = async (req, res, next) => {
           basic_photo_url: null,
           selfie_photo_url: null,
           hub_name: null,
-          hub_mailing_address: null
+          hub_mailing_address: null,
+          turtle_name: null,
+          turtle_hub_id: created.hub_id ?? null
         };
 
     return res.status(201).json({ success: true, data: responseBottle });
@@ -282,6 +285,87 @@ export const submitBottleDeliveryDetails = async (req, res, next) => {
   }
 };
 
+export const listBottlesForManagedTurtle = async (req, res, next) => {
+  try {
+    const managerId = getCurrentUserId(req);
+    if (!managerId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const turtleId = Number(req.params.id);
+    if (!Number.isFinite(turtleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid turtle identifier.' });
+    }
+
+    const turtle = await turtlesModel.getManagedById(turtleId, managerId);
+    if (!turtle) {
+      return res.status(404).json({ success: false, message: 'Turtle not found.' });
+    }
+
+    const bottles = await bottlesModel.getForManagedTurtle(turtleId, managerId);
+
+    return res.json({
+      success: true,
+      data: {
+        turtle,
+        bottles
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const reassignBottleToTurtle = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const bottleId = Number(req.params.id);
+    if (!Number.isFinite(bottleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid bottle identifier.' });
+    }
+
+    const targetTurtleId = Number(req.body?.turtle_id);
+    if (!Number.isFinite(targetTurtleId)) {
+      return res.status(400).json({ success: false, message: 'Please select a turtle to connect to.' });
+    }
+
+    const bottle = await bottlesModel.getByIdForPacker(bottleId, userId);
+    if (!bottle) {
+      return res.status(404).json({ success: false, message: 'Bottle not found.' });
+    }
+
+    if (!bottle.hub_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Assign this bottle to a hub before connecting it to a turtle.'
+      });
+    }
+
+    const targetTurtle = await turtlesModel.getManagedById(targetTurtleId, userId);
+    if (!targetTurtle) {
+      return res.status(404).json({ success: false, message: 'Turtle not found.' });
+    }
+
+    if (!targetTurtle.hub_id || String(targetTurtle.hub_id) !== String(bottle.hub_id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please choose a turtle connected to the same hub as this bottle.'
+      });
+    }
+
+    await bottlesModel.update(bottleId, { turtle_id: targetTurtleId });
+
+    const updatedBottle = await bottlesModel.getByIdForPacker(bottleId, userId);
+    return res.json({ success: true, data: updatedBottle });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export default {
   listBottles,
   getBottle,
@@ -291,5 +375,7 @@ export default {
   listMyBottles,
   registerMyBottle,
   deleteMyBottle,
-  submitBottleDeliveryDetails
+  submitBottleDeliveryDetails,
+  listBottlesForManagedTurtle,
+  reassignBottleToTurtle
 };
