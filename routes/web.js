@@ -3,6 +3,7 @@ import missionsController from '../controllers/missionsController.js';
 import turtlesController from '../controllers/turtlesController.js';
 import successController from '../controllers/successController.js';
 import dashboardController from '../controllers/dashboardController.js';
+import teamController from '../controllers/teamController.js';
 import { ensureAdmin, ensureAdminOrFounder, ensureAuth } from '../middleware/auth.js';
 import { getPlatformSummary } from '../models/summaryModel.js';
 import missionsModel from '../models/missionsModel.js';
@@ -30,6 +31,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/missions', missionsController.renderExplorer);
+router.get('/team', teamController.renderTeamPage);
 router.get('/turtles/:id', turtlesController.renderTurtlePage);
 router.get('/success', successController.renderSuccessPage);
 

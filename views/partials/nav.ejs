@@ -77,8 +77,8 @@
     </a>
   </div>
   <nav class="primary-nav" aria-label="Primary">
-    <a href="/missions"><%= t.nav_mission || 'Mission' %></a>
-    <a href="/missions#map"><%= t.nav_tracking || 'Tracking' %></a>
+    <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
+    <a href="/team"><%= t.nav_team || 'Team' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
       <a href="/admin">Admin</a>
     <% } %>
@@ -130,7 +130,7 @@
     <% } else { %>
       <a class="button" href="<%= loginUrl %>">Login</a>
       <a
-        class="button ghost"
+        class="button ghost nav-signup"
         href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
         target="_blank"
         rel="noreferrer"
