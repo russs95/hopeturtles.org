@@ -1,0 +1,44 @@
+<%- include('partials/header', { pageTitle }) %>
+<%- include('partials/nav') %>
+<main id="main" class="layout team-page">
+  <section class="page-header team-page__intro">
+    <h1>Meet the hopeTurtles.org Team</h1>
+    <p>
+      These are the stewards, technologists, and storytellers who have declared their roles inside the platform.
+      Every card below reflects a user with a <code>team_title</code> in their Hope Turtle profile.
+    </p>
+  </section>
+
+  <% if (!teamMembers.length) { %>
+    <p class="empty-state">Our roster is still forming. Check back soon for new crew updates.</p>
+  <% } else { %>
+    <section class="team-grid" aria-live="polite">
+      <% teamMembers.forEach(function(member) { %>
+        <article class="team-card">
+          <header class="team-card__header">
+            <div class="team-card__emoji" aria-hidden="true"><%= member.emoji %></div>
+            <div>
+              <h2><%= member.fullName %></h2>
+              <p class="team-card__title"><%= member.title %></p>
+            </div>
+          </header>
+          <dl class="team-card__meta">
+            <div>
+              <dt>Country ID</dt>
+              <dd><%= member.countryId %></dd>
+            </div>
+            <div>
+              <dt>Watershed</dt>
+              <dd><%= member.watershed %></dd>
+            </div>
+            <div>
+              <dt>Continent</dt>
+              <dd><%= member.continent %></dd>
+            </div>
+          </dl>
+        </article>
+      <% }) %>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

@@ -203,4 +203,22 @@ usersModel.getDashboardStats = async () => {
   };
 };
 
+usersModel.getTeamMembers = async () => {
+  const sql = `
+    SELECT
+      buwana_id,
+      full_name,
+      team_title,
+      country_id,
+      location_watershed,
+      continent_code,
+      earthling_emoji
+    FROM users_tb
+    WHERE team_title IS NOT NULL AND TRIM(team_title) <> ''
+    ORDER BY COALESCE(full_name, team_title) ASC
+  `;
+
+  return query(sql);
+};
+
 export default usersModel;

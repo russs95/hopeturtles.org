@@ -1277,6 +1277,80 @@ a:hover {
   margin-bottom: 2rem;
 }
 
+.team-page__intro {
+  text-align: center;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.team-card {
+  background: var(--color-surface);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(1, 121, 25, 0.15);
+  box-shadow: var(--shadow-elevated);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+[data-theme='dark'] .team-card {
+  background: rgba(18, 20, 23, 0.85);
+  border-color: rgba(35, 176, 83, 0.35);
+}
+
+.team-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.team-card__emoji {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.team-card__title {
+  margin: 0.15rem 0 0;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.team-card__meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.team-card__meta dt {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.team-card__meta dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.empty-state {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  margin: 2rem auto;
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -2075,8 +2149,12 @@ a:hover {
     gap: 0.4rem;
   }
 
+  .brand-ascii {
+    font-size: calc(0.48 * var(--hw));
+  }
+
   .brand-wordmark-text {
-    font-size: 1.15em;
+    font-size: 0.92em;
   }
 
   .nav-controls {
@@ -2092,5 +2170,9 @@ a:hover {
     width: 100%;
     justify-content: center;
     margin-top: 0.5rem;
+  }
+
+  .nav-signup {
+    display: none;
   }
 }
