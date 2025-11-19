@@ -1,5 +1,31 @@
 import missionsModel from '../models/missionsModel.js';
 
+const trimCoordinateQuotes = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  const sanitized = String(value).trim().replace(/^"+|"+$/g, '');
+  if (sanitized === '') {
+    return null;
+  }
+  const parsed = Number.parseFloat(sanitized);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Invalid coordinate value: ${value}`);
+  }
+  return parsed;
+};
+
+const sanitizeMissionPayload = (payload = {}) => {
+  const clean = { ...payload };
+  if ('target_lat' in clean) {
+    clean.target_lat = trimCoordinateQuotes(clean.target_lat);
+  }
+  if ('target_lng' in clean) {
+    clean.target_lng = trimCoordinateQuotes(clean.target_lng);
+  }
+  return clean;
+};
+
 export const getMissions = async (req, res, next) => {
   try {
     const { status } = req.query;
@@ -24,7 +50,7 @@ export const getMissionById = async (req, res, next) => {
 
 export const createMission = async (req, res, next) => {
   try {
-    const mission = await missionsModel.create(req.body);
+    const mission = await missionsModel.create(sanitizeMissionPayload(req.body));
     return res.status(201).json({ success: true, data: mission });
   } catch (error) {
     return next(error);
@@ -33,7 +59,10 @@ export const createMission = async (req, res, next) => {
 
 export const updateMission = async (req, res, next) => {
   try {
-    const mission = await missionsModel.update(req.params.id, req.body);
+    const mission = await missionsModel.update(
+      req.params.id,
+      sanitizeMissionPayload(req.body)
+    );
     return res.json({ success: true, data: mission });
   } catch (error) {
     return next(error);
