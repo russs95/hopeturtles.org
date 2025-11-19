@@ -1,5 +1,4 @@
 import missionsModel from '../models/missionsModel.js';
-import hubsModel from '../models/hubsModel.js';
 
 export const getMissions = async (req, res, next) => {
   try {
@@ -52,13 +51,10 @@ export const deleteMission = async (req, res, next) => {
 
 export const renderExplorer = async (req, res, next) => {
   try {
-    const { status } = req.query;
-    const missions = await missionsModel.getAllWithHub({ status });
-    const hubs = await hubsModel.getAll();
+    const missions = await missionsModel.getAllWithStats();
     return res.render('mission', {
       pageTitle: 'Missions Explorer',
-      missions,
-      hubs
+      missions
     });
   } catch (error) {
     return next(error);

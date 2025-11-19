@@ -584,11 +584,36 @@ a:hover {
   font-weight: 700;
 }
 
+
 .mission-cards,
 .success-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
+}
+
+.success-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.missions-preview__actions {
+  margin-top: 1.5rem;
+}
+
+.missions-preview__actions .button {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .missions-preview__actions .button {
+    width: auto;
+  }
 }
 
 .mission-card {
@@ -613,6 +638,62 @@ a:hover {
   margin: 0;
 }
 
+.mission-card--explorer {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mission-card--explorer .card-header {
+  margin: 0 0 0.35rem;
+}
+
+.mission-card--explorer > p {
+  margin: 0;
+}
+
+.mission-card__map {
+  position: relative;
+  height: 220px;
+  border-radius: 1.2rem 1.2rem 0 0;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(1, 121, 25, 0.1);
+}
+
+.mission-card__map .map-canvas {
+  height: 100%;
+  width: 100%;
+}
+
+.mission-card__map--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(1, 121, 25, 0.08);
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-primary);
+}
+
+.mission-card__map-placeholder {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.mission-card-map {
+  height: 180px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(1, 121, 25, 0.12);
+}
+
+.mission-card-map .map-canvas {
+  height: 100%;
+  width: 100%;
+}
+
+.mission-card__status,
 .mission-card .status-pill {
   position: absolute;
   top: 1.1rem;
@@ -628,6 +709,51 @@ a:hover {
   font-weight: 700;
   background: rgba(1, 121, 25, 0.15);
   color: var(--color-primary);
+}
+
+.mission-card__body {
+  padding: 1.25rem 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mission-card__body > p {
+  margin: 0;
+}
+
+.mission-card__dates {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin: 0.25rem 0 0;
+}
+
+.mission-card__metrics {
+  padding: 0 1.5rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.8rem;
+}
+
+.mission-metric {
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  background: rgba(1, 121, 25, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mission-metric__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--color-primary);
+}
+
+.mission-metric__value {
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .mission-card .status-pill::before {
@@ -675,16 +801,9 @@ a:hover {
   color: #73c4ff;
 }
 
-.mission-card-map {
-  height: 180px;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(1, 121, 25, 0.12);
-}
 
-.mission-card-map .map-canvas {
-  height: 100%;
-  width: 100%;
+.mission-meta--grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .card,
@@ -779,9 +898,14 @@ a:hover {
 
 .turtle-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: stretch;
+}
+
+.turtle-actions .button {
+  width: 100%;
+  justify-content: center;
 }
 
 .emoji-cell {
@@ -2276,6 +2400,18 @@ a:hover {
   gap: 1rem;
   align-items: center;
   margin-bottom: 1.25rem;
+}
+
+.profile-card__actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.profile-card__actions .button {
+  width: 100%;
+  justify-content: center;
 }
 
 .profile-avatar {

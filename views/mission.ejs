@@ -1,10 +1,20 @@
 <% const extraStyles = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css']; %>
+<% const formatMissionDate = (value) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+  return date.toLocaleDateString('en-US', { dateStyle: 'medium' });
+}; %>
 <%- include('partials/header', { pageTitle, theme, extraStyles }) %>
 <%- include('partials/nav') %>
-<main id="main" class="layout">
-  <section class="page-header">
-    <h1>Missions Explorer</h1>
-    <p>Filter by status and follow the coordinates each Hope Turtle is aiming for.</p>
+<main id="main" class="layout mission-page">
+  <section class="page-header mission-page__header">
+    <div>
+      <h1>Missions Explorer</h1>
+      <p>Browse every Hope Turtle mission and follow its target destination.</p>
+    </div>
     <div class="filters">
       <label>
         Status
@@ -18,31 +28,81 @@
     </div>
   </section>
 
-  <section class="mission-list">
-    <% missions.forEach(function (mission) { %>
-      <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
-      <% const statusLabel = mission.status ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1) : 'Unknown'; %>
-      <article class="card mission-card" id="mission-<%= mission.mission_id %>" data-status="<%= mission.status %>">
-        <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
-        <header class="card-header">
-          <h2><%= mission.name %></h2>
-        </header>
-        <p><%= mission.description %></p>
-        <dl class="mission-meta">
-          <div>
-            <dt>Coordinates</dt>
-            <dd><%= mission.target_lat %>, <%= mission.target_lng %></dd>
+  <% if (!missions.length) { %>
+    <p class="panel-empty">No missions have been registered yet. Check back soon.</p>
+  <% } else { %>
+    <section class="mission-list" aria-live="polite">
+      <% missions.forEach(function (mission) { %>
+        <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
+        <% const statusLabel = mission.status
+          ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1)
+          : 'Unknown'; %>
+        <% const hasTarget = mission.target_lat != null && mission.target_lng != null; %>
+        <article
+          class="card mission-card mission-card--explorer"
+          id="mission-<%= mission.mission_id %>"
+          data-status="<%= mission.status || '' %>"
+          data-mission-card
+        >
+          <div
+            class="mission-card__map <%= hasTarget ? '' : 'mission-card__map--empty' %>"
+            <%= hasTarget
+              ? `data-mission-map data-map-token="${mapboxToken}" data-lat="${mission.target_lat}" data-lng="${mission.target_lng}" data-zoom="7.2"`
+              : '' %>
+          >
+            <% if (hasTarget) { %>
+              <div
+                id="missionCardMap-<%= mission.mission_id %>"
+                class="map-canvas"
+                aria-label="Mission target map for <%= mission.name %>"
+              ></div>
+            <% } else { %>
+              <p class="mission-card__map-placeholder">Target coordinates coming soon</p>
+            <% } %>
+            <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
           </div>
-          <div>
-            <dt>Hub</dt>
-            <dd><%= mission.hub_name || '—' %></dd>
+          <div class="mission-card__body">
+            <header class="card-header">
+              <h2><%= mission.name %></h2>
+              <p class="mission-card__dates">
+                <strong>Start:</strong> <%= formatMissionDate(mission.start_date) %> ·
+                <strong>End:</strong> <%= formatMissionDate(mission.end_date) %>
+              </p>
+            </header>
+            <p><%= mission.description || 'Mission briefing to follow.' %></p>
+            <dl class="mission-meta mission-meta--grid">
+              <div>
+                <dt>Latitude</dt>
+                <dd><%= mission.target_lat != null ? mission.target_lat : '—' %></dd>
+              </div>
+              <div>
+                <dt>Longitude</dt>
+                <dd><%= mission.target_lng != null ? mission.target_lng : '—' %></dd>
+              </div>
+            </dl>
           </div>
-        </dl>
-      </article>
-    <% }) %>
-  </section>
-
-  <%- include('partials/map', { heading: 'Mission Map', description: 'Each marker represents a Hope Turtle objective.' }) %>
+          <div class="mission-card__metrics">
+            <div class="mission-metric">
+              <span class="mission-metric__label">Turtles</span>
+              <span class="mission-metric__value"><%= Number(mission.turtle_count || 0).toLocaleString() %></span>
+            </div>
+            <div class="mission-metric">
+              <span class="mission-metric__label">Hubs</span>
+              <span class="mission-metric__value"><%= Number(mission.hub_count || 0).toLocaleString() %></span>
+            </div>
+            <div class="mission-metric">
+              <span class="mission-metric__label">Boats</span>
+              <span class="mission-metric__value"><%= Number(mission.boat_count || 0).toLocaleString() %></span>
+            </div>
+            <div class="mission-metric">
+              <span class="mission-metric__label">Bottles</span>
+              <span class="mission-metric__value"><%= Number(mission.bottle_count || 0).toLocaleString() %></span>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+  <% } %>
 </main>
 <% const pageScripts = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

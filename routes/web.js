@@ -37,15 +37,25 @@ const profileUpload = multer({ storage });
 
 router.get('/', async (req, res, next) => {
   try {
-    const [summary, missions, successEntries] = await Promise.all([
+    const [summary, missions] = await Promise.all([
       getPlatformSummary(),
-      missionsModel.getAllWithHub({ status: 'active' }),
-      successModel.getRecent(6)
+      missionsModel.getAllWithHub({ status: 'active' })
     ]);
     return res.render('index', {
       pageTitle: 'HopeTurtles.org',
       summary,
-      missions,
+      missions
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/report', async (req, res, next) => {
+  try {
+    const successEntries = await successModel.getRecent(24);
+    return res.render('report', {
+      pageTitle: 'HopeTurtles Report',
       successEntries
     });
   } catch (error) {
@@ -59,7 +69,7 @@ router.get('/turtles/:id', turtlesController.renderTurtlePage);
 router.get('/success', successController.renderSuccessPage);
 
 router.get('/login', (req, res) => {
-  res.render('login', { pageTitle: 'Login' });
+  res.redirect('/auth/callback');
 });
 
 router.get('/dashboard', ensureAuth, dashboardController.renderDashboard);

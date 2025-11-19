@@ -78,6 +78,7 @@
   </div>
   <nav class="primary-nav" aria-label="Primary">
     <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
+    <a href="/report">Report</a>
     <a href="/team"><%= t.nav_team || 'Team' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
       <a href="/admin">Admin</a>
