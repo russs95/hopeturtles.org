@@ -30,27 +30,6 @@ const featurePhotoImage = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-feature-photo-image]')
   : null;
 
-const interactiveSelector =
-  'button, a, input, select, textarea, label, [data-editable-select], [data-secret-action]';
-
-const normalizeEventTarget = (target) => {
-  if (!target) {
-    return null;
-  }
-  if (target instanceof Element) {
-    return target;
-  }
-  return target.parentElement || null;
-};
-
-const shouldIgnoreManageableClick = (target) => {
-  const element = normalizeEventTarget(target);
-  if (!element) {
-    return false;
-  }
-  return Boolean(element.closest(interactiveSelector));
-};
-
 const getManageableRow = (element) => {
   if (!element) {
     return null;
@@ -574,24 +553,6 @@ const closeManageTurtleDialog = () => {
   updateFeaturePhotoPreview('');
   currentTurtleId = null;
 };
-
-const manageableTurtles = document.querySelectorAll('[data-manageable-turtle]');
-manageableTurtles.forEach((row) => {
-  const activate = () => openManageTurtleDialog(row);
-  row.addEventListener('click', (event) => {
-    if (shouldIgnoreManageableClick(event.target)) {
-      return;
-    }
-    event.preventDefault();
-    activate();
-  });
-  row.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      activate();
-    }
-  });
-});
 
 delegateClick('[data-trigger-manage-turtle]', (event, button) => {
   event.preventDefault();
