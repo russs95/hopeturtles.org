@@ -10,7 +10,7 @@ import dashboardController from '../controllers/dashboardController.js';
 import teamController from '../controllers/teamController.js';
 import profileController from '../controllers/profileController.js';
 import { ensureAdmin, ensureAdminOrFounder, ensureAuth } from '../middleware/auth.js';
-import { getPlatformSummary } from '../models/summaryModel.js';
+import { getPlatformSummary, getAboutMetrics } from '../models/summaryModel.js';
 import missionsModel from '../models/missionsModel.js';
 import successModel from '../models/successModel.js';
 import { renderManagementPage } from '../controllers/usersController.js';
@@ -63,11 +63,27 @@ router.get('/report', async (req, res, next) => {
   }
 });
 
-router.get('/about', (req, res) =>
-  res.render('about', {
-    pageTitle: 'About the Hope Turtle Project'
-  })
-);
+router.get('/about', async (req, res, next) => {
+  try {
+    const aboutMetrics = await getAboutMetrics();
+    return res.render('about', {
+      pageTitle: 'About the Hope Turtle Project',
+      aboutMetrics
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Failed to load about page metrics', error);
+    }
+    try {
+      return res.render('about', {
+        pageTitle: 'About the Hope Turtle Project',
+        aboutMetrics: { turtles: 0, users: 0, boats: 0, hubs: 0 }
+      });
+    } catch (renderError) {
+      return next(renderError);
+    }
+  }
+});
 
 router.get('/missions', missionsController.renderExplorer);
 router.get('/team', teamController.renderTeamPage);
