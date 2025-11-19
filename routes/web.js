@@ -63,6 +63,12 @@ router.get('/report', async (req, res, next) => {
   }
 });
 
+router.get('/about', (req, res) =>
+  res.render('about', {
+    pageTitle: 'About the Hope Turtle Project'
+  })
+);
+
 router.get('/missions', missionsController.renderExplorer);
 router.get('/team', teamController.renderTeamPage);
 router.get('/turtles/:id', turtlesController.renderTurtlePage);

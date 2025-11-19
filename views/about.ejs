@@ -1,55 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Hope Turtles</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-
-<body id="about-page">
-  <header class="about-header">
-    <a href="/">
-      <img src="/logos/hopeturtle-logo.png" alt="HopeTurtles.org logo" class="about-logo" />
-    </a>
-    <h1 class="about-title">About Hope Turtles</h1>
-  </header>
-
-  <main class="about-main">
+<%- include('partials/header', { pageTitle, theme, lang, direction }) %>
+<%- include('partials/nav') %>
+<main id="main" class="about-page layout">
+  <section class="about-hero">
+    <div class="about-hero__media">
+      <video
+        src="/vids/hope-turtle-floating.mp4"
+        class="about-hero__video"
+        controls
+        autoplay
+        muted
+        loop
+        playsinline
+        aria-label="Hope Turtle gently floating across the ocean"
+      ></video>
+    </div>
+    <div class="about-hero__heading">
+      <h1>About the Hope Turtle Project</h1>
+      <p class="about-hero__subheading">- A human to human intention</p>
+    </div>
+  </section>
+  <section class="about-content">
     <p>
-      The <strong>Hope Turtle Project</strong> began as a dream to unite human creativity, compassion, and
-      regenerative technology to help those most in need — even across oceans and borders.
+      The Hope Turtle Project is an open, regenerative design initiative that combines low-tech ingenuity with
+      high-impact humanitarian logistics. It centers on small, autonomous marine drones—nicknamed Hope Turtles—engineered
+      to carry aid, messages, or ecological payloads across bodies of water using solar power and sustainable materials
+      such as bamboo and recovered plastics. Each Turtle is designed to operate independently or in coordinated
+      flotillas, guided by GPS and onboard microcontrollers that log their journey and transmit telemetry data back to a
+      shared, transparent database.
     </p>
-
     <p>
-      Each Hope Turtle is an autonomous, solar-powered marine drone built from bamboo and recycled materials.
-      It carries bottles filled with food, medicine, and messages of hope — using the Earth's ocean currents
-      as its guiding force.
+      At its heart, the project aims to demonstrate how community-built, nature-aligned technology can bridge distances
+      and deliver hope across seas—without fossil fuels, military infrastructure, or centralized control. By inviting
+      local makers, engineers, and communities to replicate, adapt, and deploy their own Hope Turtles, the movement
+      fosters decentralized collaboration and resilience. It’s not just about robotics or transport—it’s a living
+      experiment in applying ecological ethics, open-source design, and collective compassion to global challenges.
     </p>
-
-    <p>
-      The project integrates <strong>Buwana Authentication</strong> for transparent, collaborative
-      coordination across regenerative apps such as GoBrik and EarthCal.
-    </p>
-
-    <p class="about-highlight">
-      “May love and light flow human to human, across borders.”<br />
-      — Hope Turtle Motto
-    </p>
-
-    <p>
-      HopeTurtles.org serves as the public tracking platform where each turtle’s journey can be followed in
-      real time — celebrating success stories of human-to-human aid.
-    </p>
-
-    <p>
-      To learn more about the regenerative technology, visit our GitHub repository or join the
-      <a href="https://buwana.app">Buwana community</a>.
-    </p>
-  </main>
-
-  <footer class="about-footer">
-    <p>© <%= new Date().getFullYear() %> HopeTurtles.org</p>
-  </footer>
-</body>
-</html>
+  </section>
+</main>
+<%- include('partials/footer') %>
