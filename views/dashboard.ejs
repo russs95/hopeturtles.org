@@ -227,7 +227,7 @@
               <th scope="col">Hub</th>
               <th scope="col">Boat</th>
               <th scope="col">Status</th>
-              <th scope="col" class="turtles-actions-column">Actions</th>
+              <th scope="col" class="turtles-actions-column">Manage</th>
             </tr>
           </thead>
           <tbody>
@@ -274,12 +274,12 @@
                 <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
                 <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
                 <td data-label="Status"><%= formatTurtleStatus(turtle.status) %></td>
-                <td data-label="Actions" class="turtle-actions">
+                <td data-label="Manage" class="turtle-actions">
                   <button type="button" class="button button-small" data-trigger-manage-turtle>
-                    Manage Turtle
+                    ⚙️ Turtles
                   </button>
                   <button type="button" class="button button-small ghost" data-trigger-manage-bottles>
-                    Manage Bottles
+                    🔗 Bottles
                   </button>
                 </td>
               </tr>

@@ -33,11 +33,22 @@ const featurePhotoImage = manageTurtleDialog
 const interactiveSelector =
   'button, a, input, select, textarea, label, [data-editable-select], [data-secret-action]';
 
-const shouldIgnoreManageableClick = (target) => {
+const normalizeEventTarget = (target) => {
   if (!target) {
+    return null;
+  }
+  if (target instanceof Element) {
+    return target;
+  }
+  return target.parentElement || null;
+};
+
+const shouldIgnoreManageableClick = (target) => {
+  const element = normalizeEventTarget(target);
+  if (!element) {
     return false;
   }
-  return Boolean(target.closest(interactiveSelector));
+  return Boolean(element.closest(interactiveSelector));
 };
 
 const launchTurtleDialog = document.getElementById('launchTurtleDialog');
@@ -68,6 +79,7 @@ const showDialog = (dialog) => {
   if (supportsNativeDialog(dialog)) {
     dialog.showModal();
   } else {
+    dialog.setAttribute('open', '');
     dialog.removeAttribute('hidden');
     dialog.setAttribute('data-open', 'true');
   }
@@ -78,7 +90,8 @@ const hideDialog = (dialog) => {
   if (supportsNativeDialog(dialog)) {
     dialog.close();
   } else {
-    dialog.setAttribute('data-open', 'false');
+    dialog.removeAttribute('data-open');
+    dialog.removeAttribute('open');
     dialog.setAttribute('hidden', '');
   }
 };

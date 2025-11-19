@@ -212,7 +212,9 @@ usersModel.getTeamMembers = async () => {
       country_id,
       location_watershed,
       continent_code,
-      earthling_emoji
+      earthling_emoji,
+      location_full,
+      profile_pic
     FROM users_tb
     WHERE team_title IS NOT NULL AND TRIM(team_title) <> ''
     ORDER BY COALESCE(full_name, team_title) ASC
