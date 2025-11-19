@@ -616,12 +616,25 @@ a:hover {
   }
 }
 
-.mission-card {
+.mission-card { 
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   padding-top: 3.25rem;
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-list .mission-card {
+  margin-bottom: 20px;
+}
+
+.mission-list .mission-card:last-child {
+  margin-bottom: 0;
 }
 
 .mission-card .card-header {
@@ -900,11 +913,12 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .turtle-actions .button {
   width: 100%;
+  max-width: 111px;
   justify-content: center;
 }
 
@@ -1445,6 +1459,37 @@ a:hover {
 
 .page-header {
   margin-bottom: 2rem;
+}
+
+.mission-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.mission-page__header > div:first-child {
+  flex: 1 1 240px;
+}
+
+.mission-page__header .filters {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 100%;
+  max-width: 150px;
+}
+
+.mission-page__header .filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.mission-page__header .filters select {
+  width: 100%;
 }
 
 .team-page__intro {

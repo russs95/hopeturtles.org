@@ -70,16 +70,6 @@
               </p>
             </header>
             <p><%= mission.description || 'Mission briefing to follow.' %></p>
-            <dl class="mission-meta mission-meta--grid">
-              <div>
-                <dt>Latitude</dt>
-                <dd><%= mission.target_lat != null ? mission.target_lat : '—' %></dd>
-              </div>
-              <div>
-                <dt>Longitude</dt>
-                <dd><%= mission.target_lng != null ? mission.target_lng : '—' %></dd>
-              </div>
-            </dl>
           </div>
           <div class="mission-card__metrics">
             <div class="mission-metric">

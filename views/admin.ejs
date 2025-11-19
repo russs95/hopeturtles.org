@@ -165,8 +165,8 @@
         <thead>
           <tr>
             <th scope="col">Profile</th>
-            <th scope="col">Mission</th>
             <th scope="col">Hub</th>
+            <th scope="col">Bottles</th>
             <th scope="col">Manager</th>
             <th scope="col">Last update</th>
             <th scope="col">Logs</th>
@@ -211,8 +211,8 @@
                   </div>
                 </div>
               </td>
-              <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
               <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
+              <td data-label="Bottles" class="numeric-cell"><%= turtle.bottle_count ?? 0 %></td>
               <td data-label="Manager"><%= turtle.manager_name || '—' %></td>
               <td data-label="Last update"><%= formatDateTime(turtle.last_update) %></td>
               <td data-label="Logs" class="numeric-cell"><%= turtle.log_count ?? 0 %></td>

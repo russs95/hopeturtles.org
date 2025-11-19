@@ -2,6 +2,18 @@ const missionFilter = document.getElementById('missionFilter');
 const missionCards = document.querySelectorAll('[data-mission-card]');
 const mapContainers = document.querySelectorAll('[data-mission-map]');
 
+const logMissionMap = (level, message, context = {}) => {
+  if (typeof console === 'undefined') {
+    return;
+  }
+  const payload = context && Object.keys(context).length > 0 ? context : '';
+  const logger = console[level] || console.log;
+  logger.call(console, `[missions] ${message}`, payload);
+};
+
+const logMissionMapInfo = (message, context) => logMissionMap('info', message, context);
+const logMissionMapWarn = (message, context) => logMissionMap('warn', message, context);
+
 const parseCoordinate = (value) => {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -35,7 +47,12 @@ const createTileLayer = (token) => {
 };
 
 const initMissionMaps = () => {
-  if (!hasLeaflet || !mapContainers.length) {
+  if (!hasLeaflet) {
+    logMissionMapWarn('Leaflet is not available. Mission maps will not render.');
+    return;
+  }
+  if (!mapContainers.length) {
+    logMissionMapInfo('No mission map containers found on this page.');
     return;
   }
   mapContainers.forEach((container) => {
@@ -44,10 +61,23 @@ const initMissionMaps = () => {
     const lng = parseCoordinate(container.dataset.lng);
     const zoom = Number.parseFloat(container.dataset.zoom) || 7.2;
     const token = container.dataset.mapToken;
+    const missionId = container.closest('[data-mission-card]')?.id || container.id || 'mission-map';
 
-    if (!canvas || lat === null || lng === null) {
+    if (!canvas) {
+      logMissionMapWarn('Missing map canvas for mission card.', { missionId });
       return;
     }
+
+    if (lat === null || lng === null) {
+      logMissionMapWarn('Invalid mission coordinates. Skipping map.', {
+        missionId,
+        lat: container.dataset.lat,
+        lng: container.dataset.lng
+      });
+      return;
+    }
+
+    logMissionMapInfo('Initializing mission map.', { missionId, lat, lng, zoom });
 
     const map = L.map(canvas, {
       zoomControl: false,
@@ -62,10 +92,18 @@ const initMissionMaps = () => {
     const tileLayer = createTileLayer(token);
     if (tileLayer) {
       tileLayer.addTo(map);
+    } else {
+      logMissionMapWarn('Tile layer could not be created for mission map.', { missionId });
     }
     map.attributionControl?.setPrefix('');
     map.setView([lat, lng], zoom);
     L.marker([lat, lng], { keyboard: false }).addTo(map);
+    map.whenReady(() => {
+      logMissionMapInfo('Mission map ready.', { missionId });
+    });
+    map.on('tileerror', () => {
+      logMissionMapWarn('A tile failed to load for mission map.', { missionId });
+    });
     window.setTimeout(() => {
       map.invalidateSize();
     }, 50);
