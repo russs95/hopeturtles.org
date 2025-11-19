@@ -37,7 +37,15 @@
         <% const statusLabel = mission.status
           ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1)
           : 'Unknown'; %>
-        <% const hasTarget = mission.target_lat != null && mission.target_lng != null; %>
+        <% const targetLat =
+          mission.target_lat !== null && mission.target_lat !== undefined
+            ? Number(mission.target_lat)
+            : null; %>
+        <% const targetLng =
+          mission.target_lng !== null && mission.target_lng !== undefined
+            ? Number(mission.target_lng)
+            : null; %>
+        <% const hasTarget = Number.isFinite(targetLat) && Number.isFinite(targetLng); %>
         <article
           class="card mission-card mission-card--explorer"
           id="mission-<%= mission.mission_id %>"
@@ -46,9 +54,13 @@
         >
           <div
             class="mission-card__map <%= hasTarget ? '' : 'mission-card__map--empty' %>"
-            <%= hasTarget
-              ? `data-mission-map data-map-token="${mapboxToken}" data-lat="${mission.target_lat}" data-lng="${mission.target_lng}" data-zoom="7.2"`
-              : '' %>
+            <% if (hasTarget) { %>
+              data-mission-map
+              data-map-token="<%= mapboxToken %>"
+              data-lat="<%= targetLat %>"
+              data-lng="<%= targetLng %>"
+              data-zoom="7.2"
+            <% } %>
           >
             <% if (hasTarget) { %>
               <div

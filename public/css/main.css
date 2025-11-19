@@ -488,7 +488,8 @@ a:hover {
 }
 
 .layout {
-  width: min(1200px, calc(100vw - 2rem));
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
   flex: 1 0 auto;
@@ -2498,8 +2499,7 @@ main.about-page {
 }
 
 .about-hero {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1.5rem;
 }
 
@@ -2509,6 +2509,12 @@ main.about-page {
   box-shadow: var(--shadow-elevated);
   display: block;
   background: #000;
+}
+
+.about-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .about-hero__heading h1 {
@@ -2537,6 +2543,47 @@ main.about-page {
 
 .about-content p + p {
   margin-top: 1.25rem;
+}
+
+.about-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.about-metric {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.about-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.about-actions .button {
+  width: fit-content;
+}
+
+@media (min-width: 900px) {
+  .about-hero {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: stretch;
+  }
+
+  .about-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .profile-card__meta {

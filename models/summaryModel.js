@@ -14,6 +14,22 @@ export const getPlatformSummary = async () => {
   };
 };
 
+export const getAboutMetrics = async () => {
+  const [turtles, users, boats, hubs] = await Promise.all([
+    query('SELECT COUNT(*) AS total FROM turtles_tb'),
+    query('SELECT COUNT(*) AS total FROM users_tb'),
+    query('SELECT COUNT(*) AS total FROM boats_tb'),
+    query('SELECT COUNT(*) AS total FROM hubs_tb')
+  ]);
+
+  return {
+    turtles: turtles[0]?.total || 0,
+    users: users[0]?.total || 0,
+    boats: boats[0]?.total || 0,
+    hubs: hubs[0]?.total || 0
+  };
+};
+
 export const getStats = async () => {
   const missionsByStatus = await query(
     'SELECT status, COUNT(*) AS total FROM missions_tb GROUP BY status'
@@ -31,4 +47,4 @@ export const getStats = async () => {
   return { missionsByStatus, turtlesByStatus, telemetryRate };
 };
 
-export default { getPlatformSummary, getStats };
+export default { getPlatformSummary, getStats, getAboutMetrics };

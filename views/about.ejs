@@ -1,5 +1,6 @@
 <%- include('partials/header', { pageTitle, theme, lang, direction }) %>
 <%- include('partials/nav') %>
+<% const metrics = aboutMetrics || {}; %>
 <main id="main" class="about-page layout">
   <section class="about-hero">
     <div class="about-hero__media">
@@ -14,9 +15,29 @@
         aria-label="Hope Turtle gently floating across the ocean"
       ></video>
     </div>
-    <div class="about-hero__heading">
-      <h1>About the Hope Turtle Project</h1>
-      <p class="about-hero__subheading">- A human to human intention</p>
+    <div class="about-hero__body">
+      <div class="about-hero__heading">
+        <h1>About the Hope Turtle Project</h1>
+        <p class="about-hero__subheading">- A human to human intention</p>
+      </div>
+      <div class="about-metrics" aria-label="Hope Turtle platform metrics">
+        <article class="metric-card about-metric">
+          <span class="metric-label">Turtles</span>
+          <span class="metric-value"><%= Number(metrics.turtles || 0).toLocaleString() %></span>
+        </article>
+        <article class="metric-card about-metric">
+          <span class="metric-label">Users</span>
+          <span class="metric-value"><%= Number(metrics.users || 0).toLocaleString() %></span>
+        </article>
+        <article class="metric-card about-metric">
+          <span class="metric-label">Boats</span>
+          <span class="metric-value"><%= Number(metrics.boats || 0).toLocaleString() %></span>
+        </article>
+        <article class="metric-card about-metric">
+          <span class="metric-label">Hubs</span>
+          <span class="metric-value"><%= Number(metrics.hubs || 0).toLocaleString() %></span>
+        </article>
+      </div>
     </div>
   </section>
   <section class="about-content">
@@ -35,6 +56,16 @@
       fosters decentralized collaboration and resilience. It’s not just about robotics or transport—it’s a living
       experiment in applying ecological ethics, open-source design, and collective compassion to global challenges.
     </p>
+    <div class="about-actions">
+      <a
+        class="button ghost"
+        href="https://github.com/russs95/hopeturtles.org/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View the project on GitHub
+      </a>
+    </div>
   </section>
 </main>
 <%- include('partials/footer') %>
