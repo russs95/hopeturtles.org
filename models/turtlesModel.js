@@ -35,6 +35,7 @@ turtlesModel.getAllWithRelations = async () => {
         u.email,
         ''
       ) AS manager_name,
+      COALESCE(bottle_counts.bottle_count, 0) AS bottle_count,
       COALESCE(log_counts.log_count, 0) AS log_count,
       profile_photo.url AS profile_photo_url,
       profile_photo.thumbnail_url AS profile_photo_thumbnail_url
@@ -45,11 +46,20 @@ turtlesModel.getAllWithRelations = async () => {
     LEFT JOIN users_tb u ON t.turtle_manager = u.buwana_id
     LEFT JOIN photos_tb profile_photo ON profile_photo.photo_id = t.profile_photo_id
     LEFT JOIN (
+      SELECT turtle_id, COUNT(*) AS bottle_count
+      FROM bottles_tb
+      GROUP BY turtle_id
+    ) AS bottle_counts ON bottle_counts.turtle_id = t.turtle_id
+    LEFT JOIN (
       SELECT turtle_id, COUNT(*) AS log_count
       FROM telemetry_tb
       GROUP BY turtle_id
     ) AS log_counts ON log_counts.turtle_id = t.turtle_id
-    ORDER BY t.turtle_id DESC
+    ORDER BY
+      CASE WHEN m.name IS NULL OR m.name = '' THEN 1 ELSE 0 END,
+      m.name,
+      t.name,
+      t.turtle_id
   `;
   return query(sql);
 };

@@ -65,7 +65,6 @@ const launchTurtleDialog = document.getElementById('launchTurtleDialog');
 const launchTurtleForm = launchTurtleDialog
   ? launchTurtleDialog.querySelector('[data-launch-turtle-form]')
   : null;
-const launchTurtleButtons = document.querySelectorAll('[data-launch-turtle]');
 const launchTurtleCloseButtons = launchTurtleDialog
   ? launchTurtleDialog.querySelectorAll('[data-close-launch-turtle]')
   : [];
@@ -83,6 +82,19 @@ const launchSuccessCloseButton = launchSuccessState
   : null;
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
+
+const delegateClick = (selector, handler) => {
+  if (!selector || typeof handler !== 'function') {
+    return;
+  }
+  document.addEventListener('click', (event) => {
+    const trigger = event.target.closest(selector);
+    if (!trigger) {
+      return;
+    }
+    handler(event, trigger);
+  });
+};
 
 const showDialog = (dialog) => {
   if (!dialog) return;
@@ -581,22 +593,16 @@ manageableTurtles.forEach((row) => {
   });
 });
 
-const manageTurtleButtons = document.querySelectorAll('[data-trigger-manage-turtle]');
-manageTurtleButtons.forEach((button) => {
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openManageTurtleDialog(button);
-  });
+delegateClick('[data-trigger-manage-turtle]', (event, button) => {
+  event.preventDefault();
+  event.stopPropagation();
+  openManageTurtleDialog(button);
 });
 
-const manageBottlesButtons = document.querySelectorAll('[data-trigger-manage-bottles]');
-manageBottlesButtons.forEach((button) => {
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openTurtleBottlesDialog(button);
-  });
+delegateClick('[data-trigger-manage-bottles]', (event, button) => {
+  event.preventDefault();
+  event.stopPropagation();
+  openTurtleBottlesDialog(button);
 });
 
 const openLaunchTurtleDialog = () => {
@@ -673,11 +679,9 @@ if (launchSuccessCloseButton) {
   });
 }
 
-launchTurtleButtons.forEach((button) => {
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    openLaunchTurtleDialog();
-  });
+delegateClick('[data-launch-turtle]', (event) => {
+  event.preventDefault();
+  openLaunchTurtleDialog();
 });
 
 if (launchTurtleForm) {
