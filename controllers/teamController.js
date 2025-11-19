@@ -15,6 +15,9 @@ const normalizeMember = (member) => {
   const safeTitle = member.team_title?.trim() || 'Crew Member';
   const watershed = member.location_watershed?.trim() || '—';
   const code = member.continent_code?.trim().toUpperCase() || '';
+  const profileText = member.location_full?.trim() || '';
+  const rawPhoto = typeof member.profile_pic === 'string' ? member.profile_pic.trim() : '';
+  const photoUrl = rawPhoto && rawPhoto.toLowerCase() !== 'null' ? rawPhoto : null;
 
   return {
     id: member.buwana_id,
@@ -23,7 +26,9 @@ const normalizeMember = (member) => {
     countryId: member.country_id ?? '—',
     watershed,
     emoji: member.earthling_emoji || '🌍',
-    continent: CONTINENT_LABELS[code] || code || '—'
+    continent: CONTINENT_LABELS[code] || code || '—',
+    photoUrl,
+    profileText
   };
 };
 
