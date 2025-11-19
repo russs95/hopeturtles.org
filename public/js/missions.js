@@ -71,13 +71,13 @@ const initMissionMaps = () => {
   }
   mapContainers.forEach((container) => {
     const canvas = container.querySelector('.map-canvas');
+    const missionId = container.closest('[data-mission-card]')?.id || container.id || 'mission-map';
     const rawLat = container.dataset.lat;
     const rawLng = container.dataset.lng;
     const lat = parseCoordinate(sanitizeCoordinate(rawLat, { missionId, axis: 'lat', raw: rawLat }));
     const lng = parseCoordinate(sanitizeCoordinate(rawLng, { missionId, axis: 'lng', raw: rawLng }));
     const zoom = Number.parseFloat(container.dataset.zoom) || 7.2;
     const token = container.dataset.mapToken;
-    const missionId = container.closest('[data-mission-card]')?.id || container.id || 'mission-map';
 
     if (!canvas) {
       logMissionMapWarn('Missing map canvas for mission card.', { missionId });
