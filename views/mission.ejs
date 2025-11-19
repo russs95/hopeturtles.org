@@ -54,9 +54,13 @@
         >
           <div
             class="mission-card__map <%= hasTarget ? '' : 'mission-card__map--empty' %>"
-            <%= hasTarget
-              ? `data-mission-map data-map-token="${mapboxToken}" data-lat="${targetLat}" data-lng="${targetLng}" data-zoom="7.2"`
-              : '' %>
+            <% if (hasTarget) { %>
+              data-mission-map
+              data-map-token="<%- mapboxToken %>"
+              data-lat="<%- targetLat %>"
+              data-lng="<%- targetLng %>"
+              data-zoom="7.2"
+            <% } %>
           >
             <% if (hasTarget) { %>
               <div
