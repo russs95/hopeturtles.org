@@ -3,18 +3,6 @@
 <% const metrics = aboutMetrics || {}; %>
 <main id="main" class="about-page layout">
   <section class="about-hero">
-    <div class="about-hero__media">
-      <video
-        src="/vids/hope-turtle-floating.mp4"
-        class="about-hero__video"
-        controls
-        autoplay
-        muted
-        loop
-        playsinline
-        aria-label="Hope Turtle gently floating across the ocean"
-      ></video>
-    </div>
     <div class="about-hero__body">
       <div class="about-hero__heading">
         <h1>About the Hope Turtle Project</h1>
@@ -38,6 +26,18 @@
           <span class="metric-value"><%= Number(metrics.hubs || 0).toLocaleString() %></span>
         </article>
       </div>
+    </div>
+    <div class="about-hero__media">
+      <video
+        src="/vids/hope-turtle-floating.mp4"
+        class="about-hero__video"
+        controls
+        autoplay
+        muted
+        loop
+        playsinline
+        aria-label="Hope Turtle gently floating across the ocean"
+      ></video>
     </div>
   </section>
   <section class="about-content">

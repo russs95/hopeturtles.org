@@ -14,6 +14,20 @@ const logMissionMap = (level, message, context = {}) => {
 const logMissionMapInfo = (message, context) => logMissionMap('info', message, context);
 const logMissionMapWarn = (message, context) => logMissionMap('warn', message, context);
 
+// Some mission coordinates arrive with serialized quotes from the CMS/DB seed.
+// We strip them but log when it happens so future regressions are easier to trace.
+const sanitizeCoordinate = (value, context) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    const hasEdgeQuotes = /^['"]/.test(trimmed) || /['"]$/.test(trimmed);
+    if (hasEdgeQuotes) {
+      logMissionMapWarn('Coordinate string included wrapping quotes. Stripping before parsing.', context);
+    }
+    return trimmed.replace(/^["']+|["']+$/g, '');
+  }
+  return value;
+};
+
 const parseCoordinate = (value) => {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -57,8 +71,10 @@ const initMissionMaps = () => {
   }
   mapContainers.forEach((container) => {
     const canvas = container.querySelector('.map-canvas');
-    const lat = parseCoordinate(container.dataset.lat);
-    const lng = parseCoordinate(container.dataset.lng);
+    const rawLat = container.dataset.lat;
+    const rawLng = container.dataset.lng;
+    const lat = parseCoordinate(sanitizeCoordinate(rawLat, { missionId, axis: 'lat', raw: rawLat }));
+    const lng = parseCoordinate(sanitizeCoordinate(rawLng, { missionId, axis: 'lng', raw: rawLng }));
     const zoom = Number.parseFloat(container.dataset.zoom) || 7.2;
     const token = container.dataset.mapToken;
     const missionId = container.closest('[data-mission-card]')?.id || container.id || 'mission-map';
