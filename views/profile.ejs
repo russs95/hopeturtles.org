@@ -83,6 +83,29 @@
           <dd><%= profileUser.continent_code || '—' %></dd>
         </div>
       </dl>
+      <% const buwanaId = profileUser.buwana_id || profileUser.user_id || profileUser.id || ''; %>
+      <% const hasBuwanaId = Boolean(buwanaId); %>
+      <div class="profile-card__actions">
+        <a
+          class="button ghost"
+          href="<%= hasBuwanaId
+            ? `https://buwana.ecobricks.org/en/edit-profile.php?buwana=${encodeURIComponent(buwanaId)}&app=hope_8fc3caabded4`
+            : '#' %>"
+          <%= hasBuwanaId ? 'target="_blank" rel="noreferrer"' : 'aria-disabled="true"' %>
+        >
+          Edit Buwana Profile
+        </a>
+        <a
+          class="button ghost"
+          href="<%= `https://buwana.ecobricks.org/en/feedback.php?app=ecal_7f3da821d0a54f8a9b58${
+            hasBuwanaId ? `&buwana=${encodeURIComponent(buwanaId)}` : ''
+          }` %>"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Bugs &amp; System Support
+        </a>
+      </div>
     </article>
 
     <form class="form-card profile-form" method="POST" action="/profile" enctype="multipart/form-data">

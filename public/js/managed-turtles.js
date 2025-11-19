@@ -51,6 +51,16 @@ const shouldIgnoreManageableClick = (target) => {
   return Boolean(element.closest(interactiveSelector));
 };
 
+const getManageableRow = (element) => {
+  if (!element) {
+    return null;
+  }
+  if (element.matches && element.matches('[data-manageable-turtle]')) {
+    return element;
+  }
+  return element.closest ? element.closest('[data-manageable-turtle]') : null;
+};
+
 const launchTurtleDialog = document.getElementById('launchTurtleDialog');
 const launchTurtleForm = launchTurtleDialog
   ? launchTurtleDialog.querySelector('[data-launch-turtle-form]')
@@ -250,7 +260,8 @@ const closeTurtleBottlesDialog = () => {
   hideDialog(turtleBottlesDialog);
 };
 
-const openTurtleBottlesDialog = async (row) => {
+const openTurtleBottlesDialog = async (sourceElement) => {
+  const row = getManageableRow(sourceElement);
   if (!row || !turtleBottlesDialog) {
     return;
   }
@@ -507,23 +518,31 @@ const populateManageForm = (turtle) => {
   updateFeaturePhotoPreview(photoUrl || '');
 };
 
-const openManageTurtleDialog = (triggerElement) => {
+const openManageTurtleDialog = (sourceElement) => {
   if (!manageTurtleDialog || !manageTurtleForm) {
     return;
   }
 
-  currentTurtleId = triggerElement.dataset.turtleId || null;
-  if (!currentTurtleId) {
+  const row = getManageableRow(sourceElement);
+  if (!row) {
     return;
   }
 
+  const turtleIdRaw = row.dataset.turtleId;
+  const parsedId = turtleIdRaw ? Number(turtleIdRaw) : null;
+  if (!Number.isFinite(parsedId)) {
+    return;
+  }
+
+  currentTurtleId = parsedId;
+
   const turtleData = {
-    name: triggerElement.dataset.turtleName || '',
-    status: triggerElement.dataset.turtleStatus || '',
-    missionId: triggerElement.dataset.turtleMission || '',
-    hubId: triggerElement.dataset.turtleHub || '',
-    boatId: triggerElement.dataset.turtleBoat || '',
-    photoUrl: triggerElement.dataset.turtlePhotoUrl || ''
+    name: row.dataset.turtleName || '',
+    status: row.dataset.turtleStatus || '',
+    missionId: row.dataset.turtleMission || '',
+    hubId: row.dataset.turtleHub || '',
+    boatId: row.dataset.turtleBoat || '',
+    photoUrl: row.dataset.turtlePhotoUrl || ''
   };
 
   manageTurtleForm.dataset.endpoint = `/api/turtles/${encodeURIComponent(currentTurtleId)}`;
@@ -567,10 +586,7 @@ manageTurtleButtons.forEach((button) => {
   button.addEventListener('click', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const row = button.closest('[data-manageable-turtle]');
-    if (row) {
-      openManageTurtleDialog(row);
-    }
+    openManageTurtleDialog(button);
   });
 });
 
@@ -579,10 +595,7 @@ manageBottlesButtons.forEach((button) => {
   button.addEventListener('click', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const row = button.closest('[data-manageable-turtle]');
-    if (row) {
-      openTurtleBottlesDialog(row);
-    }
+    openTurtleBottlesDialog(button);
   });
 });
 

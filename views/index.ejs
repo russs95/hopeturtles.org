@@ -60,26 +60,8 @@
         </article>
       <% }) %>
     </div>
-  </section>
-
-  <section class="success-log" id="success">
-    <header>
-      <h2><%= t.preview_success || 'Recent Landfalls' %></h2>
-      <p><%= t.preview_success_copy || 'Moments of gratitude when Hope Turtles deliver their packages.' %></p>
-    </header>
-    <div class="success-grid">
-      <% successEntries.forEach(function (entry) { %>
-        <article class="success-card">
-          <div class="success-meta">
-            <span><strong>Lat:</strong> <%= entry.location_lat %></span>
-            <span><strong>Lng:</strong> <%= entry.location_lng %></span>
-          </div>
-          <p><%= entry.thank_you_message || 'Ocean blessings received.' %></p>
-        </article>
-      <% }) %>
-    </div>
-    <div class="success-actions">
-      <a class="button" href="/success"><%= t.submit_success || 'Record a Landed Turtle' %></a>
+    <div class="missions-preview__actions">
+      <a class="button ghost" href="/report">View field reports</a>
     </div>
   </section>
 </main>
