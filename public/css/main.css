@@ -2491,7 +2491,10 @@ a:hover {
 ------------------------------------------------------------- */
 
 main.about-page {
+  width: min(1200px, 100%);
+  margin: 0 auto;
   padding: clamp(1.5rem, 4vw, 3.5rem);
+  padding-right: clamp(2.5rem, 5vw, 5rem);
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -2514,6 +2517,8 @@ main.about-page {
   box-shadow: var(--shadow-elevated);
   display: block;
   background: #000;
+  height: 100%;
+  object-fit: cover;
 }
 
 .about-hero__body {
@@ -2536,6 +2541,10 @@ main.about-page {
 .about-content {
   line-height: 1.8;
   font-size: 1.05rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  background: var(--color-surface);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-elevated);
 }
 
 .about-content p {
@@ -2550,6 +2559,7 @@ main.about-page {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1rem;
+  align-items: stretch;
 }
 
 .metric-label {
@@ -2583,15 +2593,17 @@ main.about-page {
   }
 
   .about-hero__media {
-    align-self: end;
+    align-self: stretch;
   }
 
   .about-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
   }
 
   .about-metric {
-    max-width: 70px;
+    max-width: none;
+    min-height: 100%;
   }
 }
 

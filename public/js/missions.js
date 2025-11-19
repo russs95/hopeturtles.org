@@ -1,6 +1,7 @@
 const missionFilter = document.getElementById('missionFilter');
 const missionCards = document.querySelectorAll('[data-mission-card]');
 const mapContainers = document.querySelectorAll('[data-mission-map]');
+const root = document.documentElement;
 
 const logMissionMap = (level, message, context = {}) => {
   if (typeof console === 'undefined') {
@@ -41,13 +42,17 @@ const parseCoordinate = (value) => {
 
 const hasLeaflet = typeof window !== 'undefined' && typeof window.L !== 'undefined';
 
-const createTileLayer = (token) => {
+const getCurrentTheme = () => (root?.dataset?.theme === 'dark' ? 'dark' : 'light');
+
+const createTileLayer = (token, theme = 'light') => {
   if (!hasLeaflet) {
     return null;
   }
+  const isDark = theme === 'dark';
   if (token) {
+    const styleId = isDark ? 'dark-v11' : 'light-v11';
     return L.tileLayer(
-      `https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=${token}`,
+      `https://api.mapbox.com/styles/v1/mapbox/${styleId}/tiles/{z}/{x}/{y}?access_token=${token}`,
       {
         attribution: '© Mapbox © OpenStreetMap',
         tileSize: 512,
@@ -55,9 +60,51 @@ const createTileLayer = (token) => {
       }
     );
   }
+  if (isDark) {
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors © CARTO'
+    });
+  }
   return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   });
+};
+
+const missionMaps = new Map();
+
+const refreshMapThemes = () => {
+  if (!missionMaps.size) {
+    return;
+  }
+  const nextTheme = getCurrentTheme();
+  missionMaps.forEach((value, key) => {
+    const { map, tileLayer, token } = value;
+    if (!map) {
+      return;
+    }
+    if (tileLayer) {
+      map.removeLayer(tileLayer);
+    }
+    const nextLayer = createTileLayer(token, nextTheme);
+    if (nextLayer) {
+      nextLayer.addTo(map);
+      value.tileLayer = nextLayer;
+    }
+    missionMaps.set(key, value);
+  });
+};
+
+const observeThemeChanges = () => {
+  if (!root || typeof MutationObserver === 'undefined') {
+    return;
+  }
+  const observer = new MutationObserver((mutations) => {
+    const themeMutated = mutations.some((mutation) => mutation.attributeName === 'data-theme');
+    if (themeMutated) {
+      refreshMapThemes();
+    }
+  });
+  observer.observe(root, { attributes: true });
 };
 
 const initMissionMaps = () => {
@@ -105,7 +152,7 @@ const initMissionMaps = () => {
       touchZoom: false
     });
 
-    const tileLayer = createTileLayer(token);
+    const tileLayer = createTileLayer(token, getCurrentTheme());
     if (tileLayer) {
       tileLayer.addTo(map);
     } else {
@@ -123,6 +170,8 @@ const initMissionMaps = () => {
     window.setTimeout(() => {
       map.invalidateSize();
     }, 50);
+
+    missionMaps.set(missionId, { map, tileLayer, token });
   });
 };
 
@@ -141,3 +190,4 @@ if (missionFilter) {
 }
 
 initMissionMaps();
+observeThemeChanges();
