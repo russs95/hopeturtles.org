@@ -59,6 +59,7 @@ const launchSuccessState = launchTurtleDialog
 const launchSuccessCloseButton = launchSuccessState
   ? launchSuccessState.querySelector('[data-launch-success-close]')
   : null;
+const launchTurtleTriggers = document.querySelectorAll('[data-launch-turtle]');
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
@@ -643,6 +644,13 @@ if (launchSuccessCloseButton) {
 delegateClick('[data-launch-turtle]', (event) => {
   event.preventDefault();
   openLaunchTurtleDialog();
+});
+
+launchTurtleTriggers.forEach((trigger) => {
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    openLaunchTurtleDialog();
+  });
 });
 
 if (launchTurtleForm) {
