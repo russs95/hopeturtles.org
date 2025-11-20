@@ -317,6 +317,10 @@ a:hover {
   gap: 0.75rem;
 }
 
+.mobile-menu__actions .button {
+  padding: 0.6rem 0;
+}
+
 .mobile-menu__action {
   width: 100%;
   justify-content: center;

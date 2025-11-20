@@ -157,13 +157,7 @@
   <div class="mobile-menu__backdrop" data-close-menu="true"></div>
   <div class="mobile-menu__panel">
     <button id="mobileMenuClose" class="mobile-menu__close" type="button" aria-label="Close menu">✕</button>
-    <% if (currentUser) { %>
-      <div class="mobile-menu__actions">
-        <% if (!onDashboardPage) { %>
-          <a class="button ghost mobile-menu__action" href="/dashboard">🎮 Dash</a>
-        <% } %>
-      </div>
-    <% } else { %>
+    <% if (!currentUser) { %>
       <div class="mobile-menu__actions">
         <a class="button ghost mobile-menu__action" href="<%= loginUrl %>">Login</a>
         <a
