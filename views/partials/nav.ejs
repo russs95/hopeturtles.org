@@ -157,19 +157,6 @@
   <div class="mobile-menu__backdrop" data-close-menu="true"></div>
   <div class="mobile-menu__panel">
     <button id="mobileMenuClose" class="mobile-menu__close" type="button" aria-label="Close menu">✕</button>
-    <% if (!currentUser) { %>
-      <div class="mobile-menu__actions">
-        <a class="button ghost mobile-menu__action" href="<%= loginUrl %>">Login</a>
-        <a
-          class="button ghost mobile-menu__action"
-          href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Signup
-        </a>
-      </div>
-    <% } %>
     <nav class="mobile-menu__nav" aria-label="Mobile primary">
       <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
       <a href="/report">Reports</a>
@@ -177,6 +164,19 @@
       <a href="/team"><%= t.nav_team || 'Team' %></a>
       <% if (currentUser && currentUser.role === 'admin') { %>
         <a href="/admin">Admin</a>
+      <% } %>
+      <% if (!currentUser) { %>
+        <div class="mobile-menu__auth-links">
+          <a class="button ghost mobile-menu__action" href="<%= loginUrl %>">Login</a>
+          <a
+            class="button ghost mobile-menu__action"
+            href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Signup
+          </a>
+        </div>
       <% } %>
     </nav>
     <div class="mobile-menu__footer">
@@ -195,7 +195,10 @@
           <a href="/profile">Edit Profile</a>
         </p>
       <% } %>
-      <p class="mobile-menu__auth-note">Authentication by Buwana</p>
+      <p class="mobile-menu__auth-note">
+        Authentication by
+        <a href="https://buwana.ecobricks.org" target="_blank" rel="noreferrer">Buwana</a>
+      </p>
     </div>
   </div>
 </div>
