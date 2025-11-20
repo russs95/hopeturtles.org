@@ -358,6 +358,38 @@ a:hover {
   border-color: rgba(255, 255, 255, 0.55);
 }
 
+.mobile-menu__footer {
+  margin-top: auto;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.mobile-menu__user {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.35rem;
+}
+
+.mobile-menu__user a {
+  color: #fff;
+}
+
+.mobile-menu__user-emoji {
+  font-size: 1.15rem;
+}
+
+.mobile-menu__divider {
+  opacity: 0.75;
+}
+
+.mobile-menu__auth-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
+
 body.mobile-menu-open {
   overflow: hidden;
 }
@@ -2489,6 +2521,11 @@ body.mobile-menu-open {
   gap: 1rem;
 }
 
+.turtle-bottles-intro {
+  margin: 0 0 0.5rem;
+  color: var(--color-text-muted);
+}
+
 .turtle-bottle-card {
   display: flex;
   gap: 1rem;
@@ -2496,6 +2533,20 @@ body.mobile-menu-open {
   border-radius: 1rem;
   padding: 0.85rem;
   background: rgba(1, 121, 25, 0.03);
+}
+
+.turtle-bottle-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.turtle-bottle-card__actions {
+  margin-left: auto;
+}
+
+.turtle-bottle-card__actions .button {
+  white-space: nowrap;
 }
 
 .turtle-bottle-card__photo {

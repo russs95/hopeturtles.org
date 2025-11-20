@@ -317,10 +317,31 @@
         <button type="button" class="dialog-close" data-close-turtle-bottles aria-label="Close">&times;</button>
       </header>
       <p class="form-feedback" role="status" data-turtle-bottles-feedback hidden></p>
+      <p class="panel-subtitle turtle-bottles-intro" data-turtle-bottles-intro></p>
       <ul class="turtle-bottles-list" data-turtle-bottles-list></ul>
       <p class="panel-empty" data-turtle-bottles-empty hidden>
         No bottles are currently connected to this turtle.
       </p>
+    </article>
+  </dialog>
+
+  <dialog id="detachBottleConfirmDialog" class="mission-dialog" aria-labelledby="detachBottleTitle">
+    <article class="form-card">
+      <header class="mission-dialog__header">
+        <div>
+          <h3 id="detachBottleTitle">Remove bottle from turtle?</h3>
+          <p class="panel-subtitle" data-detach-message>
+            Are you sure you want to remove this bottle from this turtle? Later you can reassign the bottle to this turtle or
+            another.
+          </p>
+        </div>
+        <button type="button" class="dialog-close" data-close-detach-bottle aria-label="Close">&times;</button>
+      </header>
+      <div class="mission-dialog__actions mission-dialog__actions--danger">
+        <button type="button" class="button ghost" data-cancel-detach-bottle>Keep bottle attached</button>
+        <button type="button" class="button danger" data-confirm-detach-bottle>❌ Remove Bottle</button>
+      </div>
+      <p class="form-feedback" role="status" data-detach-feedback hidden></p>
     </article>
   </dialog>
 

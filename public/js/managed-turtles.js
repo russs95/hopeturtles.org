@@ -127,6 +127,26 @@ const turtleBottlesSummary = turtleBottlesDialog
 const turtleBottlesCloseButton = turtleBottlesDialog
   ? turtleBottlesDialog.querySelector('[data-close-turtle-bottles]')
   : null;
+const turtleBottlesIntro = turtleBottlesDialog
+  ? turtleBottlesDialog.querySelector('[data-turtle-bottles-intro]')
+  : null;
+
+const detachBottleDialog = document.getElementById('detachBottleConfirmDialog');
+const detachBottleMessage = detachBottleDialog
+  ? detachBottleDialog.querySelector('[data-detach-message]')
+  : null;
+const detachBottleFeedback = detachBottleDialog
+  ? detachBottleDialog.querySelector('[data-detach-feedback]')
+  : null;
+const detachBottleCloseButton = detachBottleDialog
+  ? detachBottleDialog.querySelector('[data-close-detach-bottle]')
+  : null;
+const detachBottleCancelButton = detachBottleDialog
+  ? detachBottleDialog.querySelector('[data-cancel-detach-bottle]')
+  : null;
+const detachBottleConfirmButton = detachBottleDialog
+  ? detachBottleDialog.querySelector('[data-confirm-detach-bottle]')
+  : null;
 
 const escapeHtml = (value) => {
   if (value === undefined || value === null) {
@@ -179,6 +199,40 @@ const formatBottleContents = (value) => {
   return escapeHtml(value).replace(/\r?\n/gu, '<br />');
 };
 
+const setTurtleBottlesIntro = (turtle) => {
+  if (!turtleBottlesIntro) {
+    return;
+  }
+  const turtleName = (turtle?.name || '').trim();
+  const turtleId = turtle?.turtle_id || turtleBottlesCurrentId;
+  const displayName = turtleName || (turtleId ? `Turtle #${turtleId}` : 'this turtle');
+  const introText = turtleId
+    ? `The aid bottles have been assigned to ${displayName} (hope turtle #${turtleId}).`
+    : '';
+  turtleBottlesIntro.textContent = introText;
+  turtleBottlesIntro.hidden = !introText;
+};
+
+const setTurtleBottlesSummary = (turtle, fallbackHubName) => {
+  if (!turtleBottlesSummary) {
+    return;
+  }
+  const turtleName = (turtle?.name || '').trim();
+  const turtleLabel = turtleName || (turtle?.turtle_id ? `Turtle #${turtle.turtle_id}` : 'This turtle');
+  const hubLabel = (turtle?.hub_name || fallbackHubName || '').trim();
+  turtleBottlesSummary.textContent = hubLabel ? `${turtleLabel} · ${hubLabel}` : turtleLabel;
+};
+
+const updateTurtleBottleCount = (count) => {
+  if (!turtleBottlesRow) {
+    return;
+  }
+  const pillCount = turtleBottlesRow.querySelector('.turtle-bottles-pill span:last-child');
+  if (pillCount) {
+    pillCount.textContent = Number(count || 0).toLocaleString();
+  }
+};
+
 const createTurtleBottleCard = (bottle) => {
   const card = document.createElement('li');
   card.className = 'turtle-bottle-card';
@@ -196,7 +250,20 @@ const createTurtleBottleCard = (bottle) => {
       ${photoMarkup}
     </div>
     <div class="turtle-bottle-card__body">
-      <h3>${serialLabel}</h3>
+      <div class="turtle-bottle-card__header">
+        <h3>${serialLabel}</h3>
+        <div class="turtle-bottle-card__actions">
+          <button
+            type="button"
+            class="button ghost button-small danger"
+            data-remove-bottle-from-turtle
+            data-bottle-id="${escapeHtml(bottle.bottle_id)}"
+            data-turtle-id="${escapeHtml(bottle.turtle_id)}"
+          >
+            ❌ Remove Bottle
+          </button>
+        </div>
+      </div>
       <p class="turtle-bottle-card__contents">${contentsMarkup}</p>
       <dl>
         <div>
@@ -240,15 +307,22 @@ const renderTurtleBottles = (bottles) => {
 };
 
 let turtleBottlesCurrentId = null;
+let turtleBottlesRow = null;
+let detachContext = { bottleId: null, turtleId: null };
 
 const closeTurtleBottlesDialog = () => {
   turtleBottlesCurrentId = null;
+  turtleBottlesRow = null;
   setTurtleBottlesFeedback('');
   if (turtleBottlesList) {
     turtleBottlesList.innerHTML = '';
   }
   if (turtleBottlesEmptyState) {
     turtleBottlesEmptyState.hidden = true;
+  }
+  if (turtleBottlesIntro) {
+    turtleBottlesIntro.textContent = '';
+    turtleBottlesIntro.hidden = true;
   }
   hideDialog(turtleBottlesDialog);
 };
@@ -264,15 +338,15 @@ const openTurtleBottlesDialog = async (sourceElement) => {
     return;
   }
   turtleBottlesCurrentId = turtleId;
+  turtleBottlesRow = row;
   const turtleName = row.dataset.turtleName?.trim() || `Turtle #${row.dataset.turtleId}`;
   const hubName = row.dataset.turtleHubName?.trim();
   const endpointTemplate = row.dataset.bottlesEndpoint || `/api/my-bottles/turtles/{id}`;
   const endpoint = endpointTemplate.includes('{id}')
     ? endpointTemplate.replace('{id}', encodeURIComponent(turtleId))
     : endpointTemplate;
-  if (turtleBottlesSummary) {
-    turtleBottlesSummary.textContent = hubName ? `${turtleName} · ${hubName}` : turtleName;
-  }
+  setTurtleBottlesSummary({ name: turtleName, turtle_id: turtleId, hub_name: hubName }, hubName);
+  setTurtleBottlesIntro({ name: turtleName, turtle_id: turtleId });
   if (turtleBottlesList) {
     turtleBottlesList.innerHTML = '';
   }
@@ -291,7 +365,12 @@ const openTurtleBottlesDialog = async (sourceElement) => {
     if (turtleBottlesCurrentId !== turtleId) {
       return;
     }
-    renderTurtleBottles(json.data?.bottles || []);
+    const turtleData = json.data?.turtle || { name: turtleName, turtle_id: turtleId, hub_name: hubName };
+    const bottles = json.data?.bottles || [];
+    setTurtleBottlesSummary(turtleData, hubName);
+    setTurtleBottlesIntro(turtleData);
+    renderTurtleBottles(bottles);
+    updateTurtleBottleCount(bottles.length);
     setTurtleBottlesFeedback('');
   } catch (error) {
     if (turtleBottlesCurrentId !== turtleId) {
@@ -301,6 +380,73 @@ const openTurtleBottlesDialog = async (sourceElement) => {
       turtleBottlesList.innerHTML = '';
     }
     setTurtleBottlesFeedback(error.message || 'Unable to load bottles.', true);
+  }
+};
+
+const closeDetachBottleDialog = () => {
+  detachContext = { bottleId: null, turtleId: null };
+  if (detachBottleFeedback) {
+    detachBottleFeedback.textContent = '';
+    detachBottleFeedback.hidden = true;
+  }
+  if (detachBottleConfirmButton) {
+    detachBottleConfirmButton.disabled = false;
+    detachBottleConfirmButton.textContent = '❌ Remove Bottle';
+  }
+  hideDialog(detachBottleDialog);
+};
+
+const openDetachBottleDialog = (bottleId, turtleId) => {
+  detachContext = { bottleId, turtleId };
+  if (detachBottleConfirmButton) {
+    detachBottleConfirmButton.disabled = false;
+    detachBottleConfirmButton.textContent = '❌ Remove Bottle';
+  }
+  if (detachBottleFeedback) {
+    detachBottleFeedback.textContent = '';
+    detachBottleFeedback.hidden = true;
+  }
+  showDialog(detachBottleDialog);
+};
+
+const confirmDetachBottle = async () => {
+  if (!detachContext?.bottleId || !turtleBottlesCurrentId) {
+    return;
+  }
+
+  if (detachBottleConfirmButton) {
+    detachBottleConfirmButton.disabled = true;
+    detachBottleConfirmButton.textContent = 'Removing…';
+  }
+
+  if (detachBottleFeedback) {
+    detachBottleFeedback.hidden = true;
+    detachBottleFeedback.textContent = '';
+  }
+
+  try {
+    const response = await fetch(`/api/my-bottles/${encodeURIComponent(detachContext.bottleId)}/turtle`, {
+      method: 'DELETE'
+    });
+    const json = await parseJsonResponse(response);
+    if (!response.ok || !json.success) {
+      throw new Error(json?.message || 'Unable to remove bottle.');
+    }
+    const bottles = json.data?.bottles || [];
+    renderTurtleBottles(bottles);
+    updateTurtleBottleCount(bottles.length);
+    setTurtleBottlesFeedback('Bottle removed from this turtle.', false);
+    closeDetachBottleDialog();
+  } catch (error) {
+    if (detachBottleFeedback) {
+      detachBottleFeedback.textContent = error.message || 'Unable to remove bottle.';
+      detachBottleFeedback.hidden = false;
+    }
+  } finally {
+    if (detachBottleConfirmButton) {
+      detachBottleConfirmButton.disabled = false;
+      detachBottleConfirmButton.textContent = '❌ Remove Bottle';
+    }
   }
 };
 
@@ -580,6 +726,21 @@ delegateClick('[data-trigger-manage-bottles]', (event, button) => {
   openTurtleBottlesDialog(button);
 });
 
+delegateClick('[data-remove-bottle-from-turtle]', (event, button) => {
+  event.preventDefault();
+  event.stopPropagation();
+  const bottleId = Number(button.dataset.bottleId);
+  const turtleId = Number(button.dataset.turtleId || turtleBottlesCurrentId);
+  if (!Number.isFinite(bottleId) || !Number.isFinite(turtleId)) {
+    return;
+  }
+  if (detachBottleMessage) {
+    detachBottleMessage.textContent =
+      'Are you sure you want to remove this bottle from this turtle? Later you can reassign the bottle to this turtle or another.';
+  }
+  openDetachBottleDialog(bottleId, turtleId);
+});
+
 const openLaunchTurtleDialog = () => {
   if (!launchTurtleDialog) {
     return;
@@ -627,6 +788,33 @@ if (turtleBottlesDialog) {
     turtleBottlesCloseButton.addEventListener('click', (event) => {
       event.preventDefault();
       closeTurtleBottlesDialog();
+    });
+  }
+}
+
+if (detachBottleDialog) {
+  if (supportsNativeDialog(detachBottleDialog)) {
+    detachBottleDialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeDetachBottleDialog();
+    });
+  }
+  if (detachBottleCloseButton) {
+    detachBottleCloseButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeDetachBottleDialog();
+    });
+  }
+  if (detachBottleCancelButton) {
+    detachBottleCancelButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeDetachBottleDialog();
+    });
+  }
+  if (detachBottleConfirmButton) {
+    detachBottleConfirmButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      confirmDetachBottle();
     });
   }
 }

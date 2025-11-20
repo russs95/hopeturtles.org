@@ -316,6 +316,45 @@ export const listBottlesForManagedTurtle = async (req, res, next) => {
   }
 };
 
+export const detachBottleFromManagedTurtle = async (req, res, next) => {
+  try {
+    const managerId = getCurrentUserId(req);
+    if (!managerId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    const bottleIdRaw = req.params.id;
+    const bottleId = Number(bottleIdRaw);
+    if (!Number.isFinite(bottleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid bottle identifier.' });
+    }
+
+    const bottle = await bottlesModel.getManagedBottleById(bottleId, managerId);
+    if (!bottle) {
+      return res.status(404).json({ success: false, message: 'Bottle not found for your turtle.' });
+    }
+
+    const turtleId = Number(bottle.turtle_id);
+    if (!Number.isFinite(turtleId)) {
+      return res.status(400).json({ success: false, message: 'Bottle is not attached to a turtle.' });
+    }
+
+    await bottlesModel.update(bottleId, { turtle_id: null });
+
+    const updatedBottles = await bottlesModel.getForManagedTurtle(turtleId, managerId);
+
+    return res.json({
+      success: true,
+      data: {
+        turtleId,
+        bottles: updatedBottles
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const listBottlesForTurtleAdmin = async (req, res, next) => {
   try {
     const currentUser = req.session?.user || null;
@@ -409,5 +448,6 @@ export default {
   submitBottleDeliveryDetails,
   listBottlesForManagedTurtle,
   listBottlesForTurtleAdmin,
-  reassignBottleToTurtle
+  reassignBottleToTurtle,
+  detachBottleFromManagedTurtle
 };

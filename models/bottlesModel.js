@@ -120,6 +120,29 @@ bottlesModel.getForManagedTurtle = async (turtleId, managerId) => {
   return query(sql, [turtleId, managerId]);
 };
 
+bottlesModel.getManagedBottleById = async (bottleId, managerId) => {
+  if (!bottleId || !managerId) {
+    return null;
+  }
+
+  const sql = `
+    SELECT
+      b.bottle_id,
+      b.serial_number,
+      b.turtle_id,
+      b.hub_id,
+      b.packed_by,
+      t.turtle_manager
+    FROM bottles_tb b
+    INNER JOIN turtles_tb t ON t.turtle_id = b.turtle_id
+    WHERE b.bottle_id = ? AND t.turtle_manager = ?
+    LIMIT 1
+  `;
+
+  const rows = await query(sql, [bottleId, managerId]);
+  return rows[0] ?? null;
+};
+
 bottlesModel.getForTurtle = async (turtleId) => {
   if (!turtleId) {
     return [];

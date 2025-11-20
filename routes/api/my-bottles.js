@@ -9,7 +9,8 @@ import {
   submitBottleDeliveryDetails,
   deleteMyBottle,
   listBottlesForManagedTurtle,
-  reassignBottleToTurtle
+  reassignBottleToTurtle,
+  detachBottleFromManagedTurtle
 } from '../../controllers/bottlesController.js';
 import { ensureAuth } from '../../middleware/auth.js';
 
@@ -49,5 +50,6 @@ router.post(
   submitBottleDeliveryDetails
 );
 router.patch('/:id/turtle', reassignBottleToTurtle);
+router.delete('/:id/turtle', detachBottleFromManagedTurtle);
 
 export default router;
