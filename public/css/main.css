@@ -280,6 +280,10 @@ a:hover {
   padding: clamp(1.25rem, 5vw, 2.5rem);
 }
 
+[data-theme='dark'] .mobile-menu {
+  background: #0f3b1a;
+}
+
 .mobile-menu[hidden] {
   display: none;
 }
@@ -312,12 +316,13 @@ a:hover {
   cursor: pointer;
 }
 
-.mobile-menu__actions {
+.mobile-menu__auth-links {
   display: grid;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.mobile-menu__actions .button {
+.mobile-menu__auth-links .button {
   padding: 0.6rem 0;
 }
 
@@ -333,8 +338,8 @@ a:hover {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.mobile-menu__actions .button,
-.mobile-menu__actions .button.ghost {
+.mobile-menu__auth-links .button,
+.mobile-menu__auth-links .button.ghost {
   color: #fff;
   border-color: #fff;
   background: transparent;
@@ -363,6 +368,10 @@ a:hover {
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
   line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .mobile-menu__user {
@@ -388,6 +397,12 @@ a:hover {
   margin: 0;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
+  align-self: flex-end;
+}
+
+.mobile-menu__auth-note a {
+  color: inherit;
+  font-weight: 600;
 }
 
 body.mobile-menu-open {

@@ -78,9 +78,21 @@
           <dt>Watershed</dt>
           <dd><%= profileUser.location_watershed || '—' %></dd>
         </div>
+        <% const continentCode = (profileUser.continent_code || '').toUpperCase(); %>
+        <% const continentNames = {
+             AF: '🌍 Africa',
+             AN: '🌏 Antarctica',
+             AS: '🌏 Asia',
+             EU: '🌍 Europe',
+             NA: '🌎 North America',
+             SA: '🌎 South America',
+             OC: '🌊 Oceania',
+             AU: '🌏 Australia'
+           }; %>
+        <% const continentLabel = continentCode ? (continentNames[continentCode] || continentCode) : '—'; %>
         <div class="readonly-field">
           <dt>Continent</dt>
-          <dd><%= profileUser.continent_code || '—' %></dd>
+          <dd><%= continentLabel %></dd>
         </div>
       </dl>
       <% const buwanaId = profileUser.buwana_id || profileUser.user_id || profileUser.id || ''; %>
@@ -97,7 +109,7 @@
         </a>
         <a
           class="button ghost"
-          href="<%= `https://buwana.ecobricks.org/en/feedback.php?app=ecal_7f3da821d0a54f8a9b58${
+          href="<%= `https://buwana.ecobricks.org/en/feedback.php?app=hope_8fc3caabded4${
             hasBuwanaId ? `&buwana=${encodeURIComponent(buwanaId)}` : ''
           }` %>"
           target="_blank"
