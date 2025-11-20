@@ -185,9 +185,11 @@
               data-turtle-status="<%= turtle.status || '' %>"
               data-turtle-mission="<%= turtle.mission_id || '' %>"
               data-turtle-hub="<%= turtle.hub_id || '' %>"
+              data-turtle-hub-name="<%= turtle.hub_name || '' %>"
               data-turtle-boat="<%= turtle.boat_id || '' %>"
               data-turtle-photo-url="<%= turtle.profile_photo_url || turtle.profile_photo_thumbnail_url || '' %>"
               data-turtle-photo-thumb-url="<%= turtle.profile_photo_thumbnail_url || '' %>"
+              data-bottles-endpoint="/api/turtles/<%= turtle.turtle_id %>/bottles"
             >
               <td data-label="Profile">
                 <div class="turtle-profile">
@@ -212,7 +214,17 @@
                 </div>
               </td>
               <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
-              <td data-label="Bottles" class="numeric-cell"><%= turtle.bottle_count ?? 0 %></td>
+              <td data-label="Bottles" class="numeric-cell">
+                <button
+                  type="button"
+                  class="status-pill turtle-bottles-pill"
+                  data-trigger-manage-bottles
+                  aria-label="View bottles linked to <%= turtle.name || 'turtle #' + turtle.turtle_id %>"
+                >
+                  <span aria-hidden="true">🔗</span>
+                  <span><%= Number(turtle.bottle_count || 0).toLocaleString() %></span>
+                </button>
+              </td>
               <td data-label="Manager"><%= turtle.manager_name || '—' %></td>
               <td data-label="Last update"><%= formatDateTime(turtle.last_update) %></td>
               <td data-label="Logs" class="numeric-cell"><%= turtle.log_count ?? 0 %></td>
@@ -247,6 +259,23 @@
   </section>
 
   <%- include('partials/manage-turtle-dialog', { turtleStatusOptions, missions, hubs, boats }) %>
+
+  <dialog id="turtleBottlesDialog" class="mission-dialog" aria-labelledby="turtleBottlesTitle">
+    <article class="form-card turtle-bottles-card">
+      <header class="mission-dialog__header">
+        <div>
+          <h2 id="turtleBottlesTitle">Connected bottles</h2>
+          <p class="panel-subtitle" data-turtle-bottles-summary></p>
+        </div>
+        <button type="button" class="dialog-close" data-close-turtle-bottles aria-label="Close">&times;</button>
+      </header>
+      <p class="form-feedback" role="status" data-turtle-bottles-feedback hidden></p>
+      <ul class="turtle-bottles-list" data-turtle-bottles-list></ul>
+      <p class="panel-empty" data-turtle-bottles-empty hidden>
+        No bottles are currently connected to this turtle.
+      </p>
+    </article>
+  </dialog>
 
   <dialog id="createTurtleDialog" class="mission-dialog" aria-labelledby="createTurtleTitle">
     <form

@@ -265,6 +265,10 @@ const openTurtleBottlesDialog = async (sourceElement) => {
   turtleBottlesCurrentId = turtleId;
   const turtleName = row.dataset.turtleName?.trim() || `Turtle #${row.dataset.turtleId}`;
   const hubName = row.dataset.turtleHubName?.trim();
+  const endpointTemplate = row.dataset.bottlesEndpoint || `/api/my-bottles/turtles/{id}`;
+  const endpoint = endpointTemplate.includes('{id}')
+    ? endpointTemplate.replace('{id}', encodeURIComponent(turtleId))
+    : endpointTemplate;
   if (turtleBottlesSummary) {
     turtleBottlesSummary.textContent = hubName ? `${turtleName} · ${hubName}` : turtleName;
   }
@@ -278,7 +282,7 @@ const openTurtleBottlesDialog = async (sourceElement) => {
   showDialog(turtleBottlesDialog);
 
   try {
-    const response = await fetch(`/api/my-bottles/turtles/${encodeURIComponent(turtleId)}`);
+    const response = await fetch(endpoint);
     const json = await parseJsonResponse(response);
     if (!response.ok || !json.success) {
       throw new Error(json?.message || 'Unable to load bottles.');

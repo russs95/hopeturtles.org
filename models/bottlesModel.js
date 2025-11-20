@@ -120,4 +120,39 @@ bottlesModel.getForManagedTurtle = async (turtleId, managerId) => {
   return query(sql, [turtleId, managerId]);
 };
 
+bottlesModel.getForTurtle = async (turtleId) => {
+  if (!turtleId) {
+    return [];
+  }
+
+  const sql = `
+    SELECT
+      b.bottle_id,
+      b.serial_number,
+      b.brand,
+      b.volume_ml,
+      b.turtle_id,
+      b.hub_id,
+      b.contents,
+      b.weight_grams,
+      b.status,
+      b.verified,
+      b.mission_id,
+      b.bottle_basic_pic,
+      b.bottle_selfie_pic,
+      photo.url AS basic_photo_url,
+      selfie.url AS selfie_photo_url,
+      h.name AS hub_name,
+      h.mailing_address AS hub_mailing_address
+    FROM bottles_tb b
+    LEFT JOIN photos_tb photo ON photo.photo_id = b.bottle_basic_pic
+    LEFT JOIN photos_tb selfie ON selfie.photo_id = b.bottle_selfie_pic
+    LEFT JOIN hubs_tb h ON h.hub_id = b.hub_id
+    WHERE b.turtle_id = ?
+    ORDER BY b.updated_at DESC, b.created_at DESC
+  `;
+
+  return query(sql, [turtleId]);
+};
+
 export default bottlesModel;

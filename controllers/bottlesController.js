@@ -316,6 +316,37 @@ export const listBottlesForManagedTurtle = async (req, res, next) => {
   }
 };
 
+export const listBottlesForTurtleAdmin = async (req, res, next) => {
+  try {
+    const currentUser = req.session?.user || null;
+    if (!currentUser || currentUser.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+
+    const turtleId = Number(req.params.id);
+    if (!Number.isFinite(turtleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid turtle identifier.' });
+    }
+
+    const turtle = await turtlesModel.getById(turtleId);
+    if (!turtle) {
+      return res.status(404).json({ success: false, message: 'Turtle not found.' });
+    }
+
+    const bottles = await bottlesModel.getForTurtle(turtleId);
+
+    return res.json({
+      success: true,
+      data: {
+        turtle,
+        bottles
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const reassignBottleToTurtle = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -377,5 +408,6 @@ export default {
   deleteMyBottle,
   submitBottleDeliveryDetails,
   listBottlesForManagedTurtle,
+  listBottlesForTurtleAdmin,
   reassignBottleToTurtle
 };
