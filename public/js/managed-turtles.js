@@ -1,3 +1,4 @@
+(function initManagedTurtles() {
 const manageTurtleDialog = document.getElementById('manageTurtleDialog');
 const manageTurtleForm = manageTurtleDialog
   ? manageTurtleDialog.querySelector('[data-manage-turtle-form]')
@@ -917,3 +918,4 @@ if (deleteTurtleButton) {
     }
   });
 }
+})();
