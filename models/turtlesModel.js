@@ -82,6 +82,7 @@ turtlesModel.getManagedWithRelations = async (managerId) => {
       m.name AS mission_name,
       h.name AS hub_name,
       b.name AS boat_name,
+      COALESCE(bottle_counts.bottle_count, 0) AS bottle_count,
       profile_photo.url AS profile_photo_url,
       profile_photo.thumbnail_url AS profile_photo_thumbnail_url
     FROM turtles_tb t
@@ -89,6 +90,11 @@ turtlesModel.getManagedWithRelations = async (managerId) => {
     LEFT JOIN hubs_tb h ON t.hub_id = h.hub_id
     LEFT JOIN boats_tb b ON t.boat_id = b.boat_id
     LEFT JOIN photos_tb profile_photo ON profile_photo.photo_id = t.profile_photo_id
+    LEFT JOIN (
+      SELECT turtle_id, COUNT(*) AS bottle_count
+      FROM bottles_tb
+      GROUP BY turtle_id
+    ) AS bottle_counts ON bottle_counts.turtle_id = t.turtle_id
     WHERE t.turtle_manager = ?
     ORDER BY t.turtle_id DESC
   `;

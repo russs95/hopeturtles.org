@@ -179,5 +179,23 @@
         <a href="/admin">Admin</a>
       <% } %>
     </nav>
+    <div class="mobile-menu__footer">
+      <% if (currentUser) {
+           const userFirstName =
+             currentUser.firstName ||
+             (currentUser.name ? currentUser.name.split(/\s+/u)[0] : null) ||
+             (currentUser.email ? currentUser.email.split('@')[0] : null) ||
+             'Crew';
+           const userEmoji = currentUser.earthlingEmoji || currentUser.earthling_emoji || '👤';
+      %>
+        <p class="mobile-menu__user">
+          <span class="mobile-menu__user-emoji" aria-hidden="true"><%= userEmoji %></span>
+          Logged in as <strong><%= userFirstName %></strong>
+          <span class="mobile-menu__divider" aria-hidden="true">|</span>
+          <a href="/profile">Edit Profile</a>
+        </p>
+      <% } %>
+      <p class="mobile-menu__auth-note">Authentication by Buwana</p>
+    </div>
   </div>
 </div>
