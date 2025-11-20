@@ -227,7 +227,7 @@
               <th scope="col">Hub</th>
               <th scope="col">Boat</th>
               <th scope="col">Status</th>
-              <th scope="col" class="turtles-actions-column">Manage</th>
+              <th scope="col">Bottles</th>
             </tr>
           </thead>
           <tbody>
@@ -270,20 +270,33 @@
                   </div>
                 </td>
                 <td data-label="Name"><%= turtle.name || '—' %></td>
-                <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
-                <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
-                <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
-                <td data-label="Status"><%= formatTurtleStatus(turtle.status) %></td>
-                <td data-label="Manage" class="turtle-actions">
-                  <button type="button" class="button button-small ghost" data-trigger-manage-turtle>
-                    ⚙️ Turtles
-                  </button>
-                  <button type="button" class="button button-small ghost" data-trigger-manage-bottles>
-                    🔗 Bottles
-                  </button>
-                </td>
-              </tr>
-            <% }) %>
+              <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
+              <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
+              <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
+              <td data-label="Status">
+                <button
+                  type="button"
+                  class="status-pill turtle-status-pill turtle-status-pill--action"
+                  data-status="<%= formatStatusKey(turtle.status) %>"
+                  data-trigger-manage-turtle
+                >
+                  <span aria-hidden="true">⚙️</span>
+                  <span><%= formatTurtleStatus(turtle.status) %></span>
+                </button>
+              </td>
+              <td data-label="Bottles">
+                <button
+                  type="button"
+                  class="status-pill turtle-bottles-pill"
+                  data-trigger-manage-bottles
+                  aria-label="View bottles linked to <%= turtle.name || 'turtle #' + turtle.turtle_id %>"
+                >
+                  <span aria-hidden="true">🔗</span>
+                  <span><%= Number(turtle.bottle_count || 0).toLocaleString() %></span>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
           </tbody>
         </table>
       </div>
