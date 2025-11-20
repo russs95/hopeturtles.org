@@ -250,7 +250,7 @@ const formatBottleWeight = (value) => {
   return `${numeric.toLocaleString()} g`;
 };
 
-const formatBottleContents = (value) => {
+const formatDashboardBottleContents = (value) => {
   if (!value) {
     return '—';
   }
@@ -596,7 +596,7 @@ const createBottleRow = (bottle) => {
       </button>
     </td>
     <td data-label="Mission">${missionLabel}</td>
-    <td data-label="Contents"><div class="bottle-contents">${formatBottleContents(bottle.contents)}</div></td>
+    <td data-label="Contents"><div class="bottle-contents">${formatDashboardBottleContents(bottle.contents)}</div></td>
     <td data-label="Weight">${escapeHtml(weightLabel)}</td>
     <td data-label="Verified">
       <span class="status-pill verified-pill" data-verified="${verifiedValue}">

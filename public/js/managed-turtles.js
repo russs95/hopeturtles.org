@@ -558,12 +558,20 @@ const closeManageTurtleDialog = () => {
 delegateClick('[data-trigger-manage-turtle]', (event, button) => {
   event.preventDefault();
   event.stopPropagation();
+  console.log('[Managed turtles] Manage turtle trigger clicked', {
+    trigger: button,
+    turtleRow: getManageableRow(button)
+  });
   openManageTurtleDialog(button);
 });
 
 delegateClick('[data-trigger-manage-bottles]', (event, button) => {
   event.preventDefault();
   event.stopPropagation();
+  console.log('[Managed turtles] Manage bottles trigger clicked', {
+    trigger: button,
+    turtleRow: getManageableRow(button)
+  });
   openTurtleBottlesDialog(button);
 });
 
@@ -643,12 +651,14 @@ if (launchSuccessCloseButton) {
 
 delegateClick('[data-launch-turtle]', (event) => {
   event.preventDefault();
+  console.log('[Managed turtles] Launch turtle trigger clicked', { target: event.target });
   openLaunchTurtleDialog();
 });
 
 launchTurtleTriggers.forEach((trigger) => {
   trigger.addEventListener('click', (event) => {
     event.preventDefault();
+    console.log('[Managed turtles] Launch turtle button clicked', { trigger });
     openLaunchTurtleDialog();
   });
 });
