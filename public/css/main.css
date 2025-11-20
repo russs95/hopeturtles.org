@@ -254,10 +254,10 @@ a:hover {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid var(--color-primary);
+  border: none;
   background: transparent;
   color: var(--color-primary);
-  font-size: 1.15rem;
+  font-size: 1.4rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
@@ -327,6 +327,13 @@ a:hover {
 
 .mobile-menu__action:hover {
   background: rgba(255, 255, 255, 0.12);
+}
+
+.mobile-menu__actions .button,
+.mobile-menu__actions .button.ghost {
+  color: #fff;
+  border-color: #fff;
+  background: transparent;
 }
 
 .mobile-menu__nav {
@@ -635,6 +642,23 @@ body.mobile-menu-open {
 .metric-value {
   font-size: 2rem;
   font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .hero-metrics,
+  .about-metrics,
+  .dashboard .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .metric-card {
+    padding: 1rem;
+  }
+
+  .metric-value {
+    font-size: 1.6rem;
+  }
 }
 
 .panel {
@@ -2719,6 +2743,17 @@ main.about-page {
   width: fit-content;
 }
 
+@media (max-width: 768px) {
+  main.about-page {
+    padding: 1.5rem 1rem 3rem;
+    gap: 1.75rem;
+  }
+
+  .about-metrics {
+    gap: 0.75rem;
+  }
+}
+
 @media (min-width: 900px) {
   .about-hero {
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
@@ -2879,11 +2914,7 @@ main.about-page {
   }
 
   .primary-nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    width: 100%;
-    justify-content: center;
-    margin-top: 0.5rem;
+    display: none;
   }
 
   .nav-signup {
