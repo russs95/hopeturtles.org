@@ -22,46 +22,11 @@
     </div>
   </section>
 
-  <section class="missions-preview">
-    <header>
-      <h2><%= t.preview_missions || 'Active Missions' %></h2>
-      <p><%= t.preview_missions_copy || 'Mapping the journeys of each Hope Turtle as they drift toward communities in need.' %></p>
-    </header>
-    <div class="mission-cards">
-      <% missions.forEach(function (mission) { %>
-        <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
-        <% const statusLabel = mission.status ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1) : 'Unknown'; %>
-        <% const hasTarget = mission.target_lat != null && mission.target_lng != null; %>
-        <article class="card mission-card" data-status="<%= mission.status %>">
-          <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
-          <header class="card-header">
-            <h3><%= mission.name %></h3>
-          </header>
-          <% if (hasTarget) { %>
-            <div
-              class="mission-card-map"
-              data-map-token="<%= mapboxToken %>"
-              data-lat="<%= mission.target_lat %>"
-              data-lng="<%= mission.target_lng %>"
-              data-zoom="7.4"
-            >
-              <div
-                id="missionPreviewMap-<%= mission.mission_id %>"
-                class="map-canvas"
-                aria-label="Map preview for <%= mission.name %>"
-              ></div>
-            </div>
-          <% } %>
-          <p><%= mission.description %></p>
-          <ul class="card-meta">
-            <li><strong>Target:</strong> <%= hasTarget ? mission.target_lat + ', ' + mission.target_lng : 'To be announced' %></li>
-          </ul>
-          <a href="/missions#mission-<%= mission.mission_id %>" class="button ghost">View details</a>
-        </article>
-      <% }) %>
-    </div>
-    <div class="missions-preview__actions">
-      <a class="button ghost" href="/report">View field reports</a>
+  <section class="landing-intro">
+    <div class="landing-intro__content">
+      <h1><%= t.landing_welcome_title %></h1>
+      <p><%= t.landing_intro_paragraph1 %></p>
+      <p><%= t.landing_intro_paragraph2 %></p>
     </div>
   </section>
 </main>
