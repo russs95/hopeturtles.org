@@ -275,7 +275,7 @@ a:hover {
   color: #fff;
   z-index: 1200;
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
   padding: clamp(1.25rem, 5vw, 2.5rem);
 }
@@ -301,6 +301,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-height: 100%;
   z-index: 1;
 }
 
@@ -319,7 +320,9 @@ a:hover {
 .mobile-menu__auth-links {
   display: grid;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: auto;
+  width: 100%;
+  text-align: center;
 }
 
 .mobile-menu__auth-links .button {
@@ -346,9 +349,11 @@ a:hover {
 }
 
 .mobile-menu__nav {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   font-size: 1.1rem;
+  flex: 1;
 }
 
 .mobile-menu__nav a {
@@ -370,8 +375,8 @@ a:hover {
   line-height: 1.4;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
+  align-items: center;
+  text-align: center;
 }
 
 .mobile-menu__user {
@@ -397,7 +402,7 @@ a:hover {
   margin: 0;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
-  align-self: flex-end;
+  align-self: center;
 }
 
 .mobile-menu__auth-note a {
@@ -907,7 +912,7 @@ body.mobile-menu-open {
 }
 
 .mission-card__body {
-  padding: 1.25rem 1.5rem 0.5rem;
+  padding: 1.25rem 0 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -924,10 +929,11 @@ body.mobile-menu-open {
 }
 
 .mission-card__metrics {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 0 1.5rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.8rem;
+  margin-top: 20px;
 }
 
 .mission-metric {
@@ -2053,10 +2059,14 @@ body.mobile-menu-open {
 }
 
 .site-footer {
-  background: var(--color-dark);
+  background: var(--color-primary);
   color: #fff;
   padding: 3rem clamp(1rem, 5vw, 3rem);
   margin-top: auto;
+}
+
+[data-theme='dark'] .site-footer {
+  background: #0f3b1a;
 }
 
 .site-footer h3 {
@@ -2065,6 +2075,46 @@ body.mobile-menu-open {
 
 .site-footer a {
   color: var(--color-light);
+}
+
+#wcb.carbonbadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(1, 121, 25, 0.12);
+  border: 1px solid rgba(1, 121, 25, 0.28);
+}
+
+#wcb_a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(1, 121, 25, 0.16);
+  color: var(--color-primary);
+  border: 1px solid rgba(1, 121, 25, 0.35);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+#wcb_a svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+[data-theme='dark'] #wcb.carbonbadge {
+  background: rgba(35, 176, 83, 0.14);
+  border-color: rgba(192, 227, 203, 0.25);
+}
+
+[data-theme='dark'] #wcb_a {
+  background: rgba(35, 176, 83, 0.2);
+  color: #c0e3cb;
+  border-color: rgba(192, 227, 203, 0.35);
 }
 
 .footer-grid {
@@ -2989,6 +3039,14 @@ main.about-page {
   }
 
   .nav-signup {
+    display: none;
+  }
+
+  .mission-card__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-controls .button {
     display: none;
   }
 }
