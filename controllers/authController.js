@@ -269,7 +269,8 @@ export const callback = async (req, res, next) => {
       console.warn('⚠️ OAuth callback received error:', error, description);
       return res.status(400).render('error', {
         pageTitle: 'Auth Error',
-        message: description || error
+        message: description || error,
+        showLoginAgain: true
       });
     }
 
@@ -300,7 +301,8 @@ export const callback = async (req, res, next) => {
       });
       return res.status(400).render('error', {
         pageTitle: 'Authentication error',
-        message: 'Invalid or mismatched state parameter.'
+        message: 'Invalid or mismatched state parameter.',
+        showLoginAgain: true
       });
     }
 

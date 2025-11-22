@@ -77,6 +77,28 @@
          const userEmoji = dashboardUser.earthling_emoji || '👤';
     %>
       <aside class="dashboard-user-card" aria-label="Current user summary">
+        <div class="dashboard-user-card__content">
+          <p class="dashboard-user-card__greeting">
+            Logged in as
+            <a
+              href="/profile"
+              class="dashboard-user-card__greeting-link"
+              <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+            >
+              <strong><%= userFirstName %></strong>
+            </a>
+          </p>
+          <ul class="dashboard-user-card__meta">
+            <li class="dashboard-user-card__last-login">
+              <span class="dashboard-user-card__label">Last login</span>
+              <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
+            </li>
+            <li>
+              <span class="dashboard-user-card__label">Role</span>
+              <span class="dashboard-user-card__value"><%= dashboardUser.role || 'user' %></span>
+            </li>
+          </ul>
+        </div>
         <a
           href="/profile"
           class="dashboard-user-card__emoji-pill"
@@ -87,26 +109,6 @@
           <span aria-hidden="true" data-profile-emoji-value><%= userEmoji %></span>
           <span class="sr-only">Open profile settings</span>
         </a>
-        <p class="dashboard-user-card__greeting">
-          Logged in as
-          <a
-            href="/profile"
-            class="dashboard-user-card__greeting-link"
-            <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
-          >
-            <strong><%= userFirstName %></strong>
-          </a>
-        </p>
-        <ul class="dashboard-user-card__meta">
-          <li class="dashboard-user-card__last-login">
-            <span class="dashboard-user-card__label">Last login</span>
-            <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
-          </li>
-          <li>
-            <span class="dashboard-user-card__label">Role</span>
-            <span class="dashboard-user-card__value"><%= dashboardUser.role || 'user' %></span>
-          </li>
-        </ul>
       </aside>
     <% } %>
   </section>
@@ -460,8 +462,8 @@
         </div>
         <label class="full-width">
           Select the nearest hub to deliver your bottle too:
-          <select name="hub_id">
-            <option value="">No hub assigned</option>
+          <select name="hub_id" required>
+            <option value="" disabled selected>Select a hub</option>
             <% hubs.forEach(function (hub) { %>
               <option value="<%= hub.hub_id %>"><%= hub.name %></option>
             <% }) %>
@@ -494,9 +496,6 @@
         <button type="button" class="button ghost" data-close-register-bottle>Cancel</button>
         <button type="submit" class="button">Register bottle</button>
       </div>
-      <p class="mission-dialog__note">
-        Next you will be given your bottle's unique serial and asked to snap a photo of it.
-      </p>
       <p class="form-feedback" role="status" data-register-bottle-feedback></p>
     </form>
   </dialog>
@@ -510,7 +509,6 @@
       <header class="mission-dialog__header">
         <div>
           <h2 id="bottleDeliveryDetailsTitle">Bottle delivery details</h2>
-          <p class="panel-subtitle">Final steps to prepare and ship your bottle.</p>
         </div>
         <button
           type="button"
@@ -537,18 +535,54 @@
             Please upload a top to bottom photo of your bottle that shows its serial number clearly.
             <input type="file" name="bottle_basic_photo" accept="image/*" required />
           </label>
-          <label class="full-width">
+          <!-- <label class="full-width">
             Optional: Upload a selfie of you and your aid bottle to inspire others.
             <input type="file" name="bottle_selfie_photo" accept="image/*" />
-          </label>
+          </label> -->
         </div>
-        <div class="mission-dialog__actions">
-          <button type="button" class="button ghost" data-close-bottle-delivery>Cancel</button>
-          <button type="submit" class="button" data-bottle-delivery-submit>Submit</button>
-          <button type="button" class="button danger" data-delete-bottle>Delete</button>
+        <div class="mission-dialog__actions mission-dialog__actions--split">
+          <div class="mission-dialog__actions-group">
+            <button type="button" class="button danger" data-delete-bottle>Delete</button>
+          </div>
+          <div class="mission-dialog__actions-group">
+            <button type="button" class="button ghost" data-close-bottle-delivery>Cancel</button>
+            <button type="submit" class="button" data-bottle-delivery-submit>Save</button>
+          </div>
         </div>
         <p class="form-feedback" role="status" data-bottle-delivery-feedback hidden></p>
       </form>
+    </article>
+  </dialog>
+
+  <dialog
+    id="bottleCelebrationDialog"
+    class="mission-dialog celebration-dialog"
+    aria-labelledby="bottleCelebrationTitle"
+  >
+    <article class="form-card celebration-card">
+      <header class="mission-dialog__header celebration-card__header">
+        <div>
+          <h2 id="bottleCelebrationTitle">Bottle has been saved!</h2>
+          <p class="panel-subtitle">
+            After your bottle has arrived at a community hub it will be reviewed and its status updated.  Once on its way in a
+            turtle we'll also update the status.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="dialog-close"
+          data-close-bottle-celebration
+          aria-label="Close celebration"
+        >
+          &times;
+        </button>
+      </header>
+      <div class="celebration-card__body">
+        <pre class="brand-ascii celebration-card__ascii" aria-hidden="true" data-bottle-celebration-ascii>HopeTurtles</pre>
+      </div>
+      <div class="mission-dialog__actions celebration-card__actions">
+        <button type="button" class="button" data-close-bottle-celebration>Got it! 👌</button>
+      </div>
     </article>
   </dialog>
 
