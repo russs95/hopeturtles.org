@@ -89,10 +89,16 @@
         </a>
         <p class="dashboard-user-card__greeting">
           Logged in as
-          <strong <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>><%= userFirstName %></strong>
+          <a
+            href="/profile"
+            class="dashboard-user-card__greeting-link"
+            <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+          >
+            <strong><%= userFirstName %></strong>
+          </a>
         </p>
         <ul class="dashboard-user-card__meta">
-          <li>
+          <li class="dashboard-user-card__last-login">
             <span class="dashboard-user-card__label">Last login</span>
             <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
           </li>
@@ -397,7 +403,7 @@
           </select>
         </label>
         <label class="full-width">
-          Profile photo
+          Turtle's profile pic
           <input type="file" name="profile_photo" accept="image/*" />
           <span class="muted">Optional. Add a face to your new Hope Turtle.</span>
         </label>
@@ -410,7 +416,9 @@
     </form>
     <div class="form-card launch-success-state" data-launch-success hidden>
       <div class="launch-success-state__content">
-        <h1>🐢</h1>
+        <div class="launch-success-state__ascii" aria-hidden="true">
+          <pre class="brand-ascii launch-success-state__ascii-art" data-launch-success-ascii>HopeTurtles</pre>
+        </div>
         <h3>Turtle launched!</h3>
         <p>
           Next: Open the Manage panel to access this turtle secret key and hard code it into your hope

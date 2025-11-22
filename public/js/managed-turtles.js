@@ -57,10 +57,108 @@ const launchSubmitButton = launchTurtleDialog
 const launchSuccessState = launchTurtleDialog
   ? launchTurtleDialog.querySelector('[data-launch-success]')
   : null;
+const launchSuccessAscii = launchSuccessState
+  ? launchSuccessState.querySelector('[data-launch-success-ascii]')
+  : null;
 const launchSuccessCloseButton = launchSuccessState
   ? launchSuccessState.querySelector('[data-launch-success-close]')
   : null;
 const launchTurtleTriggers = document.querySelectorAll('[data-launch-turtle]');
+
+const turtleAsciiSources = [
+  '/turtles-ascii-logo-3.txt',
+  '/turtles-ascii-logo-2.txt',
+  '/turtles-ascii-logo.txt'
+];
+let turtleAsciiCache = null;
+let celebrationTimers = [];
+let stopCelebrationRequested = false;
+let hoverCelebrationRunning = false;
+const LAUNCH_CELEBRATION_FRAMES = 4;
+
+const clearCelebrationTimers = () => {
+  if (!celebrationTimers.length) return;
+  celebrationTimers.forEach((timerId) => window.clearTimeout(timerId));
+  celebrationTimers = [];
+};
+
+const wait = (duration) =>
+  new Promise((resolve) => {
+    const timerId = window.setTimeout(resolve, duration);
+    celebrationTimers.push(timerId);
+  });
+
+const loadAsciiFrames = async () => {
+  if (turtleAsciiCache) {
+    return turtleAsciiCache;
+  }
+  const frames = await Promise.all(
+    turtleAsciiSources.map((source) =>
+      fetch(source)
+        .then((response) => (response.ok ? response.text() : ''))
+        .then((text) => text.replace(/\s+$/u, ''))
+        .catch(() => '')
+    )
+  );
+  const [frameThree, frameTwo, finalFrame] = frames;
+  turtleAsciiCache = {
+    frames: [frameThree, frameTwo].filter(Boolean),
+    final: finalFrame || frameThree || 'HopeTurtles'
+  };
+  return turtleAsciiCache;
+};
+
+const renderAsciiFrame = (text) => {
+  if (!launchSuccessAscii || !text) return;
+  launchSuccessAscii.textContent = text;
+};
+
+const turtleCelebration = async (frameCount = LAUNCH_CELEBRATION_FRAMES, { loop = false } = {}) => {
+  const asciiAssets = await loadAsciiFrames();
+  const animationFrames = asciiAssets.frames.length ? asciiAssets.frames : [asciiAssets.final];
+  stopCelebrationRequested = false;
+  clearCelebrationTimers();
+
+  const playOnce = async () => {
+    for (let index = 0; index < frameCount; index += 1) {
+      if (stopCelebrationRequested) return;
+      renderAsciiFrame(animationFrames[index % animationFrames.length]);
+      await wait(400);
+    }
+  };
+
+  do {
+    await playOnce();
+  } while (loop && !stopCelebrationRequested);
+
+  renderAsciiFrame(asciiAssets.final);
+};
+
+const stopTurtleCelebration = async () => {
+  stopCelebrationRequested = true;
+  clearCelebrationTimers();
+  const asciiAssets = await loadAsciiFrames();
+  renderAsciiFrame(asciiAssets.final);
+};
+
+const startHoverCelebration = () => {
+  if (hoverCelebrationRunning || !launchSuccessAscii) return;
+  hoverCelebrationRunning = true;
+  turtleCelebration(LAUNCH_CELEBRATION_FRAMES, { loop: true }).finally(() => {
+    hoverCelebrationRunning = false;
+  });
+};
+
+const endHoverCelebration = () => {
+  hoverCelebrationRunning = false;
+  stopTurtleCelebration();
+};
+
+if (launchSuccessAscii) {
+  loadAsciiFrames()
+    .then((assets) => renderAsciiFrame(assets.final))
+    .catch(() => {});
+}
 
 const supportsNativeDialog = (dialog) => Boolean(dialog && typeof dialog.showModal === 'function');
 
@@ -489,6 +587,11 @@ const toggleLaunchSuccessState = (isVisible) => {
   if (launchSuccessState) {
     launchSuccessState.hidden = !isVisible;
   }
+  if (isVisible) {
+    turtleCelebration(LAUNCH_CELEBRATION_FRAMES).catch(() => {});
+  } else {
+    stopTurtleCelebration();
+  }
 };
 
 const isUsableFile = (file) => {
@@ -840,6 +943,23 @@ if (launchSuccessCloseButton) {
     event.preventDefault();
     closeLaunchTurtleDialog();
   });
+}
+
+if (launchSuccessAscii) {
+  launchSuccessAscii.addEventListener('mouseenter', startHoverCelebration);
+  launchSuccessAscii.addEventListener('mouseleave', endHoverCelebration);
+  launchSuccessAscii.addEventListener('focus', startHoverCelebration);
+  launchSuccessAscii.addEventListener('blur', endHoverCelebration);
+  launchSuccessAscii.addEventListener('click', () => {
+    turtleCelebration(LAUNCH_CELEBRATION_FRAMES).catch(() => {});
+  });
+  launchSuccessAscii.addEventListener(
+    'touchstart',
+    () => {
+      turtleCelebration(LAUNCH_CELEBRATION_FRAMES).catch(() => {});
+    },
+    { passive: true }
+  );
 }
 
 delegateClick('[data-launch-turtle]', (event) => {
