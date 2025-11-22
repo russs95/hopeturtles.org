@@ -2133,6 +2133,10 @@ body.mobile-menu-open {
   justify-content: center;
   color: var(--primary) !important;
   border: 1px solid var(--color-accent) !important;
+  padding: 10px;
+  border-radius: 7px;
+  --b1: var(--color-accent) !important;
+  --b2: var(--primary) !important;
 }
 
 #wcb_a {
@@ -2741,6 +2745,11 @@ body.mobile-menu-open {
   align-items: center;
 }
 
+.launch-success-state__content .button {
+  max-width: 300px;
+  width: 100%;
+}
+
 .launch-success-state__ascii {
   width: 100%;
   display: flex;
@@ -2992,7 +3001,7 @@ main.about-page {
 }
 
 .launch-success-state__ascii-art {
-  font-size: 1rem;
+  font-size: 1.22rem;
 }
 
 .feature-photo-field {
