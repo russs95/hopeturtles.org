@@ -29,6 +29,37 @@
       <p><%= t.landing_intro_paragraph2 %></p>
     </div>
   </section>
+
+  <section class="panel contribute-panel" id="contribute">
+    <header class="panel-header">
+      <div>
+        <h2>Contribute & Collaborate</h2>
+        <p class="panel-subtitle">
+          The HopeTurtle project is 100% open source and collaboration powered!  You can get involved in a bunch of ways.
+        </p>
+      </div>
+    </header>
+    <div class="contribute-panel__grid">
+      <% const contributeButtons = [
+        { title: 'Code', subtitle: 'Help develop our turtle python code on Github' },
+        { title: 'Build', subtitle: 'Assemble the hardware for a Hope Turtle' },
+        { title: 'Bottle', subtitle: 'Send in food filled aid bottles to our coordination hubs' },
+        { title: 'Commission', subtitle: 'Commission the deployment of a HopeTurtle and become its captain' },
+        { title: 'Deploy', subtitle: 'Help deploy a hub or boat that can receive and release Hope Turtles' },
+        { title: 'Buy', subtitle: 'Purchase food orders for our hubs to fill aid bottles' }
+      ]; %>
+      <% contributeButtons.forEach(function (button) { %>
+        <button
+          type="button"
+          class="contribute-panel__button"
+          data-contribute-action="<%= button.title %>"
+        >
+          <span class="contribute-panel__title"><%= button.title %></span>
+          <span class="contribute-panel__subtitle"><%= button.subtitle %></span>
+        </button>
+      <% }) %>
+    </div>
+  </section>
 </main>
 <% const pageScripts = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

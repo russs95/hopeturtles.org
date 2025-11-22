@@ -706,6 +706,46 @@ body.mobile-menu-open {
   font-weight: 700;
 }
 
+.contribute-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.contribute-panel__button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.75fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(1, 121, 25, 0.2);
+  border-radius: 0.9rem;
+  background: rgba(1, 121, 25, 0.06);
+  box-shadow: var(--shadow-elevated);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.contribute-panel__button:hover,
+.contribute-panel__button:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(1, 121, 25, 0.18);
+  border-color: rgba(1, 121, 25, 0.35);
+}
+
+.contribute-panel__title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+
+.contribute-panel__subtitle {
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
 @media (max-width: 640px) {
   .hero-metrics,
   .about-metrics,
@@ -720,6 +760,14 @@ body.mobile-menu-open {
 
   .metric-value {
     font-size: 1.6rem;
+  }
+
+  .contribute-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contribute-panel__button {
+    grid-template-columns: 1.2fr 1.8fr;
   }
 }
 
@@ -1717,6 +1765,10 @@ body.mobile-menu-open {
   margin-bottom: 2rem;
 }
 
+.error-actions {
+  margin-top: 1rem;
+}
+
 .mission-page__header {
   display: flex;
   flex-wrap: wrap;
@@ -1866,14 +1918,19 @@ body.mobile-menu-open {
   padding: 1rem 1.25rem;
   box-shadow: var(--shadow-elevated);
   min-width: 240px;
-  position: relative;
-  padding-right: 4rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-user-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .dashboard-user-card__emoji-pill {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2537,9 +2594,34 @@ body.mobile-menu-open {
   margin-top: 0;
 }
 
+.bottle-form .mission-dialog__actions {
+  margin-top: 0.75rem;
+}
+
 .bottle-delivery-card input[type='file'] {
   margin-top: 0.5rem;
   width: 100%;
+}
+
+.celebration-card__header {
+  align-items: flex-start;
+}
+
+.celebration-card__body {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.celebration-card__ascii {
+  margin: 0;
+}
+
+.celebration-card__actions {
+  justify-content: center;
 }
 
 .bottle-delivery-serial__value {
@@ -2748,6 +2830,7 @@ body.mobile-menu-open {
 .launch-success-state__content .button {
   max-width: 300px;
   width: 100%;
+  text-align: center;
 }
 
 .launch-success-state__ascii {
@@ -3133,25 +3216,27 @@ main.about-page {
   }
 
   .dashboard-user-card {
-    grid-column: 2;
-    justify-self: end;
+    grid-column: 1 / -1;
+    width: 100%;
     padding: 0.85rem 1rem;
-    font-size: 0.9rem;
-    width: min(280px, 72vw);
-    min-width: 0;
+    font-size: 0.95rem;
   }
 
-  .dashboard-user-card__emoji-pill {
-    top: 0.5rem;
-    right: 0.5rem;
+  .dashboard-user-card__content {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.65rem;
   }
 
   .dashboard-user-card__greeting {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0;
   }
 
   .dashboard-user-card__meta {
-    gap: 0.25rem;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   .dashboard-user-card__last-login {
@@ -3159,11 +3244,26 @@ main.about-page {
   }
 
   .dashboard-user-card__label {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
 
   .dashboard-user-card__value {
     font-size: 0.95em;
+  }
+
+  .dashboard-user-card__emoji-pill {
+    position: static;
+  }
+
+  .dashboard-header {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-header__intro {
+    width: 100%;
   }
 
   .mission-card__metrics {

@@ -1,3 +1,5 @@
+/* global turtleCelebration, LAUNCH_CELEBRATION_FRAMES */
+
 const statusChartEl = document.getElementById('statusChart');
 const telemetryChartEl = document.getElementById('telemetryChart');
 let statusChart;
@@ -184,6 +186,12 @@ const bottleDeliverySubmitButton =
   bottleDeliveryDialog?.querySelector('[data-bottle-delivery-submit]') ?? null;
 const deleteBottleButton =
   bottleDeliveryDialog?.querySelector('[data-delete-bottle]') ?? null;
+const bottleCelebrationDialog = document.getElementById('bottleCelebrationDialog');
+const bottleCelebrationAscii =
+  bottleCelebrationDialog?.querySelector('[data-bottle-celebration-ascii]') ?? null;
+const closeBottleCelebrationButtons = bottleCelebrationDialog
+  ? bottleCelebrationDialog.querySelectorAll('[data-close-bottle-celebration]')
+  : [];
 const reassignBottleDialog = document.getElementById('reassignBottleDialog');
 const reassignBottleForm = reassignBottleDialog?.querySelector('[data-reassign-bottle-form]') ?? null;
 const reassignBottleSelect = reassignBottleForm?.querySelector('[data-reassign-bottle-select]') ?? null;
@@ -392,6 +400,39 @@ const showBottleDeliveryModal = (bottle) => {
   bottleDeliveryDialog.showModal();
 };
 
+const openBottleCelebration = () => {
+  if (!bottleCelebrationDialog) {
+    return;
+  }
+
+  if (typeof bottleCelebrationDialog.showModal === 'function') {
+    bottleCelebrationDialog.showModal();
+  } else {
+    bottleCelebrationDialog.removeAttribute('hidden');
+    bottleCelebrationDialog.setAttribute('data-open', 'true');
+  }
+
+  if (
+    typeof turtleCelebration === 'function' &&
+    typeof LAUNCH_CELEBRATION_FRAMES !== 'undefined'
+  ) {
+    turtleCelebration(LAUNCH_CELEBRATION_FRAMES).catch(() => {});
+  }
+};
+
+const closeBottleCelebration = () => {
+  if (!bottleCelebrationDialog) {
+    return;
+  }
+
+  if (typeof bottleCelebrationDialog.close === 'function') {
+    bottleCelebrationDialog.close();
+  } else {
+    bottleCelebrationDialog.setAttribute('data-open', 'false');
+    bottleCelebrationDialog.setAttribute('hidden', '');
+  }
+};
+
 const handleBottleDeliverySubmit = async (event) => {
   event.preventDefault();
 
@@ -439,6 +480,7 @@ const handleBottleDeliverySubmit = async (event) => {
 
     showBottlesFeedback('Delivery details saved. Thank you!', false);
     bottleDeliveryDialog.close();
+    openBottleCelebration();
   } catch (error) {
     const message = error?.message || 'Unable to save delivery details.';
     if (bottleDeliveryFeedback) {
@@ -992,6 +1034,21 @@ if (bottleDeliveryForm) {
 
 if (deleteBottleButton) {
   deleteBottleButton.addEventListener('click', handleDeleteBottle);
+}
+
+if (bottleCelebrationDialog) {
+  if (typeof bottleCelebrationDialog.addEventListener === 'function') {
+    bottleCelebrationDialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeBottleCelebration();
+    });
+  }
+  closeBottleCelebrationButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeBottleCelebration();
+    });
+  });
 }
 
 if (bottlesTableBody) {
