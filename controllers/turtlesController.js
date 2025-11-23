@@ -5,7 +5,7 @@ import telemetryModel from '../models/telemetryModel.js';
 import photosModel from '../models/photosModel.js';
 import missionsModel from '../models/missionsModel.js';
 
-const allowedTurtleStatuses = new Set(['idle', 'en_route', 'arrived', 'lost']);
+const allowedTurtleStatuses = new Set(['awaiting_serial', 'idle', 'en_route', 'arrived', 'lost']);
 
 const createTurtleSecret = () => {
   const secret = crypto.randomBytes(32).toString('hex');
@@ -13,12 +13,12 @@ const createTurtleSecret = () => {
   return { secret, secretHash };
 };
 
-const normalizeStatus = (status) => {
+const normalizeStatus = (status, { fallback = 'idle' } = {}) => {
   if (!status) {
-    return 'idle';
+    return fallback;
   }
   const normalized = String(status).toLowerCase();
-  return allowedTurtleStatuses.has(normalized) ? normalized : 'idle';
+  return allowedTurtleStatuses.has(normalized) ? normalized : fallback;
 };
 
 const toNullableInteger = (value) => {
@@ -128,7 +128,7 @@ export const launchManagedTurtle = async (req, res, next) => {
     }
 
     const { secret, secretHash } = createTurtleSecret();
-    const status = normalizeStatus(req.body?.status);
+    const status = normalizeStatus('awaiting_serial', { fallback: 'awaiting_serial' });
     const missionId = toNullableInteger(req.body?.mission_id);
     const hubId = toNullableInteger(req.body?.hub_id);
     const boatId = toNullableInteger(req.body?.boat_id);

@@ -713,10 +713,6 @@ const resetLaunchDialog = () => {
   if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
     launchTurtleForm.reset();
   }
-  const statusField = launchTurtleForm ? launchTurtleForm.querySelector('[name="status"]') : null;
-  if (statusField) {
-    statusField.value = 'idle';
-  }
   if (launchSubmitButton) {
     launchSubmitButton.disabled = false;
     launchSubmitButton.textContent = 'Launch turtle';
@@ -988,8 +984,6 @@ if (launchTurtleForm) {
       return;
     }
     formData.set('name', trimmedName);
-    const statusValue = (formData.get('status') || '').toString().trim().toLowerCase();
-    formData.set('status', statusValue || 'idle');
     ['mission_id', 'hub_id', 'boat_id'].forEach((field) => {
       const value = formData.get(field);
       if (typeof value === 'string') {
@@ -1022,10 +1016,6 @@ if (launchTurtleForm) {
       }
       if (launchTurtleForm && typeof launchTurtleForm.reset === 'function') {
         launchTurtleForm.reset();
-        const statusField = launchTurtleForm.querySelector('[name="status"]');
-        if (statusField) {
-          statusField.value = 'idle';
-        }
       }
       toggleLaunchSuccessState(true);
       if (launchSubmitButton) {

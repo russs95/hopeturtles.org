@@ -9,7 +9,7 @@
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }; %>
-<% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
+<% const turtleStatusOptions = ['awaiting_serial', 'idle', 'en_route', 'arrived', 'lost']; %>
 <% const formatBottleStatus = (value) => {
   if (!value) return '—';
   return value
@@ -24,11 +24,37 @@
   if (Number.isNaN(numeric)) return '—';
   return `${numeric.toLocaleString()} g`;
 }; %>
-<main id="main" class="layout dashboard">
-  <% const activeAlerts = Array.isArray(alerts) ? alerts : []; %>
-  <% const hasActiveAlerts = activeAlerts.length > 0; %>
-  <% if (hasActiveAlerts) { %>
-    <section class="dashboard-alert-banner" aria-label="Active alerts" data-dashboard-alerts>
+<%
+  const dashboardUserRecord = dashboardUser || currentUser || null;
+  const userFirstName =
+    dashboardUserRecord?.first_name ||
+    (dashboardUserRecord?.full_name ? dashboardUserRecord.full_name.split(/\s+/u)[0] : null) ||
+    (currentUser && currentUser.firstName) ||
+    'Crew member';
+  const userBuwanaId =
+    dashboardUserRecord?.buwana_id ||
+    (currentUser && (currentUser.buwanaId || currentUser.id)) ||
+    null;
+  const lastLoginDisplay = dashboardUserRecord?.last_login
+    ? new Date(dashboardUserRecord.last_login).toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })
+    : 'Never';
+  const userEmoji = dashboardUserRecord?.earthling_emoji || '👤';
+  const userRole = dashboardUserRecord?.role || 'user';
+  const activeAlerts = Array.isArray(alerts) ? alerts : [];
+  const hasActiveAlerts = activeAlerts.length > 0;
+%>
+
+<section class="alert-user-info" aria-label="Alerts and user status">
+  <div class="alert-user-info__inner">
+    <section
+      class="dashboard-alert-banner"
+      aria-label="Active alerts"
+      data-dashboard-alerts
+      <%= hasActiveAlerts ? '' : 'hidden' %>
+    >
       <ul class="dashboard-alert-banner__list" role="list">
         <% activeAlerts.forEach(function (alert) { %>
           <li class="dashboard-alert" data-dashboard-alert>
@@ -49,8 +75,29 @@
         <% }) %>
       </ul>
     </section>
-  <% } %>
 
+    <% if (dashboardUserRecord) { %>
+      <div class="alert-user-info__user-row" aria-label="Current user">
+        <span class="alert-user-info__label">Logged in as</span>
+        <a
+          href="/profile"
+          class="alert-user-info__user-link"
+          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+        >
+          <strong><%= userFirstName %></strong>
+        </a>
+        <span class="alert-user-info__divider" aria-hidden="true">|</span>
+        <span class="alert-user-info__role"><%= userRole %></span>
+        <span class="alert-user-info__divider" aria-hidden="true">|</span>
+        <a href="/profile" class="alert-user-info__profile-link">
+          edit <span aria-hidden="true"><%= userEmoji %></span> profile
+        </a>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
     <% const dashboardIntroCopy =
       t.dashboard_intro || 'Your mission control for launching and managing aid bottle and hope turtles on human to human missions.'; %>
@@ -58,60 +105,44 @@
       <h1>Dashboard</h1>
       <p><%= dashboardIntroCopy %></p>
     </div>
-    <% if (dashboardUser) {
-         const userFirstName =
-           dashboardUser.first_name ||
-           (dashboardUser.full_name ? dashboardUser.full_name.split(/\s+/u)[0] : null) ||
-           (currentUser && currentUser.firstName) ||
-           'Crew member';
-         const userBuwanaId =
-           dashboardUser.buwana_id ||
-           (currentUser && (currentUser.buwanaId || currentUser.id)) ||
-           null;
-         const lastLoginDisplay = dashboardUser.last_login
-           ? new Date(dashboardUser.last_login).toLocaleString('en-US', {
-               dateStyle: 'medium',
-               timeStyle: 'short'
-             })
-           : 'Never';
-         const userEmoji = dashboardUser.earthling_emoji || '👤';
-    %>
-      <aside class="dashboard-user-card" aria-label="Current user summary">
-        <div class="dashboard-user-card__content">
-          <p class="dashboard-user-card__greeting">
-            Logged in as
-            <a
-              href="/profile"
-              class="dashboard-user-card__greeting-link"
-              <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
-            >
-              <strong><%= userFirstName %></strong>
-            </a>
-          </p>
-          <ul class="dashboard-user-card__meta">
-            <li class="dashboard-user-card__last-login">
-              <span class="dashboard-user-card__label">Last login</span>
-              <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
-            </li>
-            <li>
-              <span class="dashboard-user-card__label">Role</span>
-              <span class="dashboard-user-card__value"><%= dashboardUser.role || 'user' %></span>
-            </li>
-          </ul>
-        </div>
-        <a
-          href="/profile"
-          class="dashboard-user-card__emoji-pill"
-          data-profile-emoji-pill
-          data-default-emoji="<%= userEmoji %>"
-          aria-label="Update your profile"
-        >
-          <span aria-hidden="true" data-profile-emoji-value><%= userEmoji %></span>
-          <span class="sr-only">Open profile settings</span>
-        </a>
-      </aside>
-    <% } %>
   </section>
+
+  <% if (dashboardUserRecord) { %>
+    <aside class="dashboard-user-card" aria-label="Current user summary">
+      <div class="dashboard-user-card__content">
+        <p class="dashboard-user-card__greeting">
+          Logged in as
+          <a
+            href="/profile"
+            class="dashboard-user-card__greeting-link"
+            <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+          >
+            <strong><%= userFirstName %></strong>
+          </a>
+        </p>
+        <ul class="dashboard-user-card__meta">
+          <li class="dashboard-user-card__last-login">
+            <span class="dashboard-user-card__label">Last login</span>
+            <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
+          </li>
+          <li>
+            <span class="dashboard-user-card__label">Role</span>
+            <span class="dashboard-user-card__value"><%= userRole %></span>
+          </li>
+        </ul>
+      </div>
+      <a
+        href="/profile"
+        class="dashboard-user-card__emoji-pill"
+        data-profile-emoji-pill
+        data-default-emoji="<%= userEmoji %>"
+        aria-label="Update your profile"
+      >
+        <span aria-hidden="true" data-profile-emoji-value><%= userEmoji %></span>
+        <span class="sr-only">Open profile settings</span>
+      </a>
+    </aside>
+  <% } %>
 
   <% const myTurtles = Array.isArray(managedTurtles) ? managedTurtles : []; %>
   <% const activeHopeTurtles = myTurtles.filter(function (turtle) {
@@ -370,14 +401,6 @@
           <input name="name" required />
         </label>
         <label>
-          Status
-          <select name="status">
-            <% turtleStatusOptions.forEach(function (status) { %>
-              <option value="<%= status %>" <%= status === 'idle' ? 'selected' : '' %>><%= status %></option>
-            <% }) %>
-          </select>
-        </label>
-        <label>
           Mission
           <select name="mission_id">
             <option value="">No mission assigned</option>
@@ -435,7 +458,7 @@
     <form class="form-card bottle-form" data-register-bottle-form>
       <header class="mission-dialog__header">
         <div>
-          <h2 id="registerBottleTitle">Register aid bottle</h2>
+          <h2 id="registerBottleTitle">Register Aid Bottle</h2>
           <p class="panel-subtitle">Log a new bottle in the system and link it to a mission.</p>
         </div>
         <button type="button" class="dialog-close" data-close-register-bottle aria-label="Close">&times;</button>
@@ -460,6 +483,19 @@
             <input name="brand" />
           </label>
         </div>
+        <label>
+          Weight (grams)
+          <input type="number" name="weight_grams" min="0" step="0.01" />
+        </label>
+        <label class="full-width">
+          Contents
+          <input
+            type="text"
+            name="contents"
+            placeholder="List items packed inside the bottle"
+            maxlength="255"
+          />
+        </label>
         <label class="full-width">
           Select the nearest hub to deliver your bottle too:
           <select name="hub_id" required>
@@ -477,19 +513,6 @@
               <option value="<%= turtle.turtle_id %>"><%= turtle.name || ('Turtle #' + turtle.turtle_id) %></option>
             <% }) %>
           </select>
-        </label>
-        <label>
-          Weight (grams)
-          <input type="number" name="weight_grams" min="0" step="0.01" />
-        </label>
-        <label class="full-width">
-          Contents
-          <input
-            type="text"
-            name="contents"
-            placeholder="List items packed inside the bottle"
-            maxlength="255"
-          />
         </label>
       </div>
       <div class="mission-dialog__actions">
@@ -577,10 +600,12 @@
           &times;
         </button>
       </header>
-      <div class="celebration-card__body">
-        <pre class="brand-ascii celebration-card__ascii" aria-hidden="true" data-bottle-celebration-ascii>HopeTurtles</pre>
+      <div class="celebration-card__body celebration-card__body--turtle">
+        <div class="celebration-card__mascot" aria-hidden="true">
+          <pre class="brand-ascii celebration-card__ascii" data-bottle-celebration-ascii>HopeTurtles</pre>
+        </div>
       </div>
-      <div class="mission-dialog__actions celebration-card__actions">
+      <div class="mission-dialog__actions celebration-card__actions celebration-card__actions--center">
         <button type="button" class="button" data-close-bottle-celebration>Got it! 👌</button>
       </div>
     </article>

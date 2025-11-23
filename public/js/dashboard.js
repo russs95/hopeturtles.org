@@ -1,9 +1,8 @@
-/* global turtleCelebration, LAUNCH_CELEBRATION_FRAMES */
-
 const statusChartEl = document.getElementById('statusChart');
 const telemetryChartEl = document.getElementById('telemetryChart');
 let statusChart;
 let telemetryChart;
+const BOTTLE_CELEBRATION_FRAMES = 4;
 
 const parseJsonResponse = async (response) => {
   const text = await response.text();
@@ -130,6 +129,11 @@ if (statusChartEl && telemetryChartEl) {
 
 const dashboardAlertContainer = document.querySelector('[data-dashboard-alerts]');
 
+const bottleAsciiSources = ['/turtles-ascii-logo-3.txt', '/turtles-ascii-logo-2.txt', '/turtles-ascii-logo.txt'];
+let bottleAsciiCache = null;
+let bottleCelebrationTimers = [];
+let bottleCelebrationStopRequested = false;
+
 const updateDashboardAlertState = () => {
   if (!dashboardAlertContainer) {
     return;
@@ -153,6 +157,84 @@ if (dashboardAlertContainer) {
     }
   });
   updateDashboardAlertState();
+}
+
+const loadBottleAsciiFrames = async () => {
+  if (bottleAsciiCache) {
+    return bottleAsciiCache;
+  }
+
+  const frames = await Promise.all(
+    bottleAsciiSources.map((source) =>
+      fetch(source)
+        .then((response) => (response.ok ? response.text() : ''))
+        .then((text) => text.replace(/\s+$/u, ''))
+        .catch(() => '')
+    )
+  );
+
+  const [frameThree, frameTwo, finalFrame] = frames;
+  bottleAsciiCache = {
+    frames: [frameThree, frameTwo].filter(Boolean),
+    final: finalFrame || frameThree || 'HopeTurtles'
+  };
+  return bottleAsciiCache;
+};
+
+const clearBottleCelebrationTimers = () => {
+  if (!bottleCelebrationTimers.length) return;
+  bottleCelebrationTimers.forEach((timerId) => window.clearTimeout(timerId));
+  bottleCelebrationTimers = [];
+};
+
+const waitForBottleCelebrationFrame = (duration) =>
+  new Promise((resolve) => {
+    const timerId = window.setTimeout(resolve, duration);
+    bottleCelebrationTimers.push(timerId);
+  });
+
+const renderBottleAsciiFrame = (text) => {
+  if (bottleCelebrationAscii && typeof text === 'string') {
+    bottleCelebrationAscii.textContent = text;
+  }
+};
+
+const runBottleCelebration = async (frameCount = BOTTLE_CELEBRATION_FRAMES, { loop = false } = {}) => {
+  const asciiAssets = await loadBottleAsciiFrames();
+  const animationFrames = asciiAssets.frames.length ? asciiAssets.frames : [asciiAssets.final];
+  bottleCelebrationStopRequested = false;
+  clearBottleCelebrationTimers();
+
+  const playOnce = async () => {
+    for (let index = 0; index < frameCount; index += 1) {
+      if (bottleCelebrationStopRequested) return;
+      renderBottleAsciiFrame(animationFrames[index % animationFrames.length]);
+      await waitForBottleCelebrationFrame(400);
+    }
+  };
+
+  do {
+    await playOnce();
+  } while (loop && !bottleCelebrationStopRequested);
+
+  renderBottleAsciiFrame(asciiAssets.final);
+};
+
+const stopBottleCelebration = async () => {
+  bottleCelebrationStopRequested = true;
+  clearBottleCelebrationTimers();
+  try {
+    const asciiAssets = await loadBottleAsciiFrames();
+    renderBottleAsciiFrame(asciiAssets.final);
+  } catch (error) {
+    renderBottleAsciiFrame('HopeTurtles');
+  }
+};
+
+if (bottleCelebrationAscii) {
+  loadBottleAsciiFrames()
+    .then((assets) => renderBottleAsciiFrame(assets.final))
+    .catch(() => {});
 }
 
 const registerBottleDialog = document.getElementById('registerBottleDialog');
@@ -412,12 +494,7 @@ const openBottleCelebration = () => {
     bottleCelebrationDialog.setAttribute('data-open', 'true');
   }
 
-  if (
-    typeof turtleCelebration === 'function' &&
-    typeof LAUNCH_CELEBRATION_FRAMES !== 'undefined'
-  ) {
-    turtleCelebration(LAUNCH_CELEBRATION_FRAMES).catch(() => {});
-  }
+  runBottleCelebration(BOTTLE_CELEBRATION_FRAMES).catch(() => {});
 };
 
 const closeBottleCelebration = () => {
@@ -431,6 +508,7 @@ const closeBottleCelebration = () => {
     bottleCelebrationDialog.setAttribute('data-open', 'false');
     bottleCelebrationDialog.setAttribute('hidden', '');
   }
+  stopBottleCelebration().catch(() => {});
 };
 
 const handleBottleDeliverySubmit = async (event) => {
