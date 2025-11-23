@@ -133,6 +133,12 @@ const bottleAsciiSources = ['/turtles-ascii-logo-3.txt', '/turtles-ascii-logo-2.
 let bottleAsciiCache = null;
 let bottleCelebrationTimers = [];
 let bottleCelebrationStopRequested = false;
+const bottleCelebrationDialog = document.getElementById('bottleCelebrationDialog');
+const bottleCelebrationAscii =
+  bottleCelebrationDialog?.querySelector('[data-bottle-celebration-ascii]') ?? null;
+const closeBottleCelebrationButtons = bottleCelebrationDialog
+  ? bottleCelebrationDialog.querySelectorAll('[data-close-bottle-celebration]')
+  : [];
 
 const updateDashboardAlertState = () => {
   if (!dashboardAlertContainer) {
@@ -268,12 +274,6 @@ const bottleDeliverySubmitButton =
   bottleDeliveryDialog?.querySelector('[data-bottle-delivery-submit]') ?? null;
 const deleteBottleButton =
   bottleDeliveryDialog?.querySelector('[data-delete-bottle]') ?? null;
-const bottleCelebrationDialog = document.getElementById('bottleCelebrationDialog');
-const bottleCelebrationAscii =
-  bottleCelebrationDialog?.querySelector('[data-bottle-celebration-ascii]') ?? null;
-const closeBottleCelebrationButtons = bottleCelebrationDialog
-  ? bottleCelebrationDialog.querySelectorAll('[data-close-bottle-celebration]')
-  : [];
 const reassignBottleDialog = document.getElementById('reassignBottleDialog');
 const reassignBottleForm = reassignBottleDialog?.querySelector('[data-reassign-bottle-form]') ?? null;
 const reassignBottleSelect = reassignBottleForm?.querySelector('[data-reassign-bottle-select]') ?? null;

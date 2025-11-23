@@ -1925,12 +1925,6 @@ body.mobile-menu-open {
   margin: 0.5rem 0 1.5rem;
 }
 
-.dashboard-user-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
 .dashboard-user-card__emoji-pill {
   display: inline-flex;
   align-items: center;
@@ -1971,8 +1965,8 @@ body.mobile-menu-open {
   color: inherit;
 }
 
-.alert-user-info__user-row {
-  display: none;
+.user-info__user-row {
+  display: flex;
   align-items: center;
   gap: 0.45rem;
   flex-wrap: wrap;
@@ -2077,6 +2071,11 @@ body.mobile-menu-open {
 .dashboard-user-card__greeting {
   margin: 0 0 0.75rem;
   font-weight: 600;
+}
+
+.dashboard-user-card__greeting,
+.dashboard-user-card__meta {
+  grid-column: 1;
 }
 
 .dashboard-user-card__greeting-link {
@@ -3292,15 +3291,13 @@ main.about-page {
     font-size: 0.95rem;
   }
 
-  .dashboard-user-card__content {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem 0.65rem;
-  }
-
   .dashboard-user-card__greeting {
     margin-bottom: 0;
+  }
+
+  .dashboard-user-card__greeting,
+  .dashboard-user-card__meta {
+    grid-column: auto;
   }
 
   .dashboard-user-card__meta {
@@ -3331,7 +3328,7 @@ main.about-page {
     display: none;
   }
 
-  .alert-user-info__user-row {
+  .user-info__user-row {
     display: flex;
   }
 
