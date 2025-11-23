@@ -47,8 +47,8 @@
   const hasActiveAlerts = activeAlerts.length > 0;
 %>
 
-<section class="alert-user-info" aria-label="Alerts and user status">
-  <div class="alert-user-info__inner">
+<main id="main" class="layout dashboard">
+  <section class="page-header dashboard-header">
     <section
       class="dashboard-alert-banner"
       aria-label="Active alerts"
@@ -76,29 +76,6 @@
       </ul>
     </section>
 
-    <% if (dashboardUserRecord) { %>
-      <div class="alert-user-info__user-row" aria-label="Current user">
-        <span class="alert-user-info__label">Logged in as</span>
-        <a
-          href="/profile"
-          class="alert-user-info__user-link"
-          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
-        >
-          <strong><%= userFirstName %></strong>
-        </a>
-        <span class="alert-user-info__divider" aria-hidden="true">|</span>
-        <span class="alert-user-info__role"><%= userRole %></span>
-        <span class="alert-user-info__divider" aria-hidden="true">|</span>
-        <a href="/profile" class="alert-user-info__profile-link">
-          edit <span aria-hidden="true"><%= userEmoji %></span> profile
-        </a>
-      </div>
-    <% } %>
-  </div>
-</section>
-
-<main id="main" class="layout dashboard">
-  <section class="page-header dashboard-header">
     <% const dashboardIntroCopy =
       t.dashboard_intro || 'Your mission control for launching and managing aid bottle and hope turtles on human to human missions.'; %>
     <div class="dashboard-header__intro">
@@ -108,29 +85,50 @@
   </section>
 
   <% if (dashboardUserRecord) { %>
-    <aside class="dashboard-user-card" aria-label="Current user summary">
-      <div class="dashboard-user-card__content">
-        <p class="dashboard-user-card__greeting">
-          Logged in as
+    <section class="alert-user-info" aria-label="Current user">
+      <div class="alert-user-info__inner">
+        <div class="user-info__user-row" aria-label="Current user">
+          <span class="alert-user-info__label">Logged in as</span>
           <a
             href="/profile"
-            class="dashboard-user-card__greeting-link"
+            class="alert-user-info__user-link"
             <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
           >
             <strong><%= userFirstName %></strong>
           </a>
-        </p>
-        <ul class="dashboard-user-card__meta">
-          <li class="dashboard-user-card__last-login">
-            <span class="dashboard-user-card__label">Last login</span>
-            <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
-          </li>
-          <li>
-            <span class="dashboard-user-card__label">Role</span>
-            <span class="dashboard-user-card__value"><%= userRole %></span>
-          </li>
-        </ul>
+          <span class="alert-user-info__divider" aria-hidden="true">|</span>
+          <span class="alert-user-info__role"><%= userRole %></span>
+          <span class="alert-user-info__divider" aria-hidden="true">|</span>
+          <a href="/profile" class="alert-user-info__profile-link">
+            edit <span aria-hidden="true"><%= userEmoji %></span> profile
+          </a>
+        </div>
       </div>
+    </section>
+  <% } %>
+
+  <% if (dashboardUserRecord) { %>
+    <aside class="dashboard-user-card" aria-label="Current user summary">
+      <p class="dashboard-user-card__greeting">
+        Logged in as
+        <a
+          href="/profile"
+          class="dashboard-user-card__greeting-link"
+          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+        >
+          <strong><%= userFirstName %></strong>
+        </a>
+      </p>
+      <ul class="dashboard-user-card__meta">
+        <li class="dashboard-user-card__last-login">
+          <span class="dashboard-user-card__label">Last login</span>
+          <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
+        </li>
+        <li>
+          <span class="dashboard-user-card__label">Role</span>
+          <span class="dashboard-user-card__value"><%= userRole %></span>
+        </li>
+      </ul>
       <a
         href="/profile"
         class="dashboard-user-card__emoji-pill"
