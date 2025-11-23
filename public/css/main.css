@@ -1912,50 +1912,17 @@ body.mobile-menu-open {
   min-width: 220px;
 }
 
-.dashboard-user-card {
-  background: var(--color-surface);
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
-  box-shadow: var(--shadow-elevated);
-  min-width: 240px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  margin: 0.5rem 0 1.5rem;
-}
-
-.dashboard-user-card__emoji-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  background: rgba(35, 176, 83, 0.15);
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  text-decoration: none;
-  border: 1px solid rgba(35, 176, 83, 0.35);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.dashboard-user-card__emoji-pill:hover,
-.dashboard-user-card__emoji-pill:focus-visible {
-  background: rgba(35, 176, 83, 0.25);
-  transform: translateY(-1px);
-}
-
 .alert-user-info {
   width: 100%;
   background: var(--color-accent);
   color: #f7fdf9;
-  margin: 0;
+  margin: 0 0 1.25rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .alert-user-info__inner {
-  width: min(1200px, calc(100vw - 2rem));
-  margin: 0 auto;
-  padding: 0.85rem 1rem 1rem;
+  margin: 0;
+  padding: 0.85rem clamp(1rem, 5vw, 3rem);
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -1997,8 +1964,14 @@ body.mobile-menu-open {
   margin: 0;
   position: relative;
   font-size: 0.9em;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.35rem 0.5rem 0.5rem;
+  background: rgba(35, 176, 83, 0.12);
+  border: 1px solid rgba(35, 176, 83, 0.25);
+  padding: 0.75rem 0.9rem;
+}
+
+[data-theme='dark'] .dashboard-alert-banner {
+  background: rgba(35, 176, 83, 0.18);
+  border-color: rgba(35, 176, 83, 0.45);
 }
 
 .dashboard-alert-banner[hidden] {
@@ -2021,9 +1994,16 @@ body.mobile-menu-open {
   gap: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(1, 121, 25, 0.16);
+  background: var(--color-surface);
   position: relative;
+  box-shadow: var(--shadow-elevated);
+  color: var(--color-text);
+}
+
+[data-theme='dark'] .dashboard-alert {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
   box-shadow: none;
   color: #f7fdf9;
 }
@@ -2066,51 +2046,6 @@ body.mobile-menu-open {
 .dashboard-alert__dismiss:focus-visible {
   color: var(--color-text);
   background: rgba(0, 0, 0, 0.05);
-}
-
-.dashboard-user-card__greeting {
-  margin: 0 0 0.75rem;
-  font-weight: 600;
-}
-
-.dashboard-user-card__greeting,
-.dashboard-user-card__meta {
-  grid-column: 1;
-}
-
-.dashboard-user-card__greeting-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.dashboard-user-card__greeting-link:hover,
-.dashboard-user-card__greeting-link:focus-visible {
-  text-decoration: underline;
-}
-
-.dashboard-user-card__greeting strong {
-  color: var(--color-primary);
-}
-
-.dashboard-user-card__meta {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.35rem;
-}
-
-.dashboard-user-card__label {
-  display: block;
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: 0.1rem;
-}
-
-.dashboard-user-card__value {
-  font-weight: 500;
 }
 
 .filters {
@@ -3282,50 +3217,6 @@ main.about-page {
 
   .dashboard-header__intro {
     grid-column: 1;
-  }
-
-  .dashboard-user-card {
-    grid-column: 1 / -1;
-    width: 100%;
-    padding: 0.85rem 1rem;
-    font-size: 0.95rem;
-  }
-
-  .dashboard-user-card__greeting {
-    margin-bottom: 0;
-  }
-
-  .dashboard-user-card__greeting,
-  .dashboard-user-card__meta {
-    grid-column: auto;
-  }
-
-  .dashboard-user-card__meta {
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .dashboard-user-card__last-login {
-    display: none;
-  }
-
-  .dashboard-user-card__label {
-    font-size: 0.8rem;
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  .dashboard-user-card__value {
-    font-size: 0.95em;
-  }
-
-  .dashboard-user-card__emoji-pill {
-    position: static;
-  }
-
-  .dashboard-user-card {
-    display: none;
   }
 
   .user-info__user-row {

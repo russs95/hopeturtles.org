@@ -35,17 +35,34 @@
     dashboardUserRecord?.buwana_id ||
     (currentUser && (currentUser.buwanaId || currentUser.id)) ||
     null;
-  const lastLoginDisplay = dashboardUserRecord?.last_login
-    ? new Date(dashboardUserRecord.last_login).toLocaleString('en-US', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      })
-    : 'Never';
   const userEmoji = dashboardUserRecord?.earthling_emoji || '👤';
   const userRole = dashboardUserRecord?.role || 'user';
   const activeAlerts = Array.isArray(alerts) ? alerts : [];
   const hasActiveAlerts = activeAlerts.length > 0;
 %>
+
+<% if (dashboardUserRecord) { %>
+  <section class="alert-user-info" aria-label="Current user">
+    <div class="alert-user-info__inner">
+      <div class="user-info__user-row" aria-label="Current user">
+        <span class="alert-user-info__label">Logged in as</span>
+        <a
+          href="/profile"
+          class="alert-user-info__user-link"
+          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+        >
+          <strong><%= userFirstName %></strong>
+        </a>
+        <span class="alert-user-info__divider" aria-hidden="true">|</span>
+        <span class="alert-user-info__role"><%= userRole %></span>
+        <span class="alert-user-info__divider" aria-hidden="true">|</span>
+        <a href="/profile" class="alert-user-info__profile-link">
+          edit <span aria-hidden="true"><%= userEmoji %></span> profile
+        </a>
+      </div>
+    </div>
+  </section>
+<% } %>
 
 <main id="main" class="layout dashboard">
   <section class="page-header dashboard-header">
@@ -83,64 +100,6 @@
       <p><%= dashboardIntroCopy %></p>
     </div>
   </section>
-
-  <% if (dashboardUserRecord) { %>
-    <section class="alert-user-info" aria-label="Current user">
-      <div class="alert-user-info__inner">
-        <div class="user-info__user-row" aria-label="Current user">
-          <span class="alert-user-info__label">Logged in as</span>
-          <a
-            href="/profile"
-            class="alert-user-info__user-link"
-            <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
-          >
-            <strong><%= userFirstName %></strong>
-          </a>
-          <span class="alert-user-info__divider" aria-hidden="true">|</span>
-          <span class="alert-user-info__role"><%= userRole %></span>
-          <span class="alert-user-info__divider" aria-hidden="true">|</span>
-          <a href="/profile" class="alert-user-info__profile-link">
-            edit <span aria-hidden="true"><%= userEmoji %></span> profile
-          </a>
-        </div>
-      </div>
-    </section>
-  <% } %>
-
-  <% if (dashboardUserRecord) { %>
-    <aside class="dashboard-user-card" aria-label="Current user summary">
-      <p class="dashboard-user-card__greeting">
-        Logged in as
-        <a
-          href="/profile"
-          class="dashboard-user-card__greeting-link"
-          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
-        >
-          <strong><%= userFirstName %></strong>
-        </a>
-      </p>
-      <ul class="dashboard-user-card__meta">
-        <li class="dashboard-user-card__last-login">
-          <span class="dashboard-user-card__label">Last login</span>
-          <span class="dashboard-user-card__value"><%= lastLoginDisplay %></span>
-        </li>
-        <li>
-          <span class="dashboard-user-card__label">Role</span>
-          <span class="dashboard-user-card__value"><%= userRole %></span>
-        </li>
-      </ul>
-      <a
-        href="/profile"
-        class="dashboard-user-card__emoji-pill"
-        data-profile-emoji-pill
-        data-default-emoji="<%= userEmoji %>"
-        aria-label="Update your profile"
-      >
-        <span aria-hidden="true" data-profile-emoji-value><%= userEmoji %></span>
-        <span class="sr-only">Open profile settings</span>
-      </a>
-    </aside>
-  <% } %>
 
   <% const myTurtles = Array.isArray(managedTurtles) ? managedTurtles : []; %>
   <% const activeHopeTurtles = myTurtles.filter(function (turtle) {
