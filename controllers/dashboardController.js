@@ -97,6 +97,10 @@ export const renderDashboard = async (req, res, next) => {
 
 export const renderAdmin = async (req, res, next) => {
   try {
+    const sessionUser = req.session?.user || null;
+    const buwanaId = sessionUser?.buwanaId ?? sessionUser?.id ?? null;
+    const dashboardUser = buwanaId ? await usersModel.findByBuwanaId(buwanaId) : null;
+
     const [
       missionsResult,
       turtleDetailsResult,
@@ -122,7 +126,8 @@ export const renderAdmin = async (req, res, next) => {
       boats: Array.isArray(boatsResult) ? boatsResult : [],
       alerts: Array.isArray(alertsResult) ? alertsResult : [],
       users: Array.isArray(usersResult) ? usersResult : [],
-      userStats: userStatsResult || null
+      userStats: userStatsResult || null,
+      dashboardUser
     });
   } catch (error) {
     return next(error);
