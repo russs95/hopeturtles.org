@@ -21,6 +21,12 @@
   return localTime.toISOString().slice(0, 16);
 }; %>
 <% const encodeRecord = (value) => encodeURIComponent(JSON.stringify(value)); %>
+<% const formatWholeNumber = (value) => {
+  if (value === undefined || value === null || value === '') return '—';
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return '—';
+  return Math.trunc(numeric).toLocaleString();
+}; %>
 <% const turtleStatusOptions = ['idle', 'en_route', 'arrived', 'lost']; %>
 <% const defaultBoatStatus = 'Docked'; %>
 <% const boatStatuses = [
@@ -883,9 +889,9 @@
                 <% } %>
               </td>
               <td><%= boat.owner || '—' %></td>
-              <td class="numeric-cell"><%= boat.capacity_hts ?? '—' %></td>
-              <td class="numeric-cell"><%= boat.capacity_persons ?? '—' %></td>
-              <td class="numeric-cell"><%= boat.capacity_bottles ?? '—' %></td>
+              <td class="numeric-cell"><%= formatWholeNumber(boat.capacity_hts) %></td>
+              <td class="numeric-cell"><%= formatWholeNumber(boat.capacity_persons) %></td>
+              <td class="numeric-cell"><%= formatWholeNumber(boat.capacity_bottles) %></td>
               <td>
                 <div
                   class="inline-select"

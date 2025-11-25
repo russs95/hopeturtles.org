@@ -55,11 +55,11 @@
         </a>
         <span class="alert-user-info__divider" aria-hidden="true">|</span>
         <span class="alert-user-info__role"><%= userRole %></span>
-        <span class="alert-user-info__divider" aria-hidden="true">|</span>
-        <a href="/profile" class="alert-user-info__profile-link">
-          edit <span aria-hidden="true"><%= userEmoji %></span> profile
-        </a>
       </div>
+      <a href="/profile" class="alert-user-info__profile-link" aria-label="Open profile settings">
+        <span aria-hidden="true">⚙️</span>
+        <span class="sr-only">Profile settings</span>
+      </a>
     </div>
   </section>
 <% } %>
