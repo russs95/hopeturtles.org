@@ -1908,7 +1908,6 @@ body.mobile-menu-open {
 }
 
 .dashboard-header__intro {
-  flex: 1 1 280px;
   min-width: 220px;
   display: flex;
   flex-direction: column;
@@ -1969,17 +1968,17 @@ body.mobile-menu-open {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.08);
   text-decoration: none;
   font-size: 1.1rem;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  background: transparent;
+  border: none;
+  transition: transform 0.15s ease;
 }
 
 .alert-user-info__profile-link:hover,
 .alert-user-info__profile-link:focus-visible {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transform: scale(1.05);
 }
 
 .dashboard-alert-banner {
@@ -2615,6 +2614,17 @@ body.mobile-menu-open {
   align-items: flex-start;
 }
 
+.celebration-card__header--center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.celebration-card__header--center .dialog-close {
+  align-self: flex-end;
+}
+
 .celebration-card__body {
   text-align: center;
   display: flex;
@@ -2630,11 +2640,10 @@ body.mobile-menu-open {
 
 .celebration-card__mascot {
   width: 100%;
-  max-width: 480px;
-  padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: var(--shadow-elevated);
+  max-width: 520px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
   display: flex;
   justify-content: center;
 }
@@ -2649,6 +2658,11 @@ body.mobile-menu-open {
 
 .celebration-card__actions--center {
   justify-content: center;
+  align-items: center;
+}
+
+.celebration-card__confirm {
+  min-width: 300px;
 }
 
 .bottle-delivery-serial__value {

@@ -540,7 +540,12 @@
     aria-labelledby="bottleCelebrationTitle"
   >
     <article class="form-card celebration-card">
-      <header class="mission-dialog__header celebration-card__header">
+      <div class="celebration-card__body celebration-card__body--turtle">
+        <div class="celebration-card__mascot" aria-hidden="true">
+          <pre class="brand-ascii celebration-card__ascii" data-bottle-celebration-ascii>HopeTurtles</pre>
+        </div>
+      </div>
+      <header class="mission-dialog__header celebration-card__header celebration-card__header--center">
         <div>
           <h2 id="bottleCelebrationTitle">Bottle has been saved!</h2>
           <p class="panel-subtitle">
@@ -557,13 +562,8 @@
           &times;
         </button>
       </header>
-      <div class="celebration-card__body celebration-card__body--turtle">
-        <div class="celebration-card__mascot" aria-hidden="true">
-          <pre class="brand-ascii celebration-card__ascii" data-bottle-celebration-ascii>HopeTurtles</pre>
-        </div>
-      </div>
       <div class="mission-dialog__actions celebration-card__actions celebration-card__actions--center">
-        <button type="button" class="button" data-close-bottle-celebration>Got it! 👌</button>
+        <button type="button" class="button celebration-card__confirm" data-close-bottle-celebration>Got it! 👌</button>
       </div>
     </article>
   </dialog>
