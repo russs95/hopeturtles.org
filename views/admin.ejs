@@ -948,7 +948,24 @@
                   <div class="muted"><%= alert.message_body %></div>
                 <% } %>
               </td>
-              <td data-label="Status"><%= alert.status %></td>
+              <td data-label="Status">
+                <div
+                  class="inline-select"
+                  role="button"
+                  tabindex="0"
+                  data-editable-select
+                  data-endpoint="/api/alerts/<%= alert.alert_id %>"
+                  data-field="status"
+                  data-value="<%= alert.status %>"
+                  data-options="active|off|archived"
+                  data-label="Update status for alert <%= alert.title %>"
+                  title="Click to change status"
+                >
+                  <span class="status-pill alert-status-pill" data-status="<%= alert.status %>">
+                    <%= alert.status %>
+                  </span>
+                </div>
+              </td>
               <td data-label="Actions">
                 <button
                   class="button ghost delete"

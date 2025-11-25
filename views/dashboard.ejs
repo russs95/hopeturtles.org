@@ -221,7 +221,7 @@
               <th scope="col">Mission</th>
               <th scope="col">Hub</th>
               <th scope="col">Boat</th>
-              <th scope="col">Bottles</th>
+              <th scope="col" class="turtle-bottles-column">Bottles</th>
               <th scope="col" class="turtle-status-column">Status</th>
             </tr>
           </thead>
@@ -267,7 +267,7 @@
                 <td data-label="Mission"><%= turtle.mission_name || '—' %></td>
                 <td data-label="Hub"><%= turtle.hub_name || '—' %></td>
                 <td data-label="Boat"><%= turtle.boat_name || '—' %></td>
-                <td data-label="Bottles">
+                <td data-label="Bottles" class="turtle-bottles-column">
                   <button
                     type="button"
                     class="status-pill turtle-bottles-pill"
@@ -553,7 +553,9 @@
         </div>
       </header>
       <div class="mission-dialog__actions celebration-card__actions celebration-card__actions--center">
-        <button type="button" class="button celebration-card__confirm" data-close-bottle-celebration>Got it! 👌</button>
+        <button type="button" class="button celebration-card__confirm" data-close-bottle-celebration>
+          <span class="celebration-card__confirm-text">Got it! 👌</span>
+        </button>
       </div>
     </article>
   </dialog>
