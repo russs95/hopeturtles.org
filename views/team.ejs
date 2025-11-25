@@ -31,11 +31,11 @@
               <span class="team-card__title-emoji" aria-hidden="true"><%= member.emoji %></span>
               <span><%= member.title %></span>
             </p>
-            <p class="team-card__meta-line">Continent · <strong><%= member.continent %></strong></p>
-            <p class="team-card__meta-line">Watershed · <strong><%= member.watershed %></strong></p>
             <% if (member.profileText) { %>
               <p class="team-card__bio"><%= member.profileText %></p>
             <% } %>
+            <p class="team-card__meta-line">Continent · <strong><%= member.continent %></strong></p>
+            <p class="team-card__meta-line">Watershed · <strong><%= member.watershed %></strong></p>
           </div>
         </article>
       <% }) %>
