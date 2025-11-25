@@ -659,7 +659,7 @@ body.mobile-menu-open {
 .layout {
   width: min(1200px, calc(100vw - 2rem));
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 0.4rem 1rem 4rem;
   flex: 1 0 auto;
 }
 
@@ -1185,6 +1185,11 @@ body.mobile-menu-open {
   min-width: 200px;
 }
 
+.my-turtles-table .turtle-status-column {
+  max-width: 122px;
+  width: 122px;
+}
+
 .turtle-actions {
   display: flex;
   flex-direction: column;
@@ -1327,9 +1332,9 @@ body.mobile-menu-open {
 }
 
 .turtle-profile__photo {
-  width: 111px;
-  height: 111px;
-  flex: 0 0 111px;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
   border-radius: 1rem;
   overflow: hidden;
   background: rgba(1, 121, 25, 0.08);
@@ -1356,9 +1361,9 @@ body.mobile-menu-open {
 
 .turtle-profile__badge {
   position: absolute;
-  inset: 0 0 auto 0;
-  padding: 0.5rem 0.6rem 1.75rem;
-  background: linear-gradient(180deg, rgba(9, 26, 3, 0.75), rgba(9, 26, 3, 0));
+  inset: auto 0 0 0;
+  padding: 1.1rem 0.6rem 0.65rem;
+  background: linear-gradient(0deg, rgba(9, 26, 3, 0.8), rgba(9, 26, 3, 0));
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -1924,7 +1929,7 @@ body.mobile-menu-open {
 
 .alert-user-info {
   width: 100%;
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #f7fdf9;
   margin: 0 0 1rem;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
@@ -1932,7 +1937,7 @@ body.mobile-menu-open {
 
 .alert-user-info__inner {
   margin: 0;
-  padding: 0.65rem clamp(1rem, 5vw, 2.25rem);
+  padding: 0.35rem clamp(0.75rem, 4vw, 1.5rem);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -2650,6 +2655,9 @@ body.mobile-menu-open {
 
 .celebration-card__ascii {
   margin: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 1.3em;
 }
 
 .celebration-card__actions {
@@ -2663,6 +2671,8 @@ body.mobile-menu-open {
 
 .celebration-card__confirm {
   min-width: 300px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .bottle-delivery-serial__value {
