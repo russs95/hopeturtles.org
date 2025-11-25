@@ -9,7 +9,8 @@
         class="brand-ascii"
         aria-hidden="true"
         data-logo-src="/turtles-ascii-logo.txt"
-        data-logo-alt-src="/turtles-ascii-logo-2.txt"
+        data-logo-hover-src="/turtles-ascii-logo-2.txt"
+        data-logo-hover-alt-src="/turtles-ascii-logo-3.txt"
       >
         HopeTurtles
       </pre>
@@ -21,7 +22,8 @@
               ? script.previousElementSibling
               : document.querySelector('.brand-ascii[data-logo-src]');
           if (!target) return;
-          const sources = [target.dataset.logoSrc, target.dataset.logoAltSrc].filter(Boolean);
+          const baseSource = target.dataset.logoSrc;
+          const hoverSources = [target.dataset.logoHoverSrc, target.dataset.logoHoverAltSrc].filter(Boolean);
           const fallback = 'HopeTurtles';
 
           const loadLogo = (src) =>
@@ -34,22 +36,22 @@
             target.textContent = text || fallback;
           };
 
-          Promise.all(sources.map((src) => loadLogo(src))).then((logos) => {
-            const frames = logos.filter(Boolean);
-            if (!frames.length) {
-              setContent(fallback);
-              return;
-            }
+          Promise.all([loadLogo(baseSource), ...hoverSources.map((src) => loadLogo(src))]).then((logos) => {
+            const [baseLogo, ...hoverFrames] = logos;
+            const baseFrame = baseLogo || fallback;
+            const frames = hoverFrames.filter(Boolean);
 
             let frameIndex = 0;
             let animationId = null;
-            setContent(frames[0]);
+            setContent(baseFrame);
 
             const hoverTarget = target.closest('a') || target;
             if (!hoverTarget) return;
 
             const startAnimation = () => {
-              if (frames.length < 2 || animationId !== null) return;
+              if (!frames.length || animationId !== null) return;
+              frameIndex = 0;
+              setContent(frames[frameIndex]);
               animationId = window.setInterval(() => {
                 frameIndex = (frameIndex + 1) % frames.length;
                 setContent(frames[frameIndex]);
@@ -61,7 +63,7 @@
               window.clearInterval(animationId);
               animationId = null;
               frameIndex = 0;
-              setContent(frames[frameIndex]);
+              setContent(baseFrame);
             };
 
             hoverTarget.addEventListener('mouseenter', startAnimation);
@@ -78,7 +80,6 @@
   </div>
   <nav class="primary-nav" aria-label="Primary">
     <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
-    <a href="/report">Reports</a>
     <a href="/about">About</a>
     <a href="/team"><%= t.nav_team || 'Team' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
@@ -160,7 +161,6 @@
     <nav class="mobile-menu__nav" aria-label="Mobile primary">
       <a href="/dashboard">Dashboard</a>
       <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
-      <a href="/report">Reports</a>
       <a href="/about">About</a>
       <a href="/team"><%= t.nav_team || 'Team' %></a>
       <% if (currentUser && currentUser.role === 'admin') { %>

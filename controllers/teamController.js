@@ -15,7 +15,7 @@ const normalizeMember = (member) => {
   const safeTitle = member.team_title?.trim() || 'Crew Member';
   const watershed = member.location_watershed?.trim() || '—';
   const code = member.continent_code?.trim().toUpperCase() || '';
-  const profileText = member.location_full?.trim() || '';
+  const profileText = member.profile_txt?.trim() || '';
   const rawPhoto = typeof member.profile_pic === 'string' ? member.profile_pic.trim() : '';
   const photoUrl = rawPhoto && rawPhoto.toLowerCase() !== 'null' ? rawPhoto : null;
 
