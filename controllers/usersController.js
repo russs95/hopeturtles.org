@@ -11,13 +11,18 @@ const ROLE_OPTIONS = [
 
 export const renderManagementPage = async (req, res, next) => {
   try {
+    const sessionUser = req.session?.user || null;
+    const buwanaId = sessionUser?.buwanaId ?? sessionUser?.id ?? null;
+    const dashboardUser = buwanaId ? await usersModel.findByBuwanaId(buwanaId) : null;
+
     const users = await usersModel.listUsers();
     const canEditRoles = req.session?.user?.role === 'admin';
     return res.render('manage-users', {
       pageTitle: 'Manage Users',
       users,
       roleOptions: ROLE_OPTIONS,
-      canEditRoles
+      canEditRoles,
+      dashboardUser
     });
   } catch (error) {
     return next(error);

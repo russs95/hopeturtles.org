@@ -42,6 +42,39 @@
 <% const boatManagerOptions = Array.isArray(users) ? users : []; %>
 <% const turtlesForManagement = Array.isArray(turtleDetails) ? turtleDetails : []; %>
 <% const adminAlerts = Array.isArray(alerts) ? alerts : []; %>
+<% const dashboardUserRecord = dashboardUser || currentUser || null; %>
+<% const userFirstName =
+  dashboardUserRecord?.first_name ||
+  (dashboardUserRecord?.full_name ? dashboardUserRecord.full_name.split(/\s+/u)[0] : null) ||
+  (currentUser && currentUser.firstName) ||
+  'Crew member'; %>
+<% const userBuwanaId =
+  dashboardUserRecord?.buwana_id ||
+  (currentUser && (currentUser.buwanaId || currentUser.id)) ||
+  null; %>
+<% const userRole = dashboardUserRecord?.role || 'user'; %>
+<% if (dashboardUserRecord) { %>
+  <section class="alert-user-info" aria-label="Current user">
+    <div class="alert-user-info__inner">
+      <div class="user-info__user-row" aria-label="Current user">
+        <span class="alert-user-info__label">Logged in as</span>
+        <a
+          href="/profile"
+          class="alert-user-info__user-link"
+          <%= userBuwanaId ? `title="${userBuwanaId}"` : '' %>
+        >
+          <strong><%= userFirstName %></strong>
+        </a>
+        <span class="alert-user-info__divider" aria-hidden="true">|</span>
+        <span class="alert-user-info__role"><%= userRole %></span>
+      </div>
+      <a href="/profile" class="alert-user-info__profile-link" aria-label="Open profile settings">
+        <span aria-hidden="true">⚙️</span>
+        <span class="sr-only">Profile settings</span>
+      </a>
+    </div>
+  </section>
+<% } %>
 <main id="main" class="layout admin">
   <section class="page-header">
     <h1>Admin Tools</h1>

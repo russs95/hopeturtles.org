@@ -214,6 +214,7 @@ usersModel.getTeamMembers = async () => {
       continent_code,
       earthling_emoji,
       location_full,
+      profile_txt,
       profile_pic
     FROM users_tb
     WHERE team_title IS NOT NULL AND TRIM(team_title) <> ''
