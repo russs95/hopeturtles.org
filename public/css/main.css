@@ -197,6 +197,8 @@ a:hover {
   font-size: calc(0.6 * var(--hw));
   font-weight: 700;
   text-decoration: none !important;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .brand-wordmark-text {
