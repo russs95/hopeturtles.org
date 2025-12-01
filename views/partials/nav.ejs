@@ -3,8 +3,13 @@
 <% const onDashboardPage = normalizedPath === '/dashboard'; %>
 <header class="site-header">
   <div class="brand">
-    <a href="/" class="brand-link" aria-label="hopeTurtles.org home" title="HopeTurtles | a human2human project">
-      <span class="sr-only">hopeTurtles.org</span>
+    <a
+      href="/"
+      class="brand-link"
+      aria-label="<%= t.nav_brand_home || 'hopeTurtles.org home' %>"
+      title="<%= t.nav_brand_tagline || 'HopeTurtles | a human2human project' %>"
+    >
+      <span class="sr-only"><%= t.nav_brand_sr || 'hopeTurtles.org' %></span>
       <pre
         class="brand-ascii"
         aria-hidden="true"
@@ -78,12 +83,12 @@
       </span>
     </a>
   </div>
-  <nav class="primary-nav" aria-label="Primary">
+  <nav class="primary-nav" aria-label="<%= t.nav_primary || 'Primary' %>">
     <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
-    <a href="/about">About</a>
+    <a href="/about"><%= t.nav_about || 'About' %></a>
     <a href="/team"><%= t.nav_team || 'Team' %></a>
     <% if (currentUser && currentUser.role === 'admin') { %>
-      <a href="/admin">Admin</a>
+      <a href="/admin"><%= t.nav_admin || 'Admin' %></a>
     <% } %>
   </nav>
   <div class="nav-controls">
@@ -96,7 +101,7 @@
         aria-expanded="false"
         aria-controls="languageMenu"
       >
-        <span class="sr-only">Change language</span>
+        <span class="sr-only"><%= t.nav_change_language || 'Change language' %></span>
         <span aria-hidden="true" class="lang-button-icon">🌐</span>
       </button>
       <ul id="languageMenu" class="lang-options" role="listbox" hidden>
@@ -119,37 +124,37 @@
     <button
       id="themeToggle"
       class="theme-toggle"
-      aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
+      aria-label="<%= theme === 'dark' ? t.nav_theme_light || 'Switch to light mode' : t.nav_theme_dark || 'Switch to dark mode' %>"
       aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>"
       type="button"
     >
       <span class="theme-icon" aria-hidden="true"><%= theme === 'dark' ? '☀️' : '🌙' %></span>
-      <span class="sr-only"><%= theme === 'dark' ? 'Activate light theme' : 'Activate dark theme' %></span>
+      <span class="sr-only"><%= theme === 'dark' ? t.nav_theme_light || 'Activate light theme' : t.nav_theme_dark || 'Activate dark theme' %></span>
     </button>
     <button
       id="mobileMenuToggle"
       class="nav-controls__menu-toggle"
       type="button"
-      aria-label="Open menu"
+      aria-label="<%= t.nav_open_menu || 'Open menu' %>"
       aria-expanded="false"
       aria-controls="mobileMenu"
     >
       <span aria-hidden="true">🐢</span>
-      <span class="sr-only">Open menu</span>
+      <span class="sr-only"><%= t.nav_open_menu || 'Open menu' %></span>
     </button>
     <% if (currentUser) { %>
       <% if (!onDashboardPage) { %>
-        <a class="button" href="/dashboard">🎮 Dash</a>
+        <a class="button" href="/dashboard">🎮 <%= t.nav_dashboard || 'Dash' %></a>
       <% } %>
     <% } else { %>
-      <a class="button nav-auth" href="<%= loginUrl %>">Login</a>
+      <a class="button nav-auth" href="<%= loginUrl %>"><%= t.nav_login || 'Login' %></a>
       <a
         class="button ghost nav-signup nav-auth"
         href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
         target="_blank"
         rel="noreferrer"
       >
-        Signup
+        <%= t.nav_signup || 'Signup' %>
       </a>
     <% } %>
   </div>
@@ -157,25 +162,32 @@
 <div id="mobileMenu" class="mobile-menu" hidden>
   <div class="mobile-menu__backdrop" data-close-menu="true"></div>
   <div class="mobile-menu__panel">
-    <button id="mobileMenuClose" class="mobile-menu__close" type="button" aria-label="Close menu">✕</button>
-    <nav class="mobile-menu__nav" aria-label="Mobile primary">
-      <a href="/dashboard">Dashboard</a>
+    <button
+      id="mobileMenuClose"
+      class="mobile-menu__close"
+      type="button"
+      aria-label="<%= t.nav_close_menu || 'Close menu' %>"
+    >
+      ✕
+    </button>
+    <nav class="mobile-menu__nav" aria-label="<%= t.nav_primary || 'Mobile primary' %>">
+      <a href="/dashboard"><%= t.nav_dashboard || 'Dashboard' %></a>
       <a href="/missions"><%= t.nav_missions || t.nav_mission || 'Missions' %></a>
-      <a href="/about">About</a>
+      <a href="/about"><%= t.nav_about || 'About' %></a>
       <a href="/team"><%= t.nav_team || 'Team' %></a>
       <% if (currentUser && currentUser.role === 'admin') { %>
-        <a href="/admin">Admin</a>
+        <a href="/admin"><%= t.nav_admin || 'Admin' %></a>
       <% } %>
       <% if (!currentUser) { %>
         <div class="mobile-menu__auth-links">
-          <a class="button ghost mobile-menu__action" href="<%= loginUrl %>">Login</a>
+          <a class="button ghost mobile-menu__action" href="<%= loginUrl %>"><%= t.nav_login || 'Login' %></a>
           <a
             class="button ghost mobile-menu__action"
             href="https://buwana.ecobricks.org/en/signup-1.php?app=hope_8fc3caabded4"
             target="_blank"
             rel="noreferrer"
           >
-            Signup
+            <%= t.nav_signup || 'Signup' %>
           </a>
         </div>
       <% } %>
@@ -191,13 +203,13 @@
       %>
         <p class="mobile-menu__user">
           <span class="mobile-menu__user-emoji" aria-hidden="true"><%= userEmoji %></span>
-          Logged in as <strong><%= userFirstName %></strong>
+          <%= t.nav_logged_in_as || 'Logged in as' %> <strong><%= userFirstName %></strong>
           <span class="mobile-menu__divider" aria-hidden="true">|</span>
-          <a href="/profile">Edit Profile</a>
+          <a href="/profile"><%= t.nav_edit_profile || 'Edit Profile' %></a>
         </p>
       <% } %>
       <p class="mobile-menu__auth-note">
-        Authentication by
+        <%= t.nav_auth_by || 'Authentication by' %>
         <a href="https://buwana.ecobricks.org" target="_blank" rel="noreferrer">Buwana</a>
       </p>
     </div>

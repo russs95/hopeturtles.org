@@ -1,14 +1,19 @@
     <footer id="contact" class="site-footer">
       <div class="footer-grid">
         <div>
-          <h3>Contact</h3>
+          <h3><%= t.footer_contact || 'Contact' %></h3>
           <p>
             <a href="mailto:go@hopeturtles.org">go@hopeturtles.org</a><br />
-            <span>A last mile, ecological, decentralized and open source pathway to connect humans to humans in moments of need.</span>
+            <span>
+              <%=
+                t.footer_contact_blurb ||
+                  'A last mile, ecological, decentralized and open source pathway to connect humans to humans in moments of need.'
+              %>
+            </span>
           </p>
         </div>
         <div>
-          <h3>Network</h3>
+          <h3><%= t.footer_network || 'Network' %></h3>
           <ul>
             <li><a href="https://earthen.io" target="_blank" rel="noreferrer">Earthen.io</a></li>
             <li><a href="https://github.com/russs95/hopeturtles.org/" target="_blank" rel="noreferrer">GitHub</a></li>
@@ -18,8 +23,8 @@
           </ul>
         </div>
         <div>
-          <h3>Regen Accounting</h3>
-          <p>Hosted in Indonesia, by Dewaweb with custom in site carbon accounting..</p>
+          <h3><%= t.footer_regen || 'Regen Accounting' %></h3>
+          <p><%= t.footer_regen_blurb || 'Hosted in Indonesia, by Dewaweb with custom in site carbon accounting..' %></p>
           <% if (includeWebsiteCarbon) { %>
             <div id="wcb" class="carbonbadge<%= theme === 'dark' ? ' wcb-d' : '' %>"></div>
             <script src="https://unpkg.com/website-carbon-badges@1.1.3/b.min.js" defer></script>
@@ -40,26 +45,26 @@
                : 'Never';
         %>
           <div class="footer-account">
-            <h3>Account</h3>
+            <h3><%= t.footer_account || 'Account' %></h3>
             <dl class="footer-account__meta">
               <div>
-                <dt>Name</dt>
+                <dt><%= t.footer_account_name || 'Name' %></dt>
                 <dd><%= accountName %></dd>
               </div>
               <div>
-                <dt>Role</dt>
+                <dt><%= t.footer_account_role || 'Role' %></dt>
                 <dd class="footer-account__role"><%= accountRole %></dd>
               </div>
               <div>
-                <dt>Last logged in</dt>
+                <dt><%= t.footer_account_last_login || 'Last logged in' %></dt>
                 <dd><%= accountLastLogin %></dd>
               </div>
             </dl>
-            <a class="button ghost" href="/auth/logout">Logout</a>
+            <a class="button ghost" href="/auth/logout"><%= t.footer_logout || 'Logout' %></a>
           </div>
         <% } %>
       </div>
-      <p class="footer-meta">© <%= new Date().getFullYear() %> HopeTurtles.org · A Human2Human project</p>
+      <p class="footer-meta">© <%= new Date().getFullYear() %> HopeTurtles.org · <%= t.footer_meta || 'A Human2Human project' %></p>
     </footer>
     <script src="/js/main.js" type="module"></script>
     <% if (typeof pageScripts !== 'undefined') { %>

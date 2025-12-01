@@ -10,40 +10,40 @@
 >
   <section class="page-header">
     <h1><%= turtle.name %></h1>
-    <p><%= turtle.description || 'Telemetry stream and mission context for this Hope Turtle.' %></p>
+    <p><%= turtle.description || t.turtle_description || 'Telemetry stream and mission context for this Hope Turtle.' %></p>
     <% if (mission) { %>
-      <p class="mission-link">Mission: <a href="/missions#mission-<%= mission.mission_id %>"><%= mission.name %></a></p>
+      <p class="mission-link"><%= t.turtle_mission || 'Mission' %>: <a href="/missions#mission-<%= mission.mission_id %>"><%= mission.name %></a></p>
     <% } %>
   </section>
 
   <section class="turtle-status">
     <div class="status-grid">
       <div>
-        <h3>Status</h3>
+        <h3><%= t.turtle_status || 'Status' %></h3>
         <p><%= turtle.status %></p>
       </div>
       <div>
-        <h3>Last Coordinates</h3>
+        <h3><%= t.turtle_last_coordinates || 'Last Coordinates' %></h3>
         <p><%= turtle.last_lat %>, <%= turtle.last_lng %></p>
       </div>
       <div>
-        <h3>Solar Charge</h3>
+        <h3><%= t.turtle_solar || 'Solar Charge' %></h3>
         <p><%= turtle.solar_charge %> %</p>
       </div>
     </div>
   </section>
 
   <section class="telemetry-stream">
-    <h2>Telemetry</h2>
+    <h2><%= t.turtle_telemetry || 'Telemetry' %></h2>
     <table>
       <thead>
         <tr>
-          <th>Timestamp</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
-          <th>Battery (V)</th>
-          <th>Temperature (°C)</th>
-          <th>Connection</th>
+          <th><%= t.turtle_timestamp || 'Timestamp' %></th>
+          <th><%= t.turtle_lat || 'Latitude' %></th>
+          <th><%= t.turtle_lng || 'Longitude' %></th>
+          <th><%= t.turtle_battery || 'Battery (V)' %></th>
+          <th><%= t.turtle_temperature || 'Temperature (°C)' %></th>
+          <th><%= t.turtle_connection || 'Connection' %></th>
         </tr>
       </thead>
       <tbody id="telemetryTable">
@@ -62,7 +62,7 @@
   </section>
 
   <section class="turtle-photos">
-    <h2>Photos</h2>
+    <h2><%= t.turtle_photos || 'Photos' %></h2>
     <div class="photo-grid">
       <% photos.forEach(function (photo) { %>
         <figure>
@@ -74,14 +74,14 @@
         </figure>
       <% }) %>
       <% if (photos.length === 0) { %>
-        <p>No photos have been uploaded yet.</p>
+        <p><%= t.turtle_no_photos || 'No photos have been uploaded yet.' %></p>
       <% } %>
     </div>
   </section>
 
   <section class="map-section">
     <div class="map-container" data-map-token="<%= mapboxToken %>">
-      <div id="turtleMap" class="map-canvas" aria-label="Turtle trajectory"></div>
+      <div id="turtleMap" class="map-canvas" aria-label="<%= t.turtle_map_label || 'Turtle trajectory' %>"></div>
     </div>
   </section>
 </main>
