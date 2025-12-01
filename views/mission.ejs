@@ -12,31 +12,31 @@
 <main id="main" class="layout mission-page">
   <section class="page-header mission-page__header">
     <div>
-      <h1>Missions Explorer</h1>
-      <p>Browse every Hope Turtle mission and follow its target destination.</p>
+      <h1><%= t.missions_title || 'Missions Explorer' %></h1>
+      <p><%= t.missions_intro || 'Browse every Hope Turtle mission and follow its target destination.' %></p>
     </div>
     <div class="filters">
       <label>
-        Status
+        <%= t.missions_filter_status || 'Status' %>
         <select id="missionFilter">
-          <option value="">All</option>
-          <option value="planned">Planned</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
+          <option value=""><%= t.missions_filter_all || 'All' %></option>
+          <option value="planned"><%= t.missions_filter_planned || 'Planned' %></option>
+          <option value="active"><%= t.missions_filter_active || 'Active' %></option>
+          <option value="completed"><%= t.missions_filter_completed || 'Completed' %></option>
         </select>
       </label>
     </div>
   </section>
 
   <% if (!missions.length) { %>
-    <p class="panel-empty">No missions have been registered yet. Check back soon.</p>
+    <p class="panel-empty"><%= t.missions_empty || 'No missions have been registered yet. Check back soon.' %></p>
   <% } else { %>
     <section class="mission-list" aria-live="polite">
       <% missions.forEach(function (mission) { %>
-        <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
-        <% const statusLabel = mission.status
+            <% const statusKey = (mission.status || 'unknown').toLowerCase(); %>
+            <% const statusLabel = mission.status
           ? mission.status.charAt(0).toUpperCase() + mission.status.slice(1)
-          : 'Unknown'; %>
+          : t.missions_status_unknown || 'Unknown'; %>
         <% const targetLat =
           mission.target_lat !== null && mission.target_lat !== undefined
             ? Number(mission.target_lat)
@@ -66,10 +66,10 @@
               <div
                 id="missionCardMap-<%= mission.mission_id %>"
                 class="map-canvas"
-                aria-label="Mission target map for <%= mission.name %>"
+                aria-label="<%= t.missions_map_label || 'Mission target map for' %> <%= mission.name %>"
               ></div>
             <% } else { %>
-              <p class="mission-card__map-placeholder">Target coordinates coming soon</p>
+              <p class="mission-card__map-placeholder"><%= t.missions_map_placeholder || 'Target coordinates coming soon' %></p>
             <% } %>
             <span class="status-pill status-<%= statusKey %>"><%= statusLabel %></span>
           </div>
@@ -77,27 +77,27 @@
             <header class="card-header">
               <h2><%= mission.name %></h2>
               <p class="mission-card__dates">
-                <strong>Start:</strong> <%= formatMissionDate(mission.start_date) %> ·
-                <strong>End:</strong> <%= formatMissionDate(mission.end_date) %>
+                <strong><%= t.missions_start || 'Start' %>:</strong> <%= formatMissionDate(mission.start_date) %> ·
+                <strong><%= t.missions_end || 'End' %>:</strong> <%= formatMissionDate(mission.end_date) %>
               </p>
             </header>
-            <p><%= mission.description || 'Mission briefing to follow.' %></p>
+            <p><%= mission.description || t.missions_description_placeholder || 'Mission briefing to follow.' %></p>
           </div>
           <div class="mission-card__metrics">
             <div class="mission-metric">
-              <span class="mission-metric__label">Turtles</span>
+              <span class="mission-metric__label"><%= t.missions_metric_turtles || 'Turtles' %></span>
               <span class="mission-metric__value"><%= Number(mission.turtle_count || 0).toLocaleString() %></span>
             </div>
             <div class="mission-metric">
-              <span class="mission-metric__label">Hubs</span>
+              <span class="mission-metric__label"><%= t.missions_metric_hubs || 'Hubs' %></span>
               <span class="mission-metric__value"><%= Number(mission.hub_count || 0).toLocaleString() %></span>
             </div>
             <div class="mission-metric">
-              <span class="mission-metric__label">Boats</span>
+              <span class="mission-metric__label"><%= t.missions_metric_boats || 'Boats' %></span>
               <span class="mission-metric__value"><%= Number(mission.boat_count || 0).toLocaleString() %></span>
             </div>
             <div class="mission-metric">
-              <span class="mission-metric__label">Bottles</span>
+              <span class="mission-metric__label"><%= t.missions_metric_bottles || 'Bottles' %></span>
               <span class="mission-metric__value"><%= Number(mission.bottle_count || 0).toLocaleString() %></span>
             </div>
           </div>

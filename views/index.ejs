@@ -4,7 +4,11 @@
 <main id="main" class="layout layout--home">
   <section class="hero">
     <div class="hero-image">
-      <img src="/images/hopeturtles-floating-1000px.webp" alt="Illustration of a Hope Turtle floating in the ocean" loading="lazy" />
+      <img
+        src="/images/hopeturtles-floating-1000px.webp"
+        alt="<%= t.hero_image_alt || 'Illustration of a Hope Turtle floating in the ocean' %>"
+        loading="lazy"
+      />
     </div>
     <div class="hero-metrics">
       <div class="metric-card">
@@ -33,20 +37,26 @@
   <section class="panel contribute-panel" id="contribute">
     <header class="panel-header">
       <div>
-        <h2>Contribute & Collaborate</h2>
+        <h2><%= t.contribute_title || 'Contribute & Collaborate' %></h2>
         <p class="panel-subtitle">
-          The HopeTurtle project is 100% open source and collaboration powered!  You can get involved in a bunch of ways.
+          <%=
+            t.contribute_subtitle ||
+              'The HopeTurtle project is 100% open source and collaboration powered!  You can get involved in a bunch of ways.'
+          %>
         </p>
       </div>
     </header>
     <div class="contribute-panel__grid">
       <% const contributeButtons = [
-        { title: 'Code', subtitle: 'Help develop our turtle python code on Github' },
-        { title: 'Build', subtitle: 'Assemble the hardware for a Hope Turtle' },
-        { title: 'Bottle', subtitle: 'Send in food filled aid bottles to our coordination hubs' },
-        { title: 'Commission', subtitle: 'Commission the deployment of a HopeTurtle and become its captain' },
-        { title: 'Deploy', subtitle: 'Help deploy a hub or boat that can receive and release Hope Turtles' },
-        { title: 'Buy', subtitle: 'Purchase food orders for our hubs to fill aid bottles' }
+        { title: t.contribute_code_title || 'Code', subtitle: t.contribute_code_body || 'Help develop our turtle python code on Github' },
+        { title: t.contribute_build_title || 'Build', subtitle: t.contribute_build_body || 'Assemble the hardware for a Hope Turtle' },
+        { title: t.contribute_bottle_title || 'Bottle', subtitle: t.contribute_bottle_body || 'Send in food filled aid bottles to our coordination hubs' },
+        {
+          title: t.contribute_commission_title || 'Commission',
+          subtitle: t.contribute_commission_body || 'Commission the deployment of a HopeTurtle and become its captain'
+        },
+        { title: t.contribute_deploy_title || 'Deploy', subtitle: t.contribute_deploy_body || 'Help deploy a hub or boat that can receive and release Hope Turtles' },
+        { title: t.contribute_buy_title || 'Buy', subtitle: t.contribute_buy_body || 'Purchase food orders for our hubs to fill aid bottles' }
       ]; %>
       <% contributeButtons.forEach(function (button) { %>
         <button

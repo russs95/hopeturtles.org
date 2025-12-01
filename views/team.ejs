@@ -2,15 +2,17 @@
 <%- include('partials/nav') %>
 <main id="main" class="layout team-page">
   <section class="page-header team-page__intro">
-    <h1>Meet the hopeTurtles.org Team</h1>
+    <h1><%= t.team_title || 'Meet the hopeTurtles.org Team' %></h1>
     <p>
-      These are the stewards, technologists, and storytellers who have declared their roles inside the platform.
-      Every card below reflects a user with a <code>team_title</code> in their Hope Turtle profile.
+      <%=
+        t.team_intro ||
+          'These are the stewards, technologists, and storytellers who have declared their roles inside the platform. Every card below reflects a user with a <code>team_title</code> in their Hope Turtle profile.'
+      %>
     </p>
   </section>
 
   <% if (!teamMembers.length) { %>
-    <p class="empty-state">Our roster is still forming. Check back soon for new crew updates.</p>
+    <p class="empty-state"><%= t.team_empty || 'Our roster is still forming. Check back soon for new crew updates.' %></p>
   <% } else { %>
     <section class="team-grid" aria-live="polite">
       <% teamMembers.forEach(function(member) { %>
@@ -34,8 +36,8 @@
             <% if (member.profileText) { %>
               <p class="team-card__bio"><%= member.profileText %></p>
             <% } %>
-            <p class="team-card__meta-line">Continent · <strong><%= member.continent %></strong></p>
-            <p class="team-card__meta-line">Watershed · <strong><%= member.watershed %></strong></p>
+            <p class="team-card__meta-line"><%= t.team_continent || 'Continent' %> · <strong><%= member.continent %></strong></p>
+            <p class="team-card__meta-line"><%= t.team_watershed || 'Watershed' %> · <strong><%= member.watershed %></strong></p>
           </div>
         </article>
       <% }) %>

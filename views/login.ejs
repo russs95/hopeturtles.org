@@ -2,12 +2,12 @@
 <%- include('partials/nav') %>
 <main id="main" class="layout">
   <section class="page-header">
-    <h1>Login</h1>
-    <p>Authenticate with Buwana SSO to manage Hope Turtles.</p>
+    <h1><%= t.login_title || 'Login' %></h1>
+    <p><%= t.login_intro || 'Authenticate with Buwana SSO to manage Hope Turtles.' %></p>
   </section>
   <section class="form-card">
-    <p>When you continue you will be redirected to the Buwana login page.</p>
-    <a class="button" href="<%= loginUrl %>">Continue to Buwana</a>
+    <p><%= t.login_redirect || 'When you continue you will be redirected to the Buwana login page.' %></p>
+    <a class="button" href="<%= loginUrl %>"><%= t.login_cta || 'Continue to Buwana' %></a>
   </section>
 </main>
 <%- include('partials/footer') %>

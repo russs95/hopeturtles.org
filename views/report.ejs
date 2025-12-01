@@ -2,35 +2,35 @@
 <%- include('partials/nav') %>
 <main id="main" class="layout report-page">
   <section class="page-header">
-    <h1>Field Report</h1>
-    <p>Follow the latest landfalls and gratitude messages from Hope Turtle guardians.</p>
+    <h1><%= t.report_title || 'Field Report' %></h1>
+    <p><%= t.report_intro || 'Follow the latest landfalls and gratitude messages from Hope Turtle guardians.' %></p>
   </section>
 
   <% if (!successEntries || !successEntries.length) { %>
-    <p class="panel-empty">No landfalls have been recorded yet. Check back soon.</p>
+    <p class="panel-empty"><%= t.report_empty || 'No landfalls have been recorded yet. Check back soon.' %></p>
   <% } else { %>
     <section class="success-log report-log" id="success">
       <header>
-        <h2>Recent Landfalls</h2>
-        <p>Live updates from the field.</p>
+        <h2><%= t.report_recent || 'Recent Landfalls' %></h2>
+        <p><%= t.report_live || 'Live updates from the field.' %></p>
       </header>
       <div class="success-grid full">
         <% successEntries.forEach(function (entry) { %>
           <article class="success-card">
             <div class="success-meta">
-              <span><strong>Lat:</strong> <%= entry.location_lat || '—' %></span>
-              <span><strong>Lng:</strong> <%= entry.location_lng || '—' %></span>
+              <span><strong><%= t.report_lat || 'Lat:' %></strong> <%= entry.location_lat || '—' %></span>
+              <span><strong><%= t.report_lng || 'Lng:' %></strong> <%= entry.location_lng || '—' %></span>
             </div>
-            <p><%= entry.thank_you_message || 'Ocean blessings received.' %></p>
+            <p><%= entry.thank_you_message || t.report_default_message || 'Ocean blessings received.' %></p>
             <div class="success-meta">
               <span>
-                <strong>Found:</strong>
+                <strong><%= t.report_found || 'Found:' %></strong>
                 <%= entry.date_found
                   ? new Date(entry.date_found).toLocaleDateString('en-US', { dateStyle: 'medium' })
                   : '—' %>
               </span>
               <span>
-                <strong>Turtle:</strong>
+                <strong><%= t.report_turtle || 'Turtle:' %></strong>
                 <%= entry.turtle_name || (entry.turtle_id ? '#' + entry.turtle_id : '—') %>
               </span>
             </div>
@@ -38,7 +38,7 @@
         <% }) %>
       </div>
       <div class="success-actions">
-        <a class="button" href="/success">Record a Landed Turtle</a>
+        <a class="button" href="/success"><%= t.report_record || 'Record a Landed Turtle' %></a>
       </div>
     </section>
   <% } %>
